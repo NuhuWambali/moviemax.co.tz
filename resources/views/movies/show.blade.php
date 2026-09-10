@@ -12,10 +12,10 @@
             --bg-deep: #0a0d12;
             --bg-surface: #0f141b;
             --bg-card: #161c26;
-            --accent-red: #3b82f6;
-            --accent-red-dark: #2563eb;
-            --accent-purple: #38bdf8;
-            --accent-cyan: #38bdf8;
+            --accent-red: #e50914;
+            --accent-red-dark: #b30610;
+            --accent-purple: #ffd700;
+            --accent-cyan: #ffd700;
             --text-primary: #f2f4f8;
             --text-secondary: #c3c9d1;
             --text-muted: #8a93a0;
@@ -48,20 +48,20 @@
             100% { background-position: 0% 50%; }
         }
         @keyframes glowPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.25), 0 0 40px rgba(59, 130, 246, 0.1); }
-            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.4), 0 0 60px rgba(59, 130, 246, 0.2); }
+            0%, 100% { box-shadow: 0 0 20px rgba(229, 9, 20, 0.25), 0 0 40px rgba(229, 9, 20, 0.1); }
+            50% { box-shadow: 0 0 30px rgba(229, 9, 20, 0.4), 0 0 60px rgba(229, 9, 20, 0.2); }
         }
         @keyframes posterGlow {
-            0%, 100% { box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 40px rgba(59, 130, 246, 0.1), 0 0 80px rgba(59, 130, 246, 0.05); }
-            50% { box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 60px rgba(59, 130, 246, 0.2), 0 0 100px rgba(59, 130, 246, 0.1); }
+            0%, 100% { box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 40px rgba(229, 9, 20, 0.1), 0 0 80px rgba(229, 9, 20, 0.05); }
+            50% { box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 60px rgba(229, 9, 20, 0.2), 0 0 100px rgba(229, 9, 20, 0.1); }
         }
         @keyframes shimmer {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
         }
         @keyframes borderGlow {
-            0%, 100% { border-color: rgba(59, 130, 246, 0.2); }
-            50% { border-color: rgba(59, 130, 246, 0.4); }
+            0%, 100% { border-color: rgba(229, 9, 20, 0.2); }
+            50% { border-color: rgba(229, 9, 20, 0.4); }
         }
 
         .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -159,7 +159,7 @@
             transition: all 0.2s ease;
         }
 .dropdown-content a:hover {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(229, 9, 20, 0.1);
             color: var(--text-primary);
         }
         .dropdown-content a::after { display: none !important; }
@@ -183,7 +183,7 @@
         }
         .btn-signup:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
         }
         .btn-signup::after { display: none !important; }
 
@@ -231,7 +231,7 @@
                 gap: 2.5rem;
                 transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 z-index: 1000;
-                border-left: 1px solid rgba(59, 130, 246, 0.2);
+                border-left: 1px solid rgba(229, 9, 20, 0.2);
             }
             .nav-links.active { right: 0; }
             .nav-links a { font-size: 1.1rem; }
@@ -252,7 +252,7 @@
             background:
                 linear-gradient(180deg, rgba(9, 11, 15, 0.7) 0%, rgba(9, 11, 15, 0.2) 30%, rgba(9, 11, 15, 0.3) 70%, var(--bg-deep) 100%),
                 linear-gradient(90deg, rgba(9, 11, 15, 0.9) 0%, rgba(9, 11, 15, 0.4) 50%, rgba(9, 11, 15, 0.2) 100%),
-                radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.06) 0%, transparent 60%);
+                radial-gradient(ellipse at 20% 50%, rgba(229, 9, 20, 0.06) 0%, transparent 60%);
         }
 
         /* ============ MOVIE CONTENT ============ */
@@ -348,11 +348,11 @@
         .btn-watch {
             background: var(--accent-red);
             color: white;
-            box-shadow: 0 4px 25px rgba(59, 130, 246, 0.35);
+            box-shadow: 0 4px 25px rgba(229, 9, 20, 0.35);
         }
         .btn-watch:hover {
             transform: translateY(-4px) scale(1.03);
-            box-shadow: 0 8px 35px rgba(59, 130, 246, 0.5);
+            box-shadow: 0 8px 35px rgba(229, 9, 20, 0.5);
         }
         .btn-watch::before {
             content: '';
@@ -369,8 +369,8 @@
             color: var(--text-primary);
         }
         .btn-download:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-color: rgba(59, 130, 246, 0.3) !important;
+            background: rgba(229, 9, 20, 0.1);
+            border-color: rgba(229, 9, 20, 0.3) !important;
             transform: translateY(-4px);
         }
 
@@ -380,7 +380,7 @@
             color: var(--text-primary);
         }
         .btn-trailer:hover {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(229, 9, 20, 0.1);
             color: var(--accent-red);
             transform: translateY(-4px);
         }
@@ -407,16 +407,16 @@
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .interaction-btn i { transition: transform 0.3s ease; }
-        .interaction-btn:hover { border-color: rgba(59, 130, 246, 0.4); transform: translateY(-2px); }
+        .interaction-btn:hover { border-color: rgba(229, 9, 20, 0.4); transform: translateY(-2px); }
         .interaction-btn.active {
             background: var(--accent-red);
             color: white;
             border-color: transparent;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
         }
         .interaction-btn.active i { transform: scale(1.15); }
-        .interaction-btn.up.active { background: #fbbf24; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
-        .interaction-btn.down.active { background: #fbbf24; box-shadow: 0 4px 15px rgba(59, 130, 246,0.3); }
+        .interaction-btn.up.active { background: #fbbf24; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); }
+        .interaction-btn.down.active { background: #fbbf24; box-shadow: 0 4px 15px rgba(229, 9, 20,0.3); }
         .interaction-btn .count { font-weight: 700; }
         .views-pill {
             display: inline-flex;
@@ -472,7 +472,7 @@
             resize: vertical;
             transition: border-color 0.3s, box-shadow 0.3s;
         }
-        .comment-form textarea:focus { outline: none; border-color: var(--accent-red); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        .comment-form textarea:focus { outline: none; border-color: var(--accent-red); box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15); }
         .comment-form .comment-name {
             width: 100%;
             max-width: 300px;
@@ -486,7 +486,7 @@
             background: var(--bg-surface);
             transition: border-color 0.3s, box-shadow 0.3s;
         }
-        .comment-form .comment-name:focus { outline: none; border-color: var(--accent-red); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+        .comment-form .comment-name:focus { outline: none; border-color: var(--accent-red); box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15); }
         .comment-form .form-actions { display: flex; gap: 0.8rem; margin-top: 0.8rem; align-items: center; }
         .comment-form .form-actions small { color: var(--text-muted); }
         .comment-submit {
@@ -500,7 +500,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        .comment-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3); }
+        .comment-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(229, 9, 20, 0.3); }
         .comment-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
         .comment {
             padding: 1rem 0;
@@ -593,7 +593,7 @@
             border-radius: 16px;
             overflow: hidden;
             background: #000;
-            box-shadow: 0 0 60px rgba(59, 130, 246, 0.18), 0 30px 80px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 60px rgba(229, 9, 20, 0.18), 0 30px 80px rgba(0, 0, 0, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.1);
             animation: fadeUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
@@ -687,7 +687,7 @@
             inset: 0;
             border-radius: 16px;
             padding: 1px;
-            background: rgba(59, 130, 246, 0.25);
+            background: rgba(229, 9, 20, 0.25);
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
@@ -697,11 +697,11 @@
             z-index: 2;
         }
         .related-card:hover::before {
-            background: rgba(59, 130, 246, 0.5);
+            background: rgba(229, 9, 20, 0.5);
         }
         .related-card:hover {
             transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px -15px rgba(59, 130, 246, 0.2), 0 0 60px -20px rgba(59, 130, 246, 0.15);
+            box-shadow: 0 20px 40px -15px rgba(229, 9, 20, 0.2), 0 0 60px -20px rgba(229, 9, 20, 0.15);
         }
         .related-card .card-img-wrap {
             position: relative;
@@ -747,7 +747,7 @@
             justify-content: center;
             font-size: 1.1rem;
             color: white;
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4);
             transform: scale(0.8);
             transition: transform 0.3s ease;
         }
@@ -1100,7 +1100,7 @@
                 background: '#161c26',
                 color: '#ffffff',
                 showCancelButton: true,
-                confirmButtonColor: '#3b82f6',
+                confirmButtonColor: '#e50914',
                 cancelButtonColor: '#6b7280',
                 confirmButtonText: '<i class="fas fa-play"></i> Watch Now',
                 cancelButtonText: 'Cancel',
@@ -1135,15 +1135,15 @@
                 background: '#161c26',
                 color: '#ffffff',
                 showCancelButton: true,
-                confirmButtonColor: '#3b82f6',
+                confirmButtonColor: '#e50914',
                 cancelButtonColor: '#6b7280',
                 confirmButtonText: '<i class="fas fa-download"></i> Download Now',
                 cancelButtonText: 'Cancel',
                 html: `
                     <div style="text-align: left; margin: 1rem 0;">
-                        <p><i class="fas fa-check-circle" style="color: #3b82f6;"></i> High quality video</p>
-                        <p><i class="fas fa-check-circle" style="color: #3b82f6;"></i> Lifetime access</p>
-                        <p><i class="fas fa-check-circle" style="color: #3b82f6;"></i> Download on any device</p>
+                        <p><i class="fas fa-check-circle" style="color: #e50914;"></i> High quality video</p>
+                        <p><i class="fas fa-check-circle" style="color: #e50914;"></i> Lifetime access</p>
+                        <p><i class="fas fa-check-circle" style="color: #e50914;"></i> Download on any device</p>
                     </div>
                 `
             }).then((result) => {
@@ -1155,7 +1155,7 @@
                             icon: 'warning',
                             background: '#161c26',
                             color: '#fff',
-                            confirmButtonColor: '#3b82f6',
+                            confirmButtonColor: '#e50914',
                             confirmButtonText: 'Login Now'
                         }).then(() => {
                             window.location.href = '/login?redirect={{ route('movies.show', $movie->slug) }}';
@@ -1254,7 +1254,7 @@
                 icon: 'info',
                 background: '#161c26',
                 color: '#ffffff',
-                confirmButtonColor: '#3b82f6'
+                confirmButtonColor: '#e50914'
             });
         }
 
@@ -1302,7 +1302,7 @@
                     icon: 'warning',
                     background: '#161c26',
                     color: '#fff',
-                    confirmButtonColor: '#3b82f6',
+                    confirmButtonColor: '#e50914',
                     confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Login Now',
                     showCancelButton: true,
                     cancelButtonText: 'Cancel',
@@ -1382,7 +1382,7 @@
                 const data = await res.json();
                 if (handleLoginRequired(data)) return;
                 if (data.ok) window.location.reload();
-                else if (data.error) Swal.fire({ title: 'Oops', text: data.error, icon: 'error', background: '#161c26', color: '#fff', confirmButtonColor: '#3b82f6' });
+                else if (data.error) Swal.fire({ title: 'Oops', text: data.error, icon: 'error', background: '#161c26', color: '#fff', confirmButtonColor: '#e50914' });
             } catch (err) {}
         }
 

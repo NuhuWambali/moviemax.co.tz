@@ -10,9 +10,9 @@
             --bg-deep: #0a0d12;
             --bg-surface: #0f141b;
             --bg-card: #161c26;
-            --accent-red: #3b82f6;
-            --accent-red-dark: #2563eb;
-            --accent-purple: #38bdf8;
+            --accent-red: #e50914;
+            --accent-red-dark: #b30610;
+            --accent-purple: #ffd700;
             --text-primary: #f2f4f8;
             --text-secondary: #c3c9d1;
             --text-muted: #8a93a0;
@@ -36,8 +36,8 @@
             position: absolute;
             top: -50%; left: -50%;
             width: 200%; height: 200%;
-            background: radial-gradient(ellipse at 30% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
-                        radial-gradient(ellipse at 70% 80%, rgba(59, 130, 246, 0.06) 0%, transparent 50%);
+            background: radial-gradient(ellipse at 30% 20%, rgba(229, 9, 20, 0.06) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(229, 9, 20, 0.06) 0%, transparent 50%);
             animation: bgFloat 15s ease-in-out infinite alternate;
         }
         @keyframes bgFloat {
@@ -51,8 +51,8 @@
             -webkit-backdrop-filter: blur(30px) saturate(180%);
             border-radius: 24px;
             padding: 2.5rem;
-            border: 1px solid rgba(59, 130, 246, 0.18);
-            box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5), 0 0 80px -30px rgba(59, 130, 246, 0.08);
+            border: 1px solid rgba(229, 9, 20, 0.18);
+            box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5), 0 0 80px -30px rgba(229, 9, 20, 0.08);
             animation: fadeInUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes fadeInUp {
@@ -93,7 +93,7 @@
         }
         .input-group:focus-within {
             border-color: var(--accent-red);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.12);
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.12);
             background: rgba(255,255,255,0.05);
         }
         .input-group i {
@@ -114,13 +114,13 @@
             padding: 1rem; border-radius: 14px;
             font-size: 1rem; font-weight: 700;
             cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 4px 20px rgba(229, 9, 20, 0.3);
             margin-top: 0.5rem;
             position: relative; overflow: hidden;
         }
         .btn-register:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.45);
+            box-shadow: 0 8px 30px rgba(229, 9, 20, 0.45);
         }
         .btn-register::before {
             content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;

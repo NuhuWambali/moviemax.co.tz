@@ -11,10 +11,10 @@
             --bg-deep: #0a0d12;
             --bg-surface: #0f141b;
             --bg-card: #161c26;
-            --accent-red: #3b82f6;
-            --accent-red-dark: #2563eb;
-            --accent-purple: #38bdf8;
-            --accent-cyan: #38bdf8;
+            --accent-red: #e50914;
+            --accent-red-dark: #b30610;
+            --accent-purple: #ffd700;
+            --accent-cyan: #ffd700;
             --text-primary: #f2f4f8;
             --text-secondary: #c3c9d1;
             --text-muted: #8a93a0;
@@ -99,10 +99,10 @@
             font-weight: 600;
             transition: all 0.3s ease;
         }
-        .interaction-btn:hover { border-color: rgba(59, 130, 246, 0.5); color: var(--text-primary); }
+        .interaction-btn:hover { border-color: rgba(229, 9, 20, 0.5); color: var(--text-primary); }
         .interaction-btn .count { font-weight: 700; }
-        .interaction-btn.up.active { background: rgba(59, 130, 246, 0.18); border-color: var(--accent-red); color: #ffd700; }
-        .interaction-btn.down.active { background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.5); color: #fbbf24; }
+        .interaction-btn.up.active { background: rgba(229, 9, 20, 0.18); border-color: var(--accent-red); color: #ffd700; }
+        .interaction-btn.down.active { background: rgba(229, 9, 20, 0.12); border-color: rgba(229, 9, 20, 0.5); color: #fbbf24; }
         .fav-heart {
             display: inline-flex;
             align-items: center;
@@ -118,8 +118,8 @@
             font-weight: 600;
             transition: all 0.3s ease;
         }
-        .fav-heart:hover { color: #fbbf24; border-color: rgba(59, 130, 246, 0.5); }
-        .fav-heart.active { background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.55); color: #fbbf24; }
+        .fav-heart:hover { color: #fbbf24; border-color: rgba(229, 9, 20, 0.5); }
+        .fav-heart.active { background: rgba(229, 9, 20, 0.12); border-color: rgba(229, 9, 20, 0.55); color: #fbbf24; }
 
         /* Comments */
         .comments-section { margin-top: 1.5rem; }
@@ -143,7 +143,7 @@
             resize: vertical;
             min-height: 70px;
         }
-        .comment-form textarea:focus { outline: none; border-color: rgba(59, 130, 246, 0.6); }
+        .comment-form textarea:focus { outline: none; border-color: rgba(229, 9, 20, 0.6); }
         .form-actions { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; margin-top: 0.7rem; }
         .form-actions small { color: var(--text-muted); font-size: 0.72rem; }
         .comment-submit {
@@ -216,11 +216,11 @@
             padding: 0.6rem 0.8rem;
             resize: vertical;
         }
-        .reply-form textarea:focus { outline: none; border-color: rgba(59, 130, 246, 0.6); }
+        .reply-form textarea:focus { outline: none; border-color: rgba(229, 9, 20, 0.6); }
         .comment-replies {
             margin-top: 0.8rem;
             margin-left: 1.3rem;
-            border-left: 2px solid rgba(59, 130, 246, 0.25);
+            border-left: 2px solid rgba(229, 9, 20, 0.25);
             padding-left: 0.9rem;
         }
         .no-comments { color: var(--text-muted); text-align: center; padding: 2.5rem 1rem; font-size: 0.9rem; }
@@ -241,7 +241,7 @@
             color: inherit;
             transition: all 0.3s ease;
         }
-        .more-card:hover { transform: translateY(-4px); border-color: rgba(59, 130, 246, 0.5); }
+        .more-card:hover { transform: translateY(-4px); border-color: rgba(229, 9, 20, 0.5); }
         .more-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
         .more-card h4 { font-size: 0.82rem; padding: 0.7rem 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -371,7 +371,7 @@
                 icon: 'warning',
                 background: '#161c26',
                 color: '#fff',
-                confirmButtonColor: '#3b82f6',
+                confirmButtonColor: '#e50914',
                 confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Login Now',
                 showCancelButton: true,
                 cancelButtonText: 'Cancel',
@@ -437,7 +437,7 @@
         const data = await res.json();
         if (handleLoginRequired(data)) return;
         if (data.ok) window.location.reload();
-        else if (data.error) Swal.fire({ title: 'Oops', text: data.error, icon: 'error', background: '#161c26', color: '#fff', confirmButtonColor: '#3b82f6' });
+        else if (data.error) Swal.fire({ title: 'Oops', text: data.error, icon: 'error', background: '#161c26', color: '#fff', confirmButtonColor: '#e50914' });
     }
 </script>
 </body>

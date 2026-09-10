@@ -63,7 +63,7 @@
 
 <style>
     :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-        outline: 2px solid #3b82f6;
+        outline: 2px solid #e50914;
         outline-offset: 2px;
         border-radius: 4px;
     }

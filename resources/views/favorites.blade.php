@@ -11,10 +11,10 @@
             --bg-deep: #0a0d12;
             --bg-surface: #0f141b;
             --bg-card: #161c26;
-            --accent-red: #3b82f6;
-            --accent-red-dark: #2563eb;
-            --accent-purple: #38bdf8;
-            --accent-cyan: #38bdf8;
+            --accent-red: #e50914;
+            --accent-red-dark: #b30610;
+            --accent-purple: #ffd700;
+            --accent-cyan: #ffd700;
             --text-primary: #f2f4f8;
             --text-secondary: #c3c9d1;
             --text-muted: #8a93a0;
@@ -142,8 +142,8 @@
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(ellipse at 30% 40%, rgba(59, 130, 246, 0.12) 0%, transparent 60%),
-                radial-gradient(ellipse at 70% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 55%);
+                radial-gradient(ellipse at 30% 40%, rgba(229, 9, 20, 0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 20%, rgba(229, 9, 20, 0.08) 0%, transparent 55%);
         }
         .page-header h1 {
             font-family: 'Bebas Neue', sans-serif;
@@ -197,8 +197,8 @@
         }
         .fav-card:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px -15px rgba(59, 130, 246, 0.35);
-            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 20px 40px -15px rgba(229, 9, 20, 0.35);
+            border-color: rgba(229, 9, 20, 0.4);
         }
         .fav-thumb {
             position: relative;
@@ -232,7 +232,7 @@
             transition: all 0.3s ease;
         }
         .fav-heart:hover {
-            background: rgba(59, 130, 246, 0.2);
+            background: rgba(229, 9, 20, 0.2);
             transform: scale(1.1);
         }
         .fav-info { padding: 0.9rem 1rem 1rem; }

@@ -12,9 +12,9 @@
             --bg-deep: #0a0d12;
             --bg-surface: #0f141b;
             --bg-card: #161c26;
-            --accent-red: #3b82f6;
-            --accent-purple: #38bdf8;
-            --accent-cyan: #38bdf8;
+            --accent-red: #e50914;
+            --accent-purple: #ffd700;
+            --accent-cyan: #ffd700;
             --text-primary: #f2f4f8;
             --text-secondary: #c3c9d1;
             --text-muted: #8a93a0;
@@ -129,8 +129,8 @@
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(ellipse at 30% 50%, rgba(59, 130, 246, 0.12) 0%, transparent 60%),
-                        radial-gradient(ellipse at 70% 30%, rgba(59, 130, 246, 0.1) 0%, transparent 60%);
+            background: radial-gradient(ellipse at 30% 50%, rgba(229, 9, 20, 0.12) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 30%, rgba(229, 9, 20, 0.1) 0%, transparent 60%);
         }
 
         .page-header h1 {
@@ -205,7 +205,7 @@
         }
 
         .stat-item:hover {
-            border-color: rgba(59, 130, 246, 0.3);
+            border-color: rgba(229, 9, 20, 0.3);
             transform: translateY(-3px);
         }
 
@@ -240,7 +240,7 @@
             content: '';
             position: absolute;
             top: -15px; left: -15px; right: -15px; bottom: -15px;
-            background: rgba(59, 130, 246, 0.15);
+            background: rgba(229, 9, 20, 0.15);
             border-radius: 30px;
             z-index: -1;
         }
@@ -295,7 +295,7 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.4));
+            filter: drop-shadow(0 0 12px rgba(229, 9, 20, 0.4));
         }
 
         .mission-card h3, .vision-card h3 {
@@ -361,7 +361,7 @@
         }
 
         .contact-item:hover {
-            background: rgba(59, 130, 246, 0.06);
+            background: rgba(229, 9, 20, 0.06);
             border-color: var(--glass-border);
             transform: translateX(8px);
         }
@@ -370,7 +370,7 @@
             width: 50px;
             height: 50px;
             min-width: 50px;
-            background: rgba(59, 130, 246, 0.12);
+            background: rgba(229, 9, 20, 0.12);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -401,7 +401,7 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            background: #3b82f6;
+            background: #e50914;
             color: white;
             padding: 1rem 2rem;
             border-radius: 50px;
@@ -409,12 +409,12 @@
             font-weight: 600;
             margin-top: 1rem;
             transition: 0.3s;
-            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+            box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.4);
         }
 
         .whatsapp-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 0 30px rgba(229, 9, 20, 0.4);
         }
 
         /* Contact Form */
@@ -457,7 +457,7 @@
         .form-group input:focus, .form-group textarea:focus {
             outline: none;
             border-color: var(--accent-red);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15);
             background: rgba(255,255,255,0.06);
         }
 
@@ -477,7 +477,7 @@
 
         .submit-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 10px 30px rgba(229, 9, 20, 0.3);
         }
 
         /* Map Section */
