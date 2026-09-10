@@ -13,8 +13,8 @@
             --bg-deep: #0a0d12;
             --bg-surface: #0f141b;
             --bg-card: #161c26;
-            --accent-red: #e50914;
-            --accent-red-dark: #b30610;
+            --accent-red: #3b82f6;
+            --accent-red-dark: #2563eb;
             --accent-purple: #38bdf8;
             --accent-cyan: #38bdf8;
             --text-primary: #f2f4f8;
@@ -127,7 +127,7 @@
         }
 
         .dropdown-content a:hover {
-            background: rgba(229, 9, 20, 0.12);
+            background: rgba(59, 130, 246, 0.12);
             color: var(--accent-red);
         }
 
@@ -190,8 +190,8 @@
             aspect-ratio: 2/3;
             box-shadow:
                 0 20px 50px rgba(0,0,0,0.25),
-                0 0 0 1px rgba(229, 9, 20, 0.2),
-                0 0 40px rgba(229, 9, 20, 0.1);
+                0 0 0 1px rgba(59, 130, 246, 0.2),
+                0 0 40px rgba(59, 130, 246, 0.1);
             transition: transform 0.4s, box-shadow 0.4s;
         }
 
@@ -199,8 +199,8 @@
             transform: translateY(-6px) scale(1.02);
             box-shadow:
                 0 30px 60px rgba(0,0,0,0.3),
-                0 0 0 1px rgba(229, 9, 20, 0.4),
-                0 0 60px rgba(229, 9, 20, 0.15);
+                0 0 0 1px rgba(59, 130, 246, 0.4),
+                0 0 60px rgba(59, 130, 246, 0.15);
         }
 
         /* ============ SERIES INFO ============ */
@@ -298,7 +298,7 @@
 
         .season-select:focus {
             border-color: var(--accent-red);
-            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
         .episode {
@@ -317,7 +317,7 @@
         }
 
         .episode:hover {
-            background: rgba(229, 9, 20, 0.06);
+            background: rgba(59, 130, 246, 0.06);
             transform: translateX(4px);
         }
 
@@ -375,12 +375,12 @@
         .btn-watch {
             background: var(--accent-red);
             color: white;
-            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
 
         .btn-watch:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.45);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
         }
 
         .btn-download {
@@ -390,9 +390,9 @@
         }
 
         .btn-download:hover {
-            background: rgba(229, 9, 20, 0.1);
+            background: rgba(59, 130, 246, 0.1);
             color: var(--accent-red);
-            border-color: rgba(229, 9, 20, 0.3);
+            border-color: rgba(59, 130, 246, 0.3);
             transform: translateY(-1px);
         }
 
@@ -412,7 +412,7 @@
         }
 
         .sidebar-card:hover {
-            border-color: rgba(229, 9, 20, 0.2);
+            border-color: rgba(59, 130, 246, 0.2);
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
         }
 
@@ -449,7 +449,7 @@
         }
 
         .related-item:hover {
-            background: rgba(229, 9, 20, 0.08);
+            background: rgba(59, 130, 246, 0.08);
             transform: translateX(3px);
         }
 
@@ -493,7 +493,7 @@
         }
 
         .top-item:hover {
-            background: rgba(229, 9, 20, 0.06);
+            background: rgba(59, 130, 246, 0.06);
         }
 
         .top-rank {
@@ -551,7 +551,7 @@
         .genre-item:hover {
             transform: translateY(-6px);
             box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-            border-color: rgba(229, 9, 20, 0.25);
+            border-color: rgba(59, 130, 246, 0.25);
         }
 
         .genre-img {
@@ -614,15 +614,15 @@
             color: var(--text-primary);
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .interaction-btn:hover { border-color: rgba(229, 9, 20, 0.4); transform: translateY(-2px); }
+        .interaction-btn:hover { border-color: rgba(59, 130, 246, 0.4); transform: translateY(-2px); }
         .interaction-btn.active {
             background: var(--accent-red);
             color: white;
             border-color: transparent;
-            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
-        .interaction-btn.up.active { background: #ff8014; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); }
-        .interaction-btn.down.active { background: #ff8014; box-shadow: 0 4px 15px rgba(220,38,38,0.3); }
+        .interaction-btn.up.active { background: #fbbf24; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+        .interaction-btn.down.active { background: #fbbf24; box-shadow: 0 4px 15px rgba(59, 130, 246,0.3); }
         .interaction-btn .count { font-weight: 700; }
         .views-pill {
             display: inline-flex;
@@ -677,7 +677,7 @@
             resize: vertical;
             transition: border-color 0.3s, box-shadow 0.3s;
         }
-        .comment-form textarea:focus { outline: none; border-color: var(--accent-red); box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15); }
+        .comment-form textarea:focus { outline: none; border-color: var(--accent-red); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
         .comment-form .comment-name {
             width: 100%;
             max-width: 300px;
@@ -691,7 +691,7 @@
             background: var(--bg-surface);
             transition: border-color 0.3s, box-shadow 0.3s;
         }
-        .comment-form .comment-name:focus { outline: none; border-color: var(--accent-red); box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15); }
+        .comment-form .comment-name:focus { outline: none; border-color: var(--accent-red); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
         .comment-form .form-actions { display: flex; gap: 0.8rem; margin-top: 0.8rem; align-items: center; }
         .comment-form .form-actions small { color: var(--text-muted); }
         .comment-submit {
@@ -706,7 +706,7 @@
             transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
         }
-        .comment-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(229, 9, 20, 0.3); }
+        .comment-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3); }
         .comment { padding: 1rem 0; border-bottom: 1px solid var(--glass-border); }
         .comment:last-child { border-bottom: none; }
         .comment-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; }
@@ -714,7 +714,7 @@
             width: 34px;
             height: 34px;
             border-radius: 50%;
-            background: #ff8014;
+            background: #fbbf24;
             color: white;
             display: flex;
             align-items: center;
@@ -741,7 +741,7 @@
             font-family: 'Inter', sans-serif;
         }
         .comment-reply-btn:hover { color: var(--accent-red); }
-        .comment-delete-btn:hover { color: #ff8014; }
+        .comment-delete-btn:hover { color: #fbbf24; }
         .comment-replies { margin-left: 2.2rem; padding-left: 1.2rem; border-left: 2px solid var(--glass-border); margin-top: 0.6rem; }
         .reply-form { margin-top: 0.6rem; }
         .reply-form input, .reply-form textarea {
@@ -846,7 +846,7 @@
                 gap: 2rem;
                 transition: 0.35s ease;
                 z-index: 1000;
-                border-left: 1px solid rgba(229, 9, 20, 0.2);
+                border-left: 1px solid rgba(59, 130, 246, 0.2);
             }
 
             .nav-links.active {
@@ -1189,12 +1189,12 @@
                 background: '#161c26',
                 color: '#ffffff',
                 showCancelButton: true,
-                confirmButtonColor: '#e50914',
+                confirmButtonColor: '#3b82f6',
                 confirmButtonText: 'Watch Now',
                 cancelButtonText: 'Cancel',
                 html: `
                     <div style="margin-top: 1rem;">
-                        <button onclick="streamNow(${id})" style="width:100%; padding:0.6rem; background:#e50914; border:none; border-radius:8px; color:#fff; cursor:pointer; font-weight:600;">&#9654; Play Episode</button>
+                        <button onclick="streamNow(${id})" style="width:100%; padding:0.6rem; background:#3b82f6; border:none; border-radius:8px; color:#fff; cursor:pointer; font-weight:600;">&#9654; Play Episode</button>
                     </div>
                 `,
                 showConfirmButton: false
@@ -1275,7 +1275,7 @@
                         background: '#161c26',
                         color: '#ffffff',
                         showCancelButton: true,
-                        confirmButtonColor: '#e50914',
+                        confirmButtonColor: '#3b82f6',
                         confirmButtonText: '<i class="fas fa-play"></i> Play',
                         cancelButtonText: 'Close'
                     }).then(res => {
@@ -1293,7 +1293,7 @@
                 background: '#161c26',
                 color: '#ffffff',
                 showCancelButton: true,
-                confirmButtonColor: '#e50914',
+                confirmButtonColor: '#3b82f6',
                 confirmButtonText: 'Download',
                 cancelButtonText: 'Cancel'
             }).then(res => {
@@ -1353,7 +1353,7 @@
                     icon: 'warning',
                     background: '#161c26',
                     color: '#fff',
-                    confirmButtonColor: '#e50914',
+                    confirmButtonColor: '#3b82f6',
                     confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Login Now',
                     showCancelButton: true,
                     cancelButtonText: 'Cancel',
@@ -1433,7 +1433,7 @@
                 const data = await res.json();
                 if (handleLoginRequired(data)) return;
                 if (data.ok) window.location.reload();
-                else if (data.error) Swal.fire({ title: 'Oops', text: data.error, icon: 'error', background: '#161c26', color: '#fff', confirmButtonColor: '#e50914' });
+                else if (data.error) Swal.fire({ title: 'Oops', text: data.error, icon: 'error', background: '#161c26', color: '#fff', confirmButtonColor: '#3b82f6' });
             } catch (err) {}
         }
     </script>

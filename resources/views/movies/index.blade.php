@@ -12,8 +12,8 @@
             --bg-deep: #0a0d12;
             --bg-surface: #0f141b;
             --bg-card: #161c26;
-            --accent-red: #e50914;
-            --accent-red-dark: #b30610;
+            --accent-red: #3b82f6;
+            --accent-red-dark: #2563eb;
             --accent-purple: #38bdf8;
             --accent-cyan: #38bdf8;
             --text-primary: #f2f4f8;
@@ -76,7 +76,7 @@
                 background: rgba(10, 13, 18, 0.98); backdrop-filter: blur(30px);
                 flex-direction: column; justify-content: center; align-items: center;
                 gap: 2.5rem; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                z-index: 1000; border-left: 1px solid rgba(229, 9, 20, 0.2);
+                z-index: 1000; border-left: 1px solid rgba(59, 130, 246, 0.2);
             }
             .nav-links.active { right: 0; }
         }
@@ -113,7 +113,7 @@
             cursor: pointer; transition: all 0.3s ease;
         }
         .filter-select:hover, .filter-input:hover { border-color: var(--accent-red); }
-        .filter-select:focus { outline: none; border-color: var(--accent-red); box-shadow: 0 0 10px rgba(229, 9, 20, 0.15); }
+        .filter-select:focus { outline: none; border-color: var(--accent-red); box-shadow: 0 0 10px rgba(59, 130, 246, 0.15); }
         .search-input { width: 250px; padding-left: 2.5rem; }
         .search-wrapper { position: relative; }
         .search-wrapper i {
@@ -132,10 +132,10 @@
             border-top: 1px solid var(--glass-border);
         }
         .filter-tag {
-            background: rgba(229, 9, 20, 0.12);
+            background: rgba(59, 130, 246, 0.12);
             padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.72rem;
             display: inline-flex; align-items: center; gap: 0.5rem;
-            border: 1px solid rgba(229, 9, 20, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.2);
             color: var(--text-primary);
         }
         .filter-tag i { cursor: pointer; transition: 0.2s; }
@@ -166,7 +166,7 @@
         }
         .movie-card:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px -15px rgba(229, 9, 20, 0.2);
+            box-shadow: 0 20px 40px -15px rgba(59, 130, 246, 0.2);
         }
         .card-img-wrap { position: relative; overflow: hidden; aspect-ratio: 2/3; }
         .movie-poster { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
@@ -184,7 +184,7 @@
             width: 50px; height: 50px;
             background: var(--accent-red);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; color: white; box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4);
+            font-size: 1.1rem; color: white; box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
             transform: scale(0.8); transition: transform 0.3s ease;
         }
         .movie-card:hover .card-overlay i { transform: scale(1); }
@@ -229,7 +229,7 @@
         }
         .page-link.active {
             background: var(--accent-red);
-            border-color: transparent; color: white; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
+            border-color: transparent; color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
         .page-dots { color: var(--text-muted); padding: 0 0.25rem; }
 
@@ -268,7 +268,7 @@
             background: #161c26;
             backdrop-filter: blur(30px); border-radius: 24px; overflow: hidden;
             border: 1px solid var(--glass-border);
-            box-shadow: 0 30px 60px -20px rgba(0,0,0,0.3), 0 0 80px -20px rgba(229, 9, 20, 0.2);
+            box-shadow: 0 30px 60px -20px rgba(0,0,0,0.3), 0 0 80px -20px rgba(59, 130, 246, 0.2);
             animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .modal-header { display: flex; padding: 24px; gap: 24px; position: relative; }
@@ -290,10 +290,10 @@
             cursor: pointer; transition: all 0.3s ease; border: none;
             display: inline-flex; align-items: center; gap: 8px;
         }
-        .modal-btn-watch { background: var(--accent-red); color: white; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3); }
-        .modal-btn-watch:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4); }
+        .modal-btn-watch { background: var(--accent-red); color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); }
+        .modal-btn-watch:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4); }
         .modal-btn-download { background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); color: var(--text-primary); }
-        .modal-btn-download:hover { background: rgba(229, 9, 20, 0.1); border-color: rgba(229, 9, 20, 0.3); transform: translateY(-2px); }
+        .modal-btn-download:hover { background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); transform: translateY(-2px); }
         .modal-close {
             position: absolute; top: 16px; right: 20px;
             background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border);
@@ -301,7 +301,7 @@
             transition: all 0.3s ease; width: 38px; height: 38px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
         }
-        .modal-close:hover { background: rgba(229, 9, 20, 0.15); color: var(--accent-red); border-color: rgba(229, 9, 20, 0.3); }
+        .modal-close:hover { background: rgba(59, 130, 246, 0.15); color: var(--accent-red); border-color: rgba(59, 130, 246, 0.3); }
         .video-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 3000; background: #000; }
         .video-container { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         .video-container video { width: 100%; height: 100%; object-fit: contain; }
@@ -530,7 +530,7 @@
                 Swal.fire({
                     title: 'Download ' + currentMovie.title, icon: 'info',
                     background: '#161c26', color: '#ffffff', showCancelButton: true,
-                    confirmButtonColor: '#e50914', confirmButtonText: 'Download', cancelButtonText: 'Cancel'
+                    confirmButtonColor: '#3b82f6', confirmButtonText: 'Download', cancelButtonText: 'Cancel'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         const a = document.createElement('a');
@@ -558,7 +558,7 @@
                     icon: 'warning',
                     background: '#161c26',
                     color: '#fff',
-                    confirmButtonColor: '#e50914',
+                    confirmButtonColor: '#3b82f6',
                     confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Login Now',
                     showCancelButton: true,
                     cancelButtonText: 'Cancel',

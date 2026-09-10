@@ -102,7 +102,7 @@
         color: white;
     }
 
-    .btn-primary:hover { background: #b30610; }
+    .btn-primary:hover { background: #2563eb; }
 
     .btn-secondary {
         background: rgba(255,255,255,0.08);

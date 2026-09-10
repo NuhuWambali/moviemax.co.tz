@@ -11,8 +11,8 @@
             --bg-deep: #0a0d12;
             --bg-surface: #0f141b;
             --bg-card: #161c26;
-            --accent-red: #e50914;
-            --accent-red-dark: #b30610;
+            --accent-red: #3b82f6;
+            --accent-red-dark: #2563eb;
             --accent-purple: #38bdf8;
             --accent-cyan: #38bdf8;
             --text-primary: #f2f4f8;
@@ -39,8 +39,8 @@
             padding: 4rem 5% 3rem;
             text-align: center;
             background:
-                radial-gradient(1000px 400px at 20% -10%, rgba(229, 9, 20, 0.25), transparent 60%),
-                radial-gradient(800px 350px at 80% 10%, rgba(229, 9, 20, 0.12), transparent 60%),
+                radial-gradient(1000px 400px at 20% -10%, rgba(59, 130, 246, 0.25), transparent 60%),
+                radial-gradient(800px 350px at 80% 10%, rgba(59, 130, 246, 0.12), transparent 60%),
                 var(--bg-deep);
             border-bottom: 1px solid var(--glass-border);
         }
@@ -166,7 +166,7 @@
             color: #fff;
             font-size: 0.85rem;
             font-weight: 600;
-            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
         @media (max-width: 600px) {
             .featured-content { padding: 1.2rem; max-width: 100%; }
@@ -190,7 +190,7 @@
             transition: all 0.35s ease;
             position: relative;
         }
-        .trailer-card:hover { transform: translateY(-6px); border-color: rgba(229, 9, 20, 0.5); box-shadow: 0 18px 45px rgba(0,0,0,0.5); }
+        .trailer-card:hover { transform: translateY(-6px); border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 18px 45px rgba(0,0,0,0.5); }
         .thumb-wrap { position: relative; overflow: hidden; }
         .thumb-wrap img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; transition: transform 0.5s ease; }
         .trailer-card:hover .thumb-wrap img { transform: scale(1.08); }
@@ -200,14 +200,14 @@
             transform: translate(-50%, -50%);
             width: 54px; height: 54px;
             border-radius: 50%;
-            background: rgba(229, 9, 20, 0.92);
+            background: rgba(59, 130, 246, 0.92);
             border: 2px solid rgba(255,255,255,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
             font-size: 1.1rem;
-            box-shadow: 0 8px 30px rgba(229, 9, 20, 0.5);
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.5);
             transition: all 0.35s ease;
         }
         .trailer-card:hover .thumb-play { background: var(--accent-cyan); transform: translate(-50%, -50%) scale(1.12); }
@@ -253,7 +253,7 @@
         }
         .pagination .page-item.active .page-link { background: var(--accent-red); color: #fff; border-color: transparent; }
         .pagination .page-item.disabled .page-link { opacity: 0.4; }
-        .pagination .page-link:hover:not(.active) { border-color: rgba(229, 9, 20, 0.5); color: var(--text-primary); }
+        .pagination .page-link:hover:not(.active) { border-color: rgba(59, 130, 246, 0.5); color: var(--text-primary); }
 
         .empty-state {
             text-align: center;
@@ -345,7 +345,7 @@
         color: var(--text-muted);
         font-size: 0.85rem;
     }
-    .footer .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 3px; background: #e50914; -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .footer .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 3px; background: #3b82f6; -webkit-background-clip: text; background-clip: text; color: transparent; }
     .footer-links { display: flex; justify-content: center; gap: 2rem; margin: 1rem 0 0.5rem; flex-wrap: wrap; }
     .footer-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; transition: color 0.3s; }
     .footer-links a:hover { color: var(--accent-cyan); }

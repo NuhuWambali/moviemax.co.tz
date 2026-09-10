@@ -13,8 +13,8 @@
             --bg-deep: #0a0d12;
             --bg-surface: #0f141b;
             --bg-card: #161c26;
-            --accent-red: #e50914;
-            --accent-red-dark: #b30610;
+            --accent-red: #3b82f6;
+            --accent-red-dark: #2563eb;
             --accent-purple: #38bdf8;
             --accent-cyan: #38bdf8;
             --text-primary: #f2f4f8;
@@ -184,7 +184,7 @@
         }
 
         .dropdown-content a:hover {
-            background: rgba(229, 9, 20, 0.1);
+            background: rgba(59, 130, 246, 0.1);
             color: var(--accent-red);
         }
 
@@ -263,7 +263,7 @@
 
         .filter-select:focus, .filter-input:focus {
             border-color: var(--accent-red);
-            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
         .filter-select:hover { border-color: #e5e7eb; }
@@ -312,8 +312,8 @@
         }
 
         .filter-tag {
-            background: rgba(229, 9, 20, 0.12);
-            border: 1px solid rgba(229, 9, 20, 0.25);
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.25);
             padding: 0.3rem 0.8rem;
             border-radius: 20px;
             font-size: 0.7rem;
@@ -358,7 +358,7 @@
 
         .sort-select:focus {
             border-color: var(--accent-red);
-            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
         /* ============ SERIES GRID ============ */
@@ -383,8 +383,8 @@
             transform: translateY(-8px) scale(1.02);
             border-color: transparent;
             box-shadow:
-                0 0 0 1px rgba(229, 9, 20, 0.4),
-                0 0 20px rgba(229, 9, 20, 0.15),
+                0 0 0 1px rgba(59, 130, 246, 0.4),
+                0 0 20px rgba(59, 130, 246, 0.15),
                 0 20px 40px rgba(0,0,0,0.2);
         }
 
@@ -429,7 +429,7 @@
             justify-content: center;
             color: #fff;
             font-size: 1.2rem;
-            box-shadow: 0 0 30px rgba(229, 9, 20, 0.5);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
             transform: scale(0.7);
             opacity: 0;
             transition: transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.35s;
@@ -506,14 +506,14 @@
             background: var(--accent-red);
             color: #fff;
             border-color: transparent;
-            box-shadow: 0 4px 20px rgba(229, 9, 20, 0.3);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
         }
 
         .pagination .active span {
             background: var(--accent-red);
             color: #fff;
             border-color: transparent;
-            box-shadow: 0 4px 20px rgba(229, 9, 20, 0.3);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
         }
 
         .pagination .disabled span {
@@ -669,7 +669,7 @@
 
         .modal-btn-view:hover {
             transform: scale(1.04);
-            box-shadow: 0 6px 24px rgba(229, 9, 20, 0.4);
+            box-shadow: 0 6px 24px rgba(59, 130, 246, 0.4);
         }
 
         .modal-close {
@@ -956,7 +956,7 @@
                     icon: 'warning',
                     background: '#161c26',
                     color: '#fff',
-                    confirmButtonColor: '#e50914',
+                    confirmButtonColor: '#3b82f6',
                     confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Login Now',
                     showCancelButton: true,
                     cancelButtonText: 'Cancel',

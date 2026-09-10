@@ -31,7 +31,7 @@ class AuthController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) {
             return back()->withErrors([
                 'email' => 'The provided credentials do not match our records.',
-            ])->onlyInput('email');
+            ])->onlyInput('email'); 
         }
 
         if (!$user->is_active) {

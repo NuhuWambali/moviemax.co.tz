@@ -115,8 +115,8 @@
     }
     .nav-profile::after { display: none; }
     .nav-profile:hover {
-        border-color: rgba(229, 9, 20, 0.6);
-        background: rgba(229, 9, 20, 0.15);
+        border-color: rgba(59, 130, 246, 0.6);
+        background: rgba(59, 130, 246, 0.15);
         color: #fff;
     }
     .nav-profile i { font-size: 0.9rem; }
@@ -130,7 +130,7 @@
         color: #fff !important;
         font-weight: 700 !important;
         font-size: 0.85rem !important;
-        box-shadow: 0 4px 18px rgba(229, 9, 20, 0.35);
+        box-shadow: 0 4px 18px rgba(59, 130, 246, 0.35);
         transition: all 0.3s ease;
     }
     .btn-login:hover { filter: brightness(1.15); transform: translateY(-1px); }
@@ -180,9 +180,9 @@
         font-family: inherit;
     }
     .nav-search input:focus {
-        border-color: rgba(229, 9, 20, 0.6);
+        border-color: rgba(59, 130, 246, 0.6);
         background: rgba(255, 255, 255, 0.09);
-        box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
     }
     .nav-search input::placeholder { color: rgba(255, 255, 255, 0.4); }
     .search-results {
@@ -212,7 +212,7 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
     .search-item:last-child { border-bottom: none; }
-    .search-item:hover { background: rgba(229, 9, 20, 0.12); }
+    .search-item:hover { background: rgba(59, 130, 246, 0.12); }
     .search-item img {
         width: 44px;
         height: 62px;
@@ -246,7 +246,7 @@
         background: rgba(255, 255, 255, 0.1);
         color: rgba(255, 255, 255, 0.75);
     }
-    .search-type.movie { background: rgba(229, 9, 20, 0.2); color: #ff5c68; }
+    .search-type.movie { background: rgba(59, 130, 246, 0.2); color: #fbbf24; }
     .search-type.series { background: rgba(56, 189, 248, 0.2); color: #7db2ff; }
     .search-type.trailer { background: rgba(56, 189, 248, 0.2); color: #c084fc; }
     .search-empty {
@@ -304,7 +304,7 @@
         background: var(--accent-red);
         color: #fff;
         font-size: 1.35rem;
-        box-shadow: 0 8px 26px rgba(229, 9, 20, 0.45);
+        box-shadow: 0 8px 26px rgba(59, 130, 246, 0.45);
         transition: transform 0.3s ease, background 0.3s ease;
         display: flex;
         align-items: center;
@@ -371,7 +371,7 @@
             gap: 2rem;
             transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 1000;
-            border-left: 1px solid rgba(229, 9, 20, 0.2);
+            border-left: 1px solid rgba(59, 130, 246, 0.2);
         }
         .nav-links.active { right: 0; }
         .nav-links a { font-size: 1.1rem; }

@@ -12,8 +12,8 @@
             --bg-deep: #0a0d12;
             --bg-surface: #0f141b;
             --bg-card: #161c26;
-            --accent-red: #e50914;
-            --accent-red-dark: #b30610;
+            --accent-red: #3b82f6;
+            --accent-red-dark: #2563eb;
             --text-primary: #f2f4f8;
             --text-secondary: #c3c9d1;
             --text-muted: #8a93a0;
@@ -61,7 +61,7 @@
         }
         .movie-card:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px -15px rgba(229, 9, 20, 0.2);
+            box-shadow: 0 20px 40px -15px rgba(59, 130, 246, 0.2);
         }
         .card-img-wrap { position: relative; overflow: hidden; aspect-ratio: 2/3; }
         .movie-poster { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
@@ -79,7 +79,7 @@
             width: 50px; height: 50px;
             background: var(--accent-red);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; color: white; box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4);
+            font-size: 1.1rem; color: white; box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
             transform: scale(0.8); transition: transform 0.3s ease;
         }
         .movie-card:hover .card-overlay i { transform: scale(1); }
@@ -122,7 +122,7 @@
         }
         .page-link.active {
             background: var(--accent-red);
-            border-color: transparent; color: white; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
+            border-color: transparent; color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
         .page-dots { color: var(--text-muted); padding: 0 0.25rem; }
 
@@ -280,7 +280,7 @@
                     title: 'Login Required',
                     text: data.message || 'Please login or create an account to continue.',
                     icon: 'warning', background: '#161c26', color: '#fff',
-                    confirmButtonColor: '#e50914',
+                    confirmButtonColor: '#3b82f6',
                     confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Login Now',
                     showCancelButton: true, cancelButtonText: 'Cancel', cancelButtonColor: '#6b7280'
                 }).then((r) => {

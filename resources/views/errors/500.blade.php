@@ -27,11 +27,11 @@
         .desc { color: #9ca3af; font-size: 0.9rem; margin-bottom: 2rem; max-width: 420px; }
         a.btn {
             display: inline-block; padding: 0.75rem 1.8rem; border-radius: 12px;
-            background: #e50914; color: #fff;
+            background: #3b82f6; color: #fff;
             text-decoration: none; font-weight: 600; font-size: 0.9rem;
-            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.35); transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.35); transition: all 0.3s ease;
         }
-        a.btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(229, 9, 20, 0.45); }
+        a.btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(59, 130, 246, 0.45); }
     </style>
 </head>
 <body>
