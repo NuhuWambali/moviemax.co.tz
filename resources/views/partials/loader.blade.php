@@ -103,19 +103,28 @@
                 document.body.classList.add('loaded');
             }
         }
+        var finished = false;
         function tick(ts) {
             if (!start) start = ts;
             var t = Math.min(1, (ts - start) / 900);
             var eased = 1 - Math.pow(1 - t, 3);
             toPercent(eased * 100);
             if (t >= 1) {
-                setTimeout(done, HIDE_AFTER);
+                if (!finished) {
+                    finished = true;
+                    setTimeout(done, HIDE_AFTER);
+                }
                 return;
             }
             requestAnimationFrame(tick);
         }
         requestAnimationFrame(tick);
-        window.addEventListener('load', done);
-        setTimeout(done, 3500);
+        // Only hide once the percentage animation has fully completed (100%),
+        // regardless of how quickly the page fires the 'load' event.
+        window.addEventListener('load', function () {
+            if (finished) {
+                setTimeout(done, 300);
+            }
+        });
     })();
 </script>
