@@ -349,6 +349,14 @@
     const ITEM_TYPE = 'trailer';
     const ITEM_ID = {{ $trailer->id }};
 
+    // Count a view only after ~5s of actual playback
+    document.addEventListener('DOMContentLoaded', function () {
+        var v = document.querySelector('.player-box video');
+        if (v) mmViewTracker.trackVideo(v, 'trailer', ITEM_ID);
+        var f = document.querySelector('.player-box iframe');
+        if (f) mmViewTracker.trackYouTube(f, 'trailer', ITEM_ID);
+    });
+
     function csrfToken() {
         const m = document.querySelector('meta[name="csrf-token"]');
         return m ? m.content : '';
@@ -440,5 +448,6 @@
         else if (data.error) Swal.fire({ title: 'Oops', text: data.error, icon: 'error', background: '#161c26', color: '#fff', confirmButtonColor: '#e50914' });
     }
 </script>
+@include('partials.view-tracker')
 </body>
 </html>

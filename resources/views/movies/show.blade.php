@@ -1223,6 +1223,7 @@
             };
             video.onended = () => playbackSave(video.duration, video.duration);
             video.play().catch(() => {});
+            mmViewTracker.trackVideo(video, 'movie', {{ $movie->id }});
         }
 
         function closeStreamModal() {
@@ -1408,5 +1409,6 @@
             });
         });
     </script>
+@include('partials.view-tracker')
 </body>
 </html>

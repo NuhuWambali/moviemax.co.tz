@@ -8,6 +8,7 @@ use App\Http\Controllers\InteractionController;
 use App\Http\Controllers\TrailerController;
 use App\Http\Controllers\WatchProgressController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ViewController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\VisitorAnalyticsController;
 use App\Http\Controllers\Admin\MovieController as AdminMovieController;
@@ -38,6 +39,9 @@ Route::get('/api/search', [MovieController::class, 'apiSearch'])->name('api.sear
 
 // Watch progress (Continue Watching) - login required
 Route::post('/watch/progress', [WatchProgressController::class, 'store'])->name('watch.progress');
+
+// View counting (fires from player JS after ~5s of playback) - session guarded
+Route::post('/view-track', [ViewController::class, 'track'])->name('view.track');
 
 
 

@@ -289,12 +289,6 @@ class MovieController extends Controller
             ->limit(5)
             ->get();
 
-        // Count a unique view for this visitor
-        if (!$request->session()->has('viewed_series_' . $series->id)) {
-            $request->session()->put('viewed_series_' . $series->id, true);
-            $series->increment('views');
-        }
-
         // Log watch history for logged-in users (profile activity)
         if ($userId = Auth::id()) {
             WatchHistory::updateOrCreate(
@@ -377,12 +371,6 @@ class MovieController extends Controller
             $series = Series::find($movie->series_id);
         }
         
-        // Count a unique view for this visitor
-        if (!$request->session()->has('viewed_movie_' . $movie->id)) {
-            $request->session()->put('viewed_movie_' . $movie->id, true);
-            $movie->increment('views');
-        }
-
         // Log watch history for logged-in users (profile activity)
         if ($userId = Auth::id()) {
             WatchHistory::updateOrCreate(

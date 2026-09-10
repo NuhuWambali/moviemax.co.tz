@@ -1165,6 +1165,7 @@
         const mmAuth = @json(auth()->check());
         const mmEpisodeIds = {!! $episodes->pluck('id') !!};
         const mmEpisodeTitles = {!! $episodes->map(fn($e) => [$e->id, $e->episode_title ?? $e->title])->values()->toJson() !!};
+        const SERIES_ID = {{ $series->id }};
 
         function playbackSave(progress, duration) {
             const dur = Math.round(duration || 0);
@@ -1232,6 +1233,7 @@
             const videoPlayer = document.getElementById('videoPlayer');
             videoSource.src = '/download/stream/' + id;
             videoPlayer.load();
+            mmViewTracker.trackVideo(videoPlayer, 'series', SERIES_ID);
             videoModal.style.display = 'block';
 
             const row = document.querySelector('.episode[data-episode-id="' + id + '"]');
@@ -1436,5 +1438,6 @@
             } catch (err) {}
         }
     </script>
+@include('partials.view-tracker')
 </body>
 </html>

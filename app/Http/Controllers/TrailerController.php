@@ -37,8 +37,6 @@ class TrailerController extends Controller
             return redirect()->route('trailers.show', $trailer->slug);
         }
 
-        $trailer->increment('views');
-
         if ($userId = Auth::id()) {
             TrailerWatch::updateOrCreate(
                 ['user_id' => $userId, 'trailer_id' => $trailer->id],
