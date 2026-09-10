@@ -82,6 +82,12 @@ class MovieController extends Controller
                                ->orderBy('download_count', 'desc')
                                ->limit(6)
                                ->get();
+
+        // Dedicated trailers table (added later; keeps the home Official Trailers section populated)
+        $homeTrailers = Trailer::where('is_active', true)
+                               ->latest()
+                               ->limit(8)
+                               ->get();
         
         // All genres for filter
         $genres = ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'Horror', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western'];
@@ -110,7 +116,7 @@ class MovieController extends Controller
                 ->filter();
         }
 
-        return view('welcome', compact('trendingMovies', 'topRatedMovies', 'recentMovies', 'trendingSeries', 'recentSeries', 'featuredMovie', 'featuredSeries', 'trailerMovies', 'trailerSeries', 'favMovies', 'favSeries', 'favTrailers', 'genres', 'heroSlides', 'continueWatching'));
+        return view('welcome', compact('trendingMovies', 'topRatedMovies', 'recentMovies', 'trendingSeries', 'recentSeries', 'featuredMovie', 'featuredSeries', 'trailerMovies', 'trailerSeries', 'homeTrailers', 'favMovies', 'favSeries', 'favTrailers', 'genres', 'heroSlides', 'continueWatching'));
     }
 
     public function apiSearch(Request $request)

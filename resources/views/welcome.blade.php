@@ -1003,6 +1003,13 @@
             border: 0;
             display: block;
         }
+        .trailer-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+            display: block;
+        }
         .trailer-close {
             position: absolute;
             top: 20px;
@@ -1263,7 +1270,7 @@
                 </div>
             @endforeach
         </div>
-    @else
+    @elseif($trailerSeries->count() === 0 && $homeTrailers->count() === 0)
         <div style="text-align:center; padding:3rem; color: var(--text-muted);">No trailers available yet.</div>
     @endif
 
@@ -1288,6 +1295,37 @@
                         </div>
                         <a href="{{ route('series.show', $trailerSeriesItem->id) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $trailerSeriesItem->title }} to watch the series">
                             <i class="fas fa-eye"></i> Watch Series
+                        </a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+@if($homeTrailers->count() > 0)
+        <h3 style="color: var(--text-primary); font-family: var(--font-display); font-size: 1.2rem; margin: 2rem 0 1rem;">
+            <i class="fas fa-film" style="color: var(--accent-cyan); margin-right: 0.5rem;"></i> Latest Trailers
+        </h3>
+        <div class="trailer-grid">
+            @foreach($homeTrailers as $homeTrailer)
+                @php
+                    $playSrc = $homeTrailer->source_type === 'file' && $homeTrailer->file_path
+                        ? $homeTrailer->file_path
+                        : $homeTrailer->trailer_url;
+                @endphp
+                <div class="trailer-card" onclick="openTrailerModal('{{ addslashes($playSrc ?? '') }}')">
+                    <div class="trailer-thumb">
+                        <span class="trailer-badge"><i class="fas fa-video"></i> TRAILER</span>
+                        <img src="{{ $homeTrailer->thumb_url }}" alt="{{ $homeTrailer->title }}" loading="lazy">
+                        <div class="trailer-play"><i class="fas fa-play"></i></div>
+                    </div>
+                    <div class="trailer-info">
+                        <h4>{{ $homeTrailer->title }}</h4>
+                        <div class="meta">
+                            <span><i class="fas fa-calendar-alt"></i> {{ $homeTrailer->created_at?->format('M Y') ?? 'N/A' }}</span>
+                            <span><i class="fas fa-eye"></i> {{ number_format($homeTrailer->views) }} views</span>
+                        </div>
+                        <a href="{{ route('trailers.show', $homeTrailer->slug) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $homeTrailer->title }}">
+                            <i class="fas fa-eye"></i> Watch Trailer
                         </a>
                     </div>
                 </div>
@@ -1437,7 +1475,8 @@
     <div class="trailer-wrapper" onclick="closeTrailerModal()">
         <div class="trailer-container">
             <iframe id="trailerFrame" src="" title="Movie Trailer"
-                    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="display:none;"></iframe>
+            <video id="trailerVideo" controls playsinline style="display:none;"></video>
         </div>
     </div>
 </div>
@@ -1626,16 +1665,36 @@
         return m ? m[1] : null;
     }
     function openTrailerModal(url) {
-        const id = extractYouTubeId(url);
-        if (!id) return;
         const frame = document.getElementById('trailerFrame');
-        frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3';
+        const video = document.getElementById('trailerVideo');
+        frame.style.display = 'none';
+        frame.src = '';
+        video.style.display = 'none';
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+        const id = extractYouTubeId(url);
+        if (id) {
+            frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3';
+            frame.style.display = '';
+        } else if (url) {
+            video.src = url;
+            video.style.display = '';
+            video.play().catch(() => {});
+        } else {
+            return;
+        }
         document.getElementById('trailerModal').classList.add('active');
         document.body.style.overflow = 'hidden';
     }
     function closeTrailerModal() {
         const frame = document.getElementById('trailerFrame');
         frame.src = '';
+        frame.style.display = 'none';
+        const video = document.getElementById('trailerVideo');
+        video.pause();
+        video.removeAttribute('src');
+        video.style.display = 'none';
         document.getElementById('trailerModal').classList.remove('active');
         document.body.style.overflow = 'auto';
     }
