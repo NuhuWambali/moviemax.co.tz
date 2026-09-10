@@ -360,9 +360,7 @@
         @endif
     @endif
 
-    <footer class="footer">
-        <p>&copy; {{ date('Y') }} {{ setting('site_name', 'MOVIEMAX') }} &mdash; All rights reserved.</p>
-    </footer>
+    @include('partials.footer')
 
     <script>
         // ============ FAVORITES ============

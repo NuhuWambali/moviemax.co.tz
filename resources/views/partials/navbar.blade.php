@@ -124,37 +124,55 @@
         display: inline-flex;
         align-items: center;
         gap: 9px;
-        padding: 0.55rem 1.4rem;
+        padding: 0.42rem 1.35rem 0.42rem 0.45rem;
         border-radius: 40px;
         position: relative;
-        background: linear-gradient(135deg, var(--accent-red) 0%, var(--accent-red-dark) 100%);
+        background: linear-gradient(135deg, #ff4757 0%, var(--accent-red) 45%, var(--accent-red-dark) 100%);
         color: #fff !important;
         font-weight: 700 !important;
-        font-size: 0.85rem !important;
-        letter-spacing: 0.3px;
-        box-shadow: 0 4px 18px rgba(229, 9, 20, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        font-size: 0.8rem !important;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow: 0 6px 20px rgba(229, 9, 20, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -2px 6px rgba(0, 0, 0, 0.25);
         transition: all 0.3s ease;
         overflow: hidden;
+    }
+    .btn-login .login-ico {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+    }
+    .btn-login .login-ico i {
+        font-size: 0.8rem;
+        line-height: 1;
+        margin: 0;
     }
     .btn-login::before {
         content: '';
         position: absolute;
         top: 0;
         left: -60%;
-        width: 50%;
+        width: 45%;
         height: 100%;
         background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
         transform: skewX(-20deg);
-        transition: left 0.5s ease;
+        transition: left 0.55s ease;
     }
-    .btn-login:hover::before { left: 120%; }
+    .btn-login:hover::before { left: 130%; }
     .btn-login:hover {
-        filter: brightness(1.15);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 26px rgba(229, 9, 20, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        filter: brightness(1.12);
+        transform: translateY(-2px) scale(1.03);
+        box-shadow: 0 12px 32px rgba(229, 9, 20, 0.55), 0 0 18px rgba(229, 9, 20, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
     }
-    .btn-login:active { transform: translateY(0); filter: brightness(0.95); }
-    .btn-login::after { display: none; }
+    .btn-login:active { transform: translateY(0) scale(0.99); filter: brightness(0.95); }
+    .btn-login::after { display: none !important; }
     .logout-form { display: inline-flex; }
     .logout-form button {
         background: none;
@@ -434,7 +452,7 @@
             </form>
         </div>
         @else
-        <a href="{{ route('login') }}" class="btn-login"><i class="fas fa-user-circle"></i> Login</a>
+        <a href="{{ route('login') }}" class="btn-login"><span class="login-ico"><i class="fas fa-user-circle"></i></span> Login</a>
         @endauth
     </div>
 </nav>

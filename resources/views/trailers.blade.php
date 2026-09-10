@@ -38,13 +38,18 @@
         .trailer-hero {
             position: relative;
             overflow: hidden;
-            padding: 4.5rem 5% 3.5rem;
+            padding: 5.5rem 5% 4rem;
             text-align: center;
-            background:
-                radial-gradient(900px 420px at 15% -20%, rgba(229, 9, 20, 0.30), transparent 60%),
-                radial-gradient(700px 400px at 85% 5%, rgba(229, 9, 20, 0.14), transparent 60%),
-                var(--bg-deep);
             border-bottom: 1px solid var(--glass-border);
+            background-image:
+                radial-gradient(900px 420px at 15% -20%, rgba(229, 9, 20, 0.42), transparent 60%),
+                radial-gradient(700px 400px at 85% 5%, rgba(229, 9, 20, 0.22), transparent 60%),
+                linear-gradient(180deg, rgba(10, 13, 18, 0.74) 0%, rgba(10, 13, 18, 0.88) 55%, rgba(10, 13, 18, 0.96) 100%),
+                url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1600&h=900&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
         .trailer-hero h1 {
             font-family: 'Bebas Neue', sans-serif;
@@ -54,7 +59,7 @@
             margin-bottom: 0.8rem;
             text-shadow: 0 4px 30px rgba(229, 9, 20, 0.25);
         }
-        .trailer-hero h1 .accent { color: var(--accent-red); }
+        .trailer-hero h1 .accent { color: var(--accent-red); text-shadow: 0 0 30px rgba(229, 9, 20, 0.55); }
         .trailer-hero p { color: var(--text-secondary); max-width: 600px; margin: 0 auto 1.5rem; font-size: 0.97rem; line-height: 1.7; }
         .hero-count-tag {
             display: inline-flex;
@@ -207,6 +212,10 @@
             .featured-content h2 { font-size: 1.2rem; }
             .featured-trailer img { aspect-ratio: 16/10; }
             .featured-overlay { background: linear-gradient(to top, rgba(10, 13, 18, 0.95) 0%, rgba(10, 13, 18, 0.2) 70%); align-items: flex-end; }
+        }
+
+        @media (hover: none), (max-width: 700px) {
+            .trailer-hero { background-attachment: scroll; }
         }
 
         /* ============ GRID ============ */
@@ -516,30 +525,6 @@
     @endif
 </div>
 
-<style>
-    .footer {
-        background: var(--bg-surface);
-        border-top: 1px solid var(--glass-border);
-        padding: 2rem 5%;
-        text-align: center;
-        color: var(--text-muted);
-        font-size: 0.85rem;
-    }
-    .footer .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 3px; background: #e50914; -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .footer-links { display: flex; justify-content: center; gap: 2rem; margin: 1rem 0 0.5rem; flex-wrap: wrap; }
-    .footer-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.8rem; transition: color 0.3s; }
-    .footer-links a:hover { color: var(--accent-cyan); }
-</style>
-<div class="footer">
-    <div class="logo">MOVIEMAX</div>
-    <div class="footer-links">
-        <a href="/">Home</a>
-        <a href="/movies">Movies</a>
-        <a href="/series">TV Series</a>
-        <a href="/trailers">Trailers</a>
-        <a href="{{ route('about') }}">About</a>
-    </div>
-    <p>&copy; {{ date('Y') }} {{ setting('site_name', 'MOVIEMAX') }}. All rights reserved.</p>
-</div>
+@include('partials.footer')
 </body>
 </html>

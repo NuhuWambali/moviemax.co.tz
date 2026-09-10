@@ -858,9 +858,7 @@
             </div>
         @endif
 
-        <footer>
-            <p>&copy; {{ date('Y') }} {{ setting('site_name', 'MOVIEMAX') }} &mdash; All rights reserved.</p>
-        </footer>
+        @include('partials.footer')
     </div>
 
     <!-- Series Modal -->

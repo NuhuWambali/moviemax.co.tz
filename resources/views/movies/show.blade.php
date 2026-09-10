@@ -1055,10 +1055,7 @@
     </div>
     @endif
 
-    <footer>
-        <div class="footer-brand">@if(setting("logo_path"))<img src="{{ setting("logo_path") }}" alt="{{ setting("site_name", "MOVIEMAX") }}" class="footer-logo footer-logo"/@else{{ setting("site_name", "MOVIEMAX") }}@endif</div>
-        <p>&copy; {{ date('Y') }} MOVIEMAX &mdash; All rights reserved.</p>
-    </footer>
+    @include('partials.footer')
 
     <!-- Trailer Modal -->
     <div id="trailerModal" class="trailer-modal">

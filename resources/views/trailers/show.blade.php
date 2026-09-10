@@ -340,9 +340,7 @@
     @endif
 </div>
 
-<footer>
-    <p>&copy; {{ date('Y') }} MOVIEMAX &mdash; All rights reserved.</p>
-</footer>
+@include('partials.footer')
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
