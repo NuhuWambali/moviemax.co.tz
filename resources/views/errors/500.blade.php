@@ -35,7 +35,7 @@
     </style>
 </head>
 <body>
-    <div class="wrap">
+@include('partials.loader')    <div class="wrap">
         <div class="code">500</div>
         <div class="title">Something Went Wrong</div>
         <p class="desc">An unexpected error occurred. Please try again in a moment.</p>

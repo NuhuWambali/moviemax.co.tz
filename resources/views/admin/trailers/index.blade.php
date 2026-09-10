@@ -69,7 +69,7 @@
                     </td>
                     <td>
                         <div style="display:flex; gap: 0.4rem;">
-                            <a href="{{ route('trailers.show', $trailer->id) }}" class="btn-secondary btn-sm" target="_blank" title="View"><i class="fas fa-eye"></i></a>
+                            <a href="{{ route('trailers.show', $trailer->slug) }}" class="btn-secondary btn-sm" target="_blank" title="View"><i class="fas fa-eye"></i></a>
                             <a href="{{ route('admin.trailers.edit', $trailer) }}" class="btn-secondary btn-sm" title="Edit"><i class="fas fa-edit"></i></a>
                             <button onclick="confirmDelete({{ $trailer->id }}, '{{ $trailer->title }}')" class="btn-danger btn-sm" title="Delete"><i class="fas fa-trash"></i></button>
                             <button onclick="confirmStatusToggle({{ $trailer->id }}, '{{ $trailer->title }}', {{ $trailer->is_active ? 'true' : 'false' }})" class="btn-secondary btn-sm" title="Toggle Status"><i class="fas fa-power-off"></i></button>

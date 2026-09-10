@@ -906,8 +906,7 @@
     </style>
 </head>
 <body>
-
-    <!-- Navbar -->
+@include('partials.loader')    <!-- Navbar -->
     @include('partials.navbar')
 
     <div class="container">

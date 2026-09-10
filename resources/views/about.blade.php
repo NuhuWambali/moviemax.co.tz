@@ -524,8 +524,7 @@
     </style>
 </head>
 <body>
-
-    @include('partials.navbar')
+@include('partials.loader')    @include('partials.navbar')
 
     <div class="page-header">
         <h1>About MOVIEMAX</h1>

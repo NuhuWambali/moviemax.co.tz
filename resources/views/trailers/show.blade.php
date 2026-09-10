@@ -249,7 +249,7 @@
     </style>
 </head>
 <body>
-@include('partials.navbar')
+@include('partials.loader')@include('partials.navbar')
 
 <div class="wrap">
     <a href="{{ route('trailers') }}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Trailers</a>
@@ -330,7 +330,7 @@
             <h2 style="font-size:1.25rem; margin-bottom:1rem;"><i class="fas fa-film" style="color: var(--accent-cyan); margin-right:0.5rem;"></i> More Trailers</h2>
             <div class="more-grid">
                 @foreach($moreTrailers as $t)
-                    <a href="{{ route('trailers.show', $t->id) }}" class="more-card">
+                    <a href="{{ route('trailers.show', $t->slug) }}" class="more-card">
                         <img src="{{ $t->thumb_url }}" alt="{{ $t->title }}" fetchpriority="high">
                         <h4>{{ $t->title }}</h4>
                     </a>

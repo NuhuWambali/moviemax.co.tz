@@ -35,7 +35,7 @@
     </style>
 </head>
 <body>
-    <div class="wrap">
+@include('partials.loader')    <div class="wrap">
         <div class="code">404</div>
         <div class="title">Page Not Found</div>
         <p class="desc">The page you are looking for doesn't exist or may have been moved.</p>

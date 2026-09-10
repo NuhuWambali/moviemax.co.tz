@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Str;
 
 class Trailer extends Model
 {
     protected $fillable = [
         'title',
+        'slug',
         'description',
         'thumbnail',
         'trailer_url',
@@ -25,6 +27,28 @@ class Trailer extends Model
         'views' => 'integer',
         'is_active' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (Trailer $trailer) {
+            if (!$trailer->slug && $trailer->title && trim((string) $trailer->title) !== '') {
+                $trailer->slug = self::uniqueSlug($trailer->title, $trailer->id);
+            }
+        });
+    }
+
+    private static function uniqueSlug(string $title, $ignoreId = null): string
+    {
+        $base = Str::slug($title) ?: 'trailer';
+        $slug = $base;
+        $i = 1;
+        while (static::where('slug', $slug)
+            ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+            ->exists()) {
+            $slug = $base . '-' . ($i++);
+        }
+        return $slug;
+    }
 
     public function creator(): BelongsTo
     {

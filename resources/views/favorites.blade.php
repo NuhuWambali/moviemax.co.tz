@@ -291,8 +291,7 @@
     </style>
 </head>
 <body>
-
-    <!-- Navbar -->
+@include('partials.loader')    <!-- Navbar -->
     @include('partials.navbar')
 
     <header class="page-header">

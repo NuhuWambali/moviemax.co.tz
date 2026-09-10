@@ -150,7 +150,7 @@
     </style>
 </head>
 <body>
-    <div class="auth-container">
+@include('partials.loader')    <div class="auth-container">
         <div class="auth-card">
             <div class="logo">MOVIEMAX</div>
             <div class="subtitle">Create your account to get started</div>

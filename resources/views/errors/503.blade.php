@@ -35,7 +35,7 @@
     </style>
 </head>
 <body>
-    <div class="wrap">
+@include('partials.loader')    <div class="wrap">
         <div class="code">503</div>
         <div class="title">Maintenance in Progress</div>
         <p class="desc">We're performing scheduled maintenance. Please check back shortly.</p>

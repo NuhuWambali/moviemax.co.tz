@@ -244,7 +244,7 @@
     </style>
 </head>
 <body>
-@include('partials.navbar')
+@include('partials.loader')@include('partials.navbar')
 
 <div class="profile-hero">
     <div class="profile-avatar">{{ mb_strtoupper(mb_substr($user->name, 0, 1)) }}</div>
@@ -315,7 +315,7 @@
             <h2 class="section-title" style="margin-top:2rem; font-size:1rem;"><i class="fas fa-video" style="color: var(--accent-cyan);"></i> Recently Watched Trailers</h2>
             <div class="item-grid" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
                 @foreach($watchedTrailers->take(4) as $wt)
-                    <a href="{{ route('trailers.show', $wt->id) }}" class="item-card trailer">
+                    <a href="{{ route('trailers.show', $wt->slug) }}" class="item-card trailer">
                         <div class="thumb-wrap">
                             <span class="item-type">TRAILER</span>
                             <img src="{{ $wt->thumb_url }}" alt="{{ $wt->title }}">
@@ -369,7 +369,7 @@
                     </a>
                 @endforeach
                 @foreach($favoriteTrailers as $ft)
-                    <a href="{{ route('trailers.show', $ft->id) }}" class="item-card trailer">
+                    <a href="{{ route('trailers.show', $ft->slug) }}" class="item-card trailer">
                         <div class="thumb-wrap"><span class="item-type">TRAILER</span><img src="{{ $ft->thumb_url }}" alt="{{ $ft->title }}"></div>
                         <h4>{{ $ft->title }}</h4>
                     </a>
@@ -385,7 +385,7 @@
         @if($watchedTrailers->count() > 0)
             <div class="item-grid">
                 @foreach($watchedTrailers as $wt)
-                    <a href="{{ route('trailers.show', $wt->id) }}" class="item-card trailer">
+                    <a href="{{ route('trailers.show', $wt->slug) }}" class="item-card trailer">
                         <div class="thumb-wrap"><span class="item-type">TRAILER</span><img src="{{ $wt->thumb_url }}" alt="{{ $wt->title }}"></div>
                         <h4>{{ $wt->title }}</h4>
                     </a>
@@ -433,7 +433,7 @@
                 $url = $target ? match($comment->commentable_type) {
                     \App\Models\Movie::class => route('movies.show', $target->slug),
                     \App\Models\Series::class => route('series.show', $target->id),
-                    \App\Models\Trailer::class => route('trailers.show', $target->id),
+                    \App\Models\Trailer::class => route('trailers.show', $target->slug),
                     default => null,
                 } : null;
             @endphp
@@ -457,7 +457,7 @@
                 if (!$item) return null;
                 if ($item instanceof \App\Models\Movie) return route('movies.show', $item->slug);
                 if ($item instanceof \App\Models\Series) return route('series.show', $item->id);
-                if ($item instanceof \App\Models\Trailer) return route('trailers.show', $item->id);
+                if ($item instanceof \App\Models\Trailer) return route('trailers.show', $item->slug);
                 return null;
             };
             $reactThumb = function ($item) {

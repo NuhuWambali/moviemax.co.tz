@@ -858,7 +858,7 @@
     </style>
 </head>
 <body>
-@include('partials.navbar')
+@include('partials.loader')@include('partials.navbar')
 
     <!-- Movie Backdrop Hero -->
     <div class="movie-backdrop" style="background-image: url('{{ $movie->poster_path }}')">

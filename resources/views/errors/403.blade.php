@@ -35,7 +35,7 @@
     </style>
 </head>
 <body>
-    <div class="wrap">
+@include('partials.loader')    <div class="wrap">
         <div class="code">403</div>
         <div class="title">Access Forbidden</div>
         <p class="desc">You do not have permission to view this page.</p>

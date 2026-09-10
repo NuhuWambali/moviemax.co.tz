@@ -160,7 +160,7 @@
     </style>
 </head>
 <body>
-    @include('partials.navbar')
+@include('partials.loader')    @include('partials.navbar')
 
     <div class="container">
         <div class="page-header">

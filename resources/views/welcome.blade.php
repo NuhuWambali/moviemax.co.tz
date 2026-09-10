@@ -1042,8 +1042,7 @@
     </style>
 </head>
 <body>
-
-    @include('partials.navbar')
+@include('partials.loader')    @include('partials.navbar')
 
 @php
     $featuredItem = $featuredMovie ?? $featuredSeries ?? null;

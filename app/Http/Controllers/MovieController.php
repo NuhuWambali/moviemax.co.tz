@@ -149,7 +149,7 @@ class MovieController extends Controller
                 'title'  => $t->title,
                 'year'   => null,
                 'poster' => $t->thumbnail,
-                'url'    => route('trailers.show', $t->id),
+                'url'    => route('trailers.show', $t->slug),
             ];
         }
 

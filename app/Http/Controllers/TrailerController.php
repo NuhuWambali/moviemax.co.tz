@@ -25,9 +25,17 @@ class TrailerController extends Controller
         return view('trailers', compact('trailers', 'trendingTrailers'));
     }
 
-    public function show(Request $request, $id)
+    public function show(Request $request, $slug)
     {
-        $trailer = Trailer::where('is_active', true)->findOrFail($id);
+        $trailer = Trailer::where('slug', $slug)->first() ?? Trailer::find($slug);
+
+        if (!$trailer || !$trailer->is_active) {
+            abort(404);
+        }
+
+        if (ctype_digit($slug) && $trailer->slug !== $slug) {
+            return redirect()->route('trailers.show', $trailer->slug);
+        }
 
         $trailer->increment('views');
 

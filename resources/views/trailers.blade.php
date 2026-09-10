@@ -417,7 +417,7 @@
     </style>
 </head>
 <body>
-@include('partials.navbar')
+@include('partials.loader')@include('partials.navbar')
 
 <div class="trailer-hero">
     <h1>Official <span class="accent">Trailers</span></h1>
@@ -438,7 +438,7 @@
 <div class="container">
     @php $first = $trailers->first(); @endphp
     @if($first)
-        <a href="{{ route('trailers.show', $first->id) }}" class="featured-trailer">
+        <a href="{{ route('trailers.show', $first->slug) }}" class="featured-trailer">
             <img src="{{ $first->thumb_url }}" alt="{{ $first->title }}" fetchpriority="high">
             <div class="featured-overlay">
                 <div class="featured-content">
@@ -462,7 +462,7 @@
         <div class="section-head"><i class="fas fa-film"></i> All Trailers <span class="line"></span></div>
         <div class="trailer-grid">
             @foreach($trailers as $trailer)
-                <a href="{{ route('trailers.show', $trailer->id) }}" class="trailer-card">
+                <a href="{{ route('trailers.show', $trailer->slug) }}" class="trailer-card">
                     <div class="thumb-wrap">
                         <span class="trailer-badge">Trailer</span>
                         <img src="{{ $trailer->thumb_url }}" alt="{{ $trailer->title }}" loading="lazy">
@@ -500,7 +500,7 @@
         <div class="section-head" style="margin-top: 2.5rem;"><i class="fas fa-fire"></i> Trending Trailers <span class="line"></span></div>
         <div class="trending-row">
             @foreach($trendingTrailers as $i => $trending)
-                <a href="{{ route('trailers.show', $trending->id) }}" class="trending-item">
+                <a href="{{ route('trailers.show', $trending->slug) }}" class="trending-item">
                     <span class="trending-rank">{{ $i + 1 }}</span>
                     <span class="trending-thumb">
                         <img src="{{ $trending->thumb_url }}" alt="{{ $trending->title }}" loading="lazy">

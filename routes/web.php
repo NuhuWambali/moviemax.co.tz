@@ -26,7 +26,7 @@ use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 
 Route::get('/', [MovieController::class, 'home'])->name('home');
 Route::get('/trailers', [TrailerController::class, 'index'])->name('trailers');
-Route::get('/trailers/{id}', [TrailerController::class, 'show'])->name('trailers.show');
+Route::get('/trailers/{slug}', [TrailerController::class, 'show'])->name('trailers.show');
 Route::get('/movies', [MovieController::class, 'index'])->name('movies.index');
 Route::get('/movies/{slug}', [MovieController::class, 'show'])->name('movies.show');
 
