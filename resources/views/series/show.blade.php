@@ -583,16 +583,6 @@
             color: var(--text-muted);
         }
 
-        /* ============ FOOTER ============ */
-        footer {
-            text-align: center;
-            padding: 2.5rem 2rem;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            margin-top: 3rem;
-            border-top: 1px solid var(--glass-border);
-        }
-
         /* ============ INTERACTIONS ============ */
         .interaction-bar {
             display: flex;

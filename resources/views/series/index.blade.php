@@ -549,17 +549,6 @@
             font-size: 0.9rem;
         }
 
-        /* ============ FOOTER ============ */
-        footer {
-            text-align: center;
-            padding: 2rem 1rem;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            margin-top: 3rem;
-            border-top: 1px solid transparent;
-            border-image: var(--accent-red) 1;
-        }
-
         /* ============ MODAL ============ */
         .series-modal {
             display: none;

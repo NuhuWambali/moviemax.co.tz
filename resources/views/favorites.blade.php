@@ -278,17 +278,7 @@
             .fav-info { padding: 0.6rem 0.7rem 0.8rem; }
         }
 
-        /* Footer */
-        .footer {
-            background: var(--bg-surface);
-            border-top: 1px solid var(--glass-border);
-            padding: 2rem 5%;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            margin-top: 3rem;
-        }
-    </style>
+        </style>
 </head>
 <body>
 @include('partials.loader')    <!-- Navbar -->

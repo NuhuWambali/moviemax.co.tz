@@ -787,37 +787,6 @@
             }
         }
 
-        /* ============ FOOTER ============ */
-        footer {
-            text-align: center;
-            padding: 3rem 5% 2rem;
-            border-top: 1px solid var(--glass-border);
-            margin-top: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-        footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 1px;
-            background: var(--accent-red);
-        }
-        footer .footer-brand {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.5rem;
-            letter-spacing: 3px;
-            background: var(--accent-red);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 0.5rem;
-        }
-        footer p { color: var(--text-muted); font-size: 0.78rem; }
-
         /* ============ RESPONSIVE ============ */
         @media (max-width: 768px) {
             .movie-backdrop {

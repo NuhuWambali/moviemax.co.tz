@@ -245,8 +245,7 @@
         .more-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
         .more-card h4 { font-size: 0.82rem; padding: 0.7rem 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        footer { margin-top: 3.5rem; border-top: 1px solid var(--glass-border); padding: 1.6rem 5%; text-align: center; color: var(--text-muted); font-size: 0.82rem; }
-    </style>
+        </style>
 </head>
 <body>
 @include('partials.loader')@include('partials.navbar')

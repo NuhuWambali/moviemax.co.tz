@@ -241,24 +241,6 @@
         }
         .empty-state i { font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem; display: block; }
 
-        footer {
-            text-align: center; padding: 3rem 5% 2rem;
-            border-top: 1px solid var(--glass-border);
-            margin-top: 2rem; position: relative;
-        }
-        footer::before {
-            content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-            width: 200px; height: 1px;
-            background: var(--accent-red);
-        }
-        footer .footer-brand {
-            font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 3px;
-            background: var(--accent-red);
-            -webkit-background-clip: text; background-clip: text; color: transparent;
-            margin-bottom: 0.5rem;
-        }
-        footer p { color: var(--text-muted); font-size: 0.78rem; }
-
         /* MODALS */
         .movie-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2000; animation: fadeIn 0.3s ease; }
         .modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); }
