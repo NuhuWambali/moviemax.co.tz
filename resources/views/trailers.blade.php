@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Trailers - MOVIEMAX</title>
-    @include('partials.seo', ['seoTitle' => 'Official Trailers - MOVIEMAX', 'seoDescription' => 'Watch the latest official movie and TV series trailers on MOVIEMAX. Discover upcoming releases in HD.'])
+    <title>Trailers - MovieMax</title>
+    @include('partials.seo', ['seoTitle' => 'Movie Trailers - MovieMax – Watch Latest Official Trailers Online', 'seoDescription' => 'Watch the latest official movie and TV series trailers on MovieMax. Discover upcoming releases in HD.'])
     <style>
         :root {
             --bg-deep: #0a0d12;

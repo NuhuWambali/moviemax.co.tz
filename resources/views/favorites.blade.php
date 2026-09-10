@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Favorites - MOVIEMAX</title>
-    @include('partials.seo', ['seoTitle' => 'My Favorites - MOVIEMAX', 'seoDescription' => 'Your saved movies, series and trailers on MOVIEMAX.', 'seoNoindex' => true])
+    <title>Favorites - MovieMax</title>
+    @include('partials.seo', ['seoTitle' => 'My Favorites - MovieMax', 'seoDescription' => 'Your saved movies, series and trailers on MovieMax.', 'seoNoindex' => true])
     <style>
         :root {
             --bg-deep: #0a0d12;

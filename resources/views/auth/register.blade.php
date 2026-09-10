@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - MOVIEMAX</title>
-    @include('partials.seo', ['seoTitle' => 'Create Account - MOVIEMAX', 'seoDescription' => 'Create a free MOVIEMAX account to save favorites, react and comment.', 'seoNoindex' => true])
+    <title>Register - MovieMax</title>
+    @include('partials.seo', ['seoTitle' => 'Create Account - MovieMax', 'seoDescription' => 'Create a free MovieMax account to save favorites, react and comment.', 'seoNoindex' => true])
     <style>
         :root {
             --bg-deep: #0a0d12;

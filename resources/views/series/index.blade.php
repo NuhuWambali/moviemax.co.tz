@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>TV Series - MOVIEMAX</title>
-    @include('partials.seo', ['seoTitle' => 'TV Series - MOVIEMAX', 'seoDescription' => 'Browse all TV series on MOVIEMAX by genre, year and popularity. Stream and download complete seasons in HD.'])
+    <title>TV Series - MovieMax</title>
+    @include('partials.seo', ['seoTitle' => 'TV Series - MovieMax – Watch & Download Free Series Online', 'seoDescription' => 'Browse all TV series on MovieMax by genre, year and popularity. Stream and download complete seasons in HD.'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {

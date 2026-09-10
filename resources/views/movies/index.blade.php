@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Movies - MOVIEMAX</title>
-    @include('partials.seo', ['seoTitle' => 'Browse Movies - MOVIEMAX', 'seoDescription' => 'Browse all movies on MOVIEMAX by genre, year, rating and popularity. Stream and download the latest HD films free.'])
+    <title>Movies - MovieMax</title>
+    @include('partials.seo', ['seoTitle' => 'Movies - MovieMax – Watch & Download Free Movies Online', 'seoDescription' => 'Browse all movies on MovieMax by genre, year, rating and popularity. Stream and download the latest HD films free.'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {

@@ -10,20 +10,24 @@
     $seoJsonLd       - array of associative arrays rendered as JSON-LD blocks
 --}}
 @php
-    $seoTitle       = $seoTitle ?? 'MOVIEMAX';
-    $seoDescription = $seoDescription ?? 'Stream and download movies and TV series in HD. Watch the latest blockbusters, trailers and trending shows online.';
+    $seoTitle       = $seoTitle ?? 'MovieMax – Watch, Stream & Download Free Movies, Series & Trailers Online';
+    $seoDescription = $seoDescription ?? 'MovieMax lets you watch, stream and download free movies, TV series and trailers online. Discover the latest movies, popular series, new releases and exciting trailers.';
+    $seoKeywords    = $seoKeywords ?? 'MovieMax, free movies, watch movies online, stream movies, download movies, free series, TV series, watch series online, download series, movie trailers, latest movies, new movies, HD movies';
+    $seoAuthor      = $seoAuthor ?? 'MovieMax';
     $seoImage       = $seoImagePath ?? ($seoImage ?? '');
     $seoType        = $seoType ?? 'website';
     $seoNoindex     = $seoNoindex ?? false;
     $seoJsonLd      = $seoJsonLd ?? [];
-    $seoUrl         = request()->url();
-    $seoSiteName    = config('app.name', 'MOVIEMAX');
+    $seoUrl         = request()->path() === '/' ? url('/') : request()->url();
+    $seoSiteName    = config('app.name', 'MovieMax');
     if ($seoImage && !preg_match('~^https?://~i', $seoImage)) {
         $seoImage = url($seoImage);
     }
 @endphp
 <meta name="description" content="{{ $seoDescription }}">
+@if($seoKeywords)<meta name="keywords" content="{{ $seoKeywords }}">@endif
 <meta name="robots" content="{{ $seoNoindex ? 'noindex, follow' : 'index, follow' }}">
+<meta name="author" content="{{ $seoAuthor }}">
 <link rel="canonical" href="{{ $seoUrl }}">
 <meta name="theme-color" content="#080808">
 

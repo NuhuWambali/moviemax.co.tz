@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $genre }} - MOVIEMAX</title>
-    @include('partials.seo', ['seoTitle' => ($genre ?? 'Genre') . ' - MOVIEMAX', 'seoDescription' => 'Browse ' . ($genre ?? '') . ' movies and TV series on MOVIEMAX. Stream and download the latest ' . ($genre ?? '') . ' titles in HD.'])
+    <title>{{ $genre }} - MovieMax</title>
+    @include('partials.seo', ['seoTitle' => ($genre ?? 'Genre') . ' Movies & Series - MovieMax', 'seoDescription' => 'Browse ' . ($genre ?? '') . ' movies and TV series on MovieMax. Stream and download the latest ' . ($genre ?? '') . ' titles in HD.'])
     <style>
         :root {
             --bg-deep: #0a0d12;

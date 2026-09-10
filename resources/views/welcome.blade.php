@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>MOVIEMAX | Stream & Download Movies & Series</title>
-    @include('partials.seo', ['seoTitle' => 'MOVIEMAX | Stream & Download Movies & TV Series', 'seoDescription' => 'Watch and download the latest movies and TV series in HD. Browse trending, top-rated and newly added films, official trailers and fan favorites on MOVIEMAX.'])
+    <title>MovieMax – Watch, Stream & Download Free Movies, Series & Trailers Online</title>
+    @include('partials.seo', ['seoTitle' => 'MovieMax – Watch, Stream & Download Free Movies, Series & Trailers Online', 'seoDescription' => 'MovieMax lets you watch, stream and download free movies, TV series and trailers online. Discover the latest movies, popular series, new releases and exciting trailers.', 'seoKeywords' => 'MovieMax, free movies, watch movies online, stream movies, download movies, free series, TV series, watch series online, download series, movie trailers, latest movies, new movies, HD movies'])
     @if($heroSlides->first()->image_path ?? null)
         <link rel="preload" as="image" href="{{ $heroSlides->first()->image_path }}" fetchpriority="high">
     @endif
