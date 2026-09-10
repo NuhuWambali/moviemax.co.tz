@@ -123,17 +123,37 @@
     .btn-login {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 0.5rem 1.2rem;
+        gap: 9px;
+        padding: 0.55rem 1.4rem;
         border-radius: 40px;
-        background: var(--accent-red);
+        position: relative;
+        background: linear-gradient(135deg, var(--accent-red) 0%, var(--accent-red-dark) 100%);
         color: #fff !important;
         font-weight: 700 !important;
         font-size: 0.85rem !important;
-        box-shadow: 0 4px 18px rgba(229, 9, 20, 0.35);
+        letter-spacing: 0.3px;
+        box-shadow: 0 4px 18px rgba(229, 9, 20, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         transition: all 0.3s ease;
+        overflow: hidden;
     }
-    .btn-login:hover { filter: brightness(1.15); transform: translateY(-1px); }
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -60%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+        transform: skewX(-20deg);
+        transition: left 0.5s ease;
+    }
+    .btn-login:hover::before { left: 120%; }
+    .btn-login:hover {
+        filter: brightness(1.15);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 26px rgba(229, 9, 20, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    .btn-login:active { transform: translateY(0); filter: brightness(0.95); }
     .btn-login::after { display: none; }
     .logout-form { display: inline-flex; }
     .logout-form button {
@@ -399,8 +419,7 @@
         <a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Home</a>
         <a href="{{ route('movies.index') }}" class="{{ request()->is('movies') || request()->is('movies/*') ? 'active' : '' }}">Movies</a>
         <a href="{{ route('series.index') }}" class="{{ request()->is('series') || request()->is('series/*') ? 'active' : '' }}">TV Series</a>
-        <a href="{{ route('trailers') }}" class="{{ request()->is('trailers') || request()->is('trailers/*') ? 'active' : '' }}"><i class="fas fa-video"></i> Trailers</a>
-        <a href="{{ route('favorites') }}" class="{{ request()->is('favorites*') ? 'active' : '' }}"><i class="fas fa-heart"></i> Favorites</a>
+        <a href="{{ route('trailers') }}" class="{{ request()->is('trailers') || request()->is('trailers/*') ? 'active' : '' }}">Trailers</a>
         <a href="{{ route('about') }}" class="{{ request()->is('about') ? 'active' : '' }}">About</a>
 
         @auth
