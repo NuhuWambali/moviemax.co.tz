@@ -18,7 +18,7 @@
     $seoType        = $seoType ?? 'website';
     $seoNoindex     = $seoNoindex ?? false;
     $seoJsonLd      = $seoJsonLd ?? [];
-    $seoUrl         = request()->path() === '/' ? url('/') : request()->url();
+    $seoUrl         = request()->path() === '/' ? rtrim(url('/'), '/') . '/' : request()->url();
     $seoSiteName    = config('app.name', 'MovieMax');
     if ($seoImage && !preg_match('~^https?://~i', $seoImage)) {
         $seoImage = url($seoImage);
