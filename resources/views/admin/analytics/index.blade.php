@@ -326,45 +326,90 @@
         </div>
         
         <div class="info-card">
-            <h3><i class="fas fa-clock"></i> Recent Visitors</h3>
-            <div class="info-list" style="max-height: 400px;">
-                @forelse($recentVisitors as $visitor)
-                <div class="visitor-row" style="padding: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
-                        <div style="flex: 1;">
-                            <div>
-                                <strong>{{ $visitor->browser ?? 'Unknown' }}</strong> 
-                                <span style="color: #888;">on</span> 
-                                <strong>{{ $visitor->os ?? 'Unknown' }}</strong>
-                            </div>
-                            <div style="font-size: 0.7rem; color: #888; margin-top: 0.25rem;">
-                                <i class="fas fa-clock"></i> 
-                                @if($visitor->last_visit)
-                                    {{ $visitor->last_visit->format('H:i:s') }} ({{ $visitor->last_visit->diffForHumans() }})
-                                @else
-                                    {{ $visitor->created_at->diffForHumans() }}
-                                @endif
-                                <br>
-                                <i class="fas fa-link"></i> {{ \Illuminate\Support\Str::limit($visitor->page_url ?? '/', 40) }}
-                                <br>
-                                <i class="fas fa-chart-simple"></i> Total visits: {{ $visitor->visit_count }}
-                            </div>
-                        </div>
-                        <div>
-                            <span class="device-badge device-{{ $visitor->device_type ?? 'desktop' }}">
-                                <i class="fas fa-{{ $visitor->device_type == 'mobile' ? 'mobile-alt' : ($visitor->device_type == 'tablet' ? 'tablet-alt' : 'desktop') }}"></i>
-                                {{ ucfirst($visitor->device_type ?? 'Desktop') }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                @empty
-                <p style="color: #888; text-align: center; padding: 2rem;">No visitors yet. Visit your website to see data!</p>
-                @endforelse
+            <h3><i class="fas fa-clock"></i> Recent Visitors ({{ $recentVisitors->total() }})</h3>
+            {{-- Export buttons --}}
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem; align-items: center;">
+                {{-- CSV export button --}}
+                <form action="{{ route('admin.analytics.export') }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="btn-secondary small" style="background: #e31c25; color: white; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; font-size: 0.75rem;">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </button>
+                </form>
+                {{-- PDF export button (using simple table download) --}}
+                <a href="javascript:exportVisitorsPDF()" class="btn-secondary small" style="background: #28a745; color: white; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; font-size: 0.75rem;">
+                    <i class="fas fa-file-pdf"></i> PDF
+                </a>
             </div>
+            {{-- Pagination --}}
+            {!! $recentVisitors->links() !!} 
+            {{-- Visitor table --}}
+            <div class="info-list" style="max-height: 600px; overflow-x: auto;">
+                {{-- Table header --}}
+                <table class="visitor-table" style="width: 100%; min-width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%;">#</th>
+                            <th style="width: 18%;">IP Address</th>
+                            <th style="width: 15%;">Browser</th>
+                            <th style="width: 12%;">OS</th>
+                            <th style="width: 12%;">Device</th>
+                            <th style="width: 10%;">Country</th>
+                            <th style="width: 12%;">First Visit</th>
+                            <th style="width: 12%;">Last Visit</th>
+                            <th style="width: 8%;">Visits</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($recentVisitors as $visitor)
+                        <tr style="background: {{ $loop->isOdd() ? 'rgba(255,255,255,0.03)' : 'transparent' }};">
+                            <td style="padding: 0.5rem;">{{ $loop->iteration }}</td>
+                            <td style="padding: 0.5rem; font-size: 0.75rem;">{{ $visitor->ip_address }}</td>
+                            <td style="padding: 0.5rem; font-size: 0.75rem;">{{ $visitor->browser ?? 'Unknown' }}</td>
+                            <td style="padding: 0.5rem; font-size: 0.75rem;">{{ $visitor->os ?? 'Unknown' }}</td>
+                            <td style="padding: 0.5rem; font-size: 0.75rem;">
+                                {{ ucfirst($visitor->device_type ?? 'Desktop') }}
+                            </td>
+                            <td style="padding: 0.5rem; font-size: 0.75rem;">{{ $visitor->country ?? 'Unknown' }}</td>
+                            <td style="padding: 0.5rem; font-size: 0.75rem;">
+                                @if($visitor->created_at)
+                                    {{ $visitor->created_at->format('M d, H:i') }} ({{ $visitor->created_at->diffForHumans() }})
+                                @else
+                                    N/A
+                                @endif
+                            </td>
+                            <td style="padding: 0.5rem; font-size: 0.75rem;">
+                                @if($visitor->last_visit)
+                                    {{ $visitor->last_visit->format('M d, H:i') }} ({{ $visitor->last_visit->diffForHumans() }})
+                                @else
+                                    N/A
+                                @endif
+                            </td>
+                            <td style="padding: 0.5rem; font-size: 0.75rem; text-align: center;">{{ $visitor->visit_count }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                {{-- Empty state --}}
+                @if($recentVisitors->isEmpty())
+                <p style="color: #888; text-align: center; padding: 2rem;">No visitors yet. Visit your website to see data!</p>
+                @endif
+            </div>
+            {{-- Pagination --}}
+            {!! $recentVisitors->links() !!}
+        </div>
+        {{-- End export/pagination --}}
         </div>
     </div>
 </div>
+
+<script>
+    function exportVisitorsPDF() {
+        // Simple approach: redirect to a PDF view or use the CSV data
+        // For now, show a message and suggest CSV export
+        alert('PDF export feature coming soon. Use the CSV export button above to download visitor data.');
+    }
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>

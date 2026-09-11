@@ -91,8 +91,7 @@ class VisitorAnalyticsController extends Controller
         
         // Recent visitors - Get latest records
         $recentVisitors = VisitorTracking::orderBy('last_visit', 'desc')
-            ->limit(20)
-            ->get();
+            ->simplePaginate(100);
         
         // Hourly activity - Last 24 hours
         $hourlyActivity = [];
