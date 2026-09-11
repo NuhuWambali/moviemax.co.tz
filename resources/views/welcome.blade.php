@@ -1060,7 +1060,7 @@
             <p>{{ $slide->tagline }}</p>
             <div class="btn-group">
                 @if($slide->trailer_url)
-                    <button type="button" class="btn-primary" onclick="openTrailerModal('{{ addslashes($slide->trailer_url) }}')">
+                    <button type="button" class="btn-primary" onclick="openTrailerModal('{{ addslashes($slide->trailer_url) }}', '{{ $slide->link_type ?? 'trailer' }}', {{ $slide->link_id ?? 0 }})">
                         <i class="fas fa-video"></i> Watch Trailer
                     </button>
                 @endif
@@ -1215,7 +1215,7 @@
     @if($trailerMovies->count() > 0)
         <div class="trailer-grid">
             @foreach($trailerMovies as $trailerMovie)
-                <div class="trailer-card" onclick="openTrailerModal('{{ addslashes($trailerMovie->trailer_url) }}')">
+                <div class="trailer-card" onclick="openTrailerModal('{{ addslashes($trailerMovie->trailer_url) }}', 'movie', {{ $trailerMovie->id }})">
                     <div class="trailer-thumb">
                         <span class="trailer-badge"><i class="fas fa-video"></i> TRAILER</span>
                         <img src="{{ $trailerMovie->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $trailerMovie->title }}" loading="lazy">
@@ -1251,7 +1251,7 @@
         </h3>
         <div class="trailer-grid">
             @foreach($trailerSeries as $trailerSeriesItem)
-                <div class="trailer-card" onclick="openTrailerModal('{{ addslashes($trailerSeriesItem->trailer_url) }}')">
+                <div class="trailer-card" onclick="openTrailerModal('{{ addslashes($trailerSeriesItem->trailer_url) }}', 'series', {{ $trailerSeriesItem->id }})">
                     <div class="trailer-thumb">
                         <span class="trailer-badge"><i class="fas fa-video"></i> TRAILER</span>
                         <img src="{{ $trailerSeriesItem->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $trailerSeriesItem->title }}" loading="lazy">
@@ -1283,7 +1283,7 @@
                         ? $homeTrailer->file_path
                         : $homeTrailer->trailer_url;
                 @endphp
-                <div class="trailer-card" onclick="openTrailerModal('{{ addslashes($playSrc ?? '') }}')">
+                <div class="trailer-card" onclick="openTrailerModal('{{ addslashes($playSrc ?? '') }}', 'trailer', {{ $homeTrailer->id }})">
                     <div class="trailer-thumb">
                         <span class="trailer-badge"><i class="fas fa-video"></i> TRAILER</span>
                         <img src="{{ $homeTrailer->thumb_url }}" alt="{{ $homeTrailer->title }}" loading="lazy">
@@ -1644,7 +1644,7 @@
         const m = url.match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
         return m ? m[1] : null;
     }
-    function openTrailerModal(url) {
+    function openTrailerModal(url, type, id) {
         const frame = document.getElementById('trailerFrame');
         const video = document.getElementById('trailerVideo');
         frame.style.display = 'none';
@@ -1653,14 +1653,23 @@
         video.pause();
         video.removeAttribute('src');
         video.load();
-        const id = extractYouTubeId(url);
-        if (id) {
-            frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3';
+        const ytId = extractYouTubeId(url);
+        const trackable = !! (type && id);
+        const viewType = type || 'trailer';
+        const viewId = id || 0;
+        if (ytId) {
+            frame.src = 'https://www.youtube-nocookie.com/embed/' + ytId + '?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3';
             frame.style.display = '';
+            if (trackable && window.mmViewTracker) {
+                try { window.mmViewTracker.trackYouTube(frame, viewType, viewId); } catch (e) {}
+            }
         } else if (url) {
             video.src = url;
             video.style.display = '';
             video.play().catch(() => {});
+            if (trackable && window.mmViewTracker) {
+                try { window.mmViewTracker.trackVideo(video, viewType, viewId); } catch (e) {}
+            }
         } else {
             return;
         }
@@ -1766,5 +1775,6 @@
         section.style.display = '';
     })();
 </script>
+@include('partials.view-tracker')
 </body>
 </html>

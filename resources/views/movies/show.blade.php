@@ -1358,6 +1358,9 @@
                     frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3';
                     document.getElementById('trailerModal').classList.add('active');
                     document.body.style.overflow = 'hidden';
+                    if (window.mmViewTracker) {
+                        try { window.mmViewTracker.trackYouTube(frame, 'movie', {{ $movie->id }}); } catch (e) {}
+                    }
                     return;
                 }
             }
