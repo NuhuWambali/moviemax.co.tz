@@ -240,9 +240,10 @@
             border-color: rgba(229, 9, 20, 0.55);
             box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
         }
-        .thumb-wrap { position: relative; overflow: hidden; background: var(--bg-surface); }
+        .thumb-wrap { position: relative; overflow: hidden; aspect-ratio: 2/3; background: var(--bg-surface); }
         .thumb-wrap img {
-            width: 100%; height: auto;
+            width: 100%; height: 100%;
+            object-fit: cover;
             display: block;
             transition: transform 0.55s ease;
         }
@@ -295,6 +296,7 @@
             font-weight: 600;
             margin-bottom: 0.65rem;
             line-height: 1.4;
+            min-height: 2.66rem;
             color: var(--text-primary);
             display: -webkit-box;
             -webkit-line-clamp: 2;
