@@ -86,7 +86,7 @@ class MovieController extends Controller
         // Dedicated trailers table (added later; keeps the home Official Trailers section populated)
         $homeTrailers = Trailer::where('is_active', true)
                                ->latest()
-                               ->limit(8)
+                               ->limit(10)
                                ->get();
         
         // All genres for filter
@@ -159,7 +159,7 @@ class MovieController extends Controller
             ];
         }
 
-        return response()->json(array_slice($results, 0, 8));
+        return response()->json(array_slice($results, 0, 10));
     }
 
     public function trailers()
@@ -280,7 +280,7 @@ class MovieController extends Controller
         $sameGenreSeries = Series::where('genre', $series->genre)
             ->where('id', '!=', $id)
             ->where('is_active', true)
-            ->limit(8)
+            ->limit(10)
             ->get();
         
         // Top downloaded series
