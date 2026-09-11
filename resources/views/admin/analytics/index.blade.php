@@ -403,14 +403,6 @@
     </div>
 </div>
 
-<script>
-    function exportVisitorsPDF() {
-        // Simple approach: redirect to a PDF view or use the CSV data
-        // For now, show a message and suggest CSV export
-        alert('PDF export feature coming soon. Use the CSV export button above to download visitor data.');
-    }
-</script>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
@@ -575,6 +567,8 @@
     // PDF export for visitors table
     function exportVisitorsPDF() {
         // Print the visitor table
+        const srcTable = document.querySelector('.visitor-table');
+        const tableHTML = srcTable ? srcTable.outerHTML : '<p>No visitor data available.</p>';
         const printWindow = window.open('', '_blank');
         printWindow.document.write(`
             <html>
@@ -590,7 +584,7 @@
                 </head>
                 <body>
                     <h3 class="title">Visitor Analytics - Visitor List</h3>
-                    {{ table.outerHTML }}
+                    ${tableHTML}
                     <button onclick="window.print()" style="margin-top: 20px; padding: 8px 15px; background: #e31c25; color: white; border: none; border-radius: 4px;">Print/Export PDF</button>
                 </body>
             </html>
