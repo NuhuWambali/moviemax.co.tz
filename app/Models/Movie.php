@@ -114,6 +114,21 @@ class Movie extends Model
         return preg_match('#^https?://#i', (string) $this->video_url) === 1;
     }
 
+    /**
+     * Adaptive-streaming (HLS) URL. Derived from hosted video files so the
+     * player can switch quality and stream smoothly.
+     */
+    public function getHlsUrlAttribute()
+    {
+        $path = trim((string) $this->file_path);
+        if ($path === '' || !preg_match('#^https://res\.cloudinary\.com/[^/]+/video/upload/.*\.mp4(#|\?|$)#i', $path)) {
+            return null;
+        }
+
+        $hls = preg_replace('#\.mp4(?:\?.*)?$#i', '.m3u8', $path);
+        return ($hls !== $path) ? $hls : null;
+    }
+
     public function isSeries()
     {
         return $this->type === 'series';

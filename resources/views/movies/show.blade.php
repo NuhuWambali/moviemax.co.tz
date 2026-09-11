@@ -7,6 +7,7 @@
     <title>{{ $movie->title }} - MovieMax</title>
     @include('partials.seo', ['seoTitle' => ($movie->title ?? '') . (($movie->release_year ?? '') ? ' (' . $movie->release_year . ')' : '') . ' – Watch & Download | MovieMax', 'seoDescription' => 'Watch, stream or download ' . ($movie->title ?? 'this movie') . (($movie->release_year ?? '') ? ' (' . $movie->release_year . ')' : '') . ' online on MovieMax. View movie details, cast, trailer, genre, rating and more.', 'seoImagePath' => $movie->poster_url ?? asset('images/posters/dummy-poster.png'), 'seoType' => 'video.movie', 'seoJsonLd' => [['@type' => 'Movie', 'name' => $movie->title ?? '', 'description' => $movie->description ?? '', 'image' => $movie->poster_url ?? asset('images/posters/dummy-poster.png'), 'datePublished' => $movie->release_year ?? '', 'genre' => $movie->genre ?? '', 'url' => url('/movies/' . ($movie->slug ?? $movie->id))], ['@type' => 'BreadcrumbList', 'itemListElement' => [['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')], ['@type' => 'ListItem', 'position' => 2, 'name' => 'Movies', 'item' => url('/movies')], ['@type' => 'ListItem', 'position' => 3, 'name' => $movie->title ?? '', 'item' => url('/movies/' . ($movie->slug ?? $movie->id))]]]]])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.20/dist/hls.min.js"></script>
     <style>
         :root {
             --bg-deep: #0a0d12;
@@ -605,6 +606,89 @@
             display: block;
             background: #000;
         }
+        .mm-player-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.7rem 1rem;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.55) 60%, transparent 100%);
+            pointer-events: none;
+        }
+        .mm-player-top .mm-player-title {
+            color: #fff;
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 2px;
+            font-size: 1.15rem;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mm-quality-wrap { position: relative; pointer-events: auto; }
+        .mm-quality-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 30px;
+            background: rgba(229, 9, 20, 0.85);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .mm-quality-btn:hover { background: var(--accent-red-dark); transform: translateY(-1px); }
+        .mm-quality-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            min-width: 130px;
+            background: rgba(16, 20, 27, 0.98);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0.4rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            z-index: 6;
+        }
+        .mm-quality-menu.open { display: block; }
+        .mm-quality-menu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.55rem 0.8rem;
+            border-radius: 8px;
+            background: none;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mm-quality-menu button:hover { background: rgba(229, 9, 20, 0.12); color: #fff; }
+        .mm-quality-menu button.active { color: var(--accent-red); font-weight: 700; }
+        .mm-player-badge {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            padding: 0.45rem 1.2rem;
+            border-radius: 30px;
+            background: rgba(229, 9, 20, 0.92);
+            color: #fff;
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            display: none;
+        }
         .trailer-close {
             position: absolute;
             top: 20px;
@@ -855,7 +939,7 @@
                 <p class="movie-description">{{ $movie->description }}</p>
 
                 <div class="action-buttons">
-                    <button class="btn-watch" onclick="showWatchOptions()">
+                    <button class="btn-watch" onclick="streamMovie()">
                         <i class="fas fa-play"></i> Watch Now
                     </button>
                     <button class="btn-download" onclick="showDownloadOptions()">
@@ -1045,6 +1129,15 @@
         </button>
         <div class="trailer-wrapper" onclick="if(event.target===this)closeStreamModal()">
             <div class="trailer-container">
+                <div class="mm-player-top">
+                    <span class="mm-player-title">{{ $movie->title }}</span>
+                    <div class="mm-quality-wrap" id="mmQualityWrap" style="display:none;">
+                        <button class="mm-quality-btn" id="mmQualityBtn" type="button" onclick="toggleQualityMenu(event)">
+                            <i class="fas fa-cog"></i> <span id="mmQualityLabel">Auto</span>
+                        </button>
+                        <div class="mm-quality-menu" id="mmQualityMenu"></div>
+                    </div>
+                </div>
                 <video id="streamVideo" controls autoplay playsinline preload="metadata"></video>
             </div>
         </div>
@@ -1057,41 +1150,6 @@
             entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); } });
         }, { threshold: 0.1 });
         revealEls.forEach(el => revealObs.observe(el));
-
-        function showWatchOptions() {
-            Swal.fire({
-                title: 'Watch {{ $movie->title }}',
-                text: 'Choose your streaming quality',
-                icon: 'info',
-                background: '#161c26',
-                color: '#ffffff',
-                showCancelButton: true,
-                confirmButtonColor: '#e50914',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: '<i class="fas fa-play"></i> Watch Now',
-                cancelButtonText: 'Cancel',
-                html: `
-                    <div style="text-align: left; margin: 1rem 0;">
-                        <p style="margin-bottom: 1rem; color: #9ca3af;">Select streaming quality:</p>
-                        <button onclick="streamMovie('480p')" style="width: 100%; padding: 0.75rem; margin: 0.5rem 0; background: var(--bg-surface); border: 1px solid var(--glass-border); border-radius: 8px; color: #ffffff; cursor: pointer; transition: 0.3s;">
-                            <i class="fas fa-tv"></i> 480p - Standard
-                        </button>
-                        <button onclick="streamMovie('720p')" style="width: 100%; padding: 0.75rem; margin: 0.5rem 0; background: var(--bg-surface); border: 1px solid var(--glass-border); border-radius: 8px; color: #ffffff; cursor: pointer; transition: 0.3s;">
-                            <i class="fas fa-tv"></i> 720p - HD
-                        </button>
-                        <button onclick="streamMovie('1080p')" style="width: 100%; padding: 0.75rem; margin: 0.5rem 0; background: var(--bg-surface); border: 1px solid var(--glass-border); border-radius: 8px; color: #ffffff; cursor: pointer; transition: 0.3s;">
-                            <i class="fas fa-tv"></i> 1080p - Full HD
-                        </button>
-                    </div>
-                `,
-                showConfirmButton: false,
-                didOpen: () => {
-                    const popup = Swal.getPopup();
-                    const confirmBtn = Swal.getConfirmButton();
-                    if (confirmBtn) confirmBtn.remove();
-                }
-            });
-        }
 
         function showDownloadOptions() {
             Swal.fire({
@@ -1134,6 +1192,7 @@
         }
 
         const movieFile = {!! json_encode($movie->video_url) !!};
+        const movieHls = {!! json_encode($movie->hls_url) !!};
         const moviePoster = {!! json_encode($movie->poster_url) !!};
         const movieTrackId = {{ $movie->id }};
         const mmMovieMeta = {
@@ -1179,14 +1238,63 @@
             }
         }
 
+        let mmHls = null;
+
+        function destroyHls() {
+            if (mmHls) {
+                try { mmHls.destroy(); } catch (e) {}
+                mmHls = null;
+            }
+            document.getElementById('mmQualityWrap').style.display = 'none';
+        }
+
+        function toggleQualityMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('mmQualityMenu');
+            menu.classList.toggle('open');
+        }
+
+        document.addEventListener('click', function (e) {
+            const menu = document.getElementById('mmQualityMenu');
+            if (menu && !e.target.closest('.mm-quality-wrap')) {
+                menu.classList.remove('open');
+            }
+        });
+
+        function setQuality(index) {
+            if (!mmHls) return;
+            mmHls.currentLevel = index;
+            const label = document.getElementById('mmQualityLabel');
+            if (index === -1) {
+                label.textContent = 'Auto';
+            } else if (mmHls.levels[index]) {
+                label.textContent = mmHls.levels[index].height + 'p';
+            }
+            document.querySelectorAll('#mmQualityMenu button').forEach(b => b.classList.remove('active'));
+            document.getElementById('q-' + index).classList.add('active');
+            document.getElementById('mmQualityMenu').classList.remove('open');
+        }
+
+        function buildQualityMenu(levels) {
+            const wrap = document.getElementById('mmQualityWrap');
+            const menu = document.getElementById('mmQualityMenu');
+            const label = document.getElementById('mmQualityLabel');
+            if (!levels || levels.length === 0) {
+                wrap.style.display = 'none';
+                return;
+            }
+            menu.innerHTML = '<button id="q--1" class="active" onclick="setQuality(-1)"><i class="fas fa-magic"></i> Auto</button>' +
+                levels.map((l, i) => '<button id="q-' + i + '" onclick="setQuality(' + i + ')">' + (l.height ? l.height + 'p' : ('Level ' + (i + 1))) + '</button>').join('');
+            wrap.style.display = '';
+            label.textContent = 'Auto';
+        }
+
         function streamMovie(quality) {
             Swal.close();
             const video = document.getElementById('streamVideo');
             const isExternal = /^https?:\/\//i.test(movieFile);
-            video.src = isExternal ? movieFile : '{{ route('stream.movie', $movie->id) }}';
-            if (moviePoster) video.poster = moviePoster;
-            document.getElementById('streamModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
+
+            destroyHls();
 
             let resumeAt = serverResume;
             if (!mmAuth) {
@@ -1213,12 +1321,43 @@
                 playbackSave(video.currentTime, video.duration);
             };
             video.onended = () => playbackSave(video.duration, video.duration);
-            video.play().catch(() => {});
+            if (moviePoster) video.poster = moviePoster;
+
+            document.getElementById('streamModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            const useHls = movieHls && (window.Hls ? Hls.isSupported() : video.canPlayType('application/vnd.apple.mpegurl'));
+
+            if (useHls) {
+                if (window.Hls) {
+                    mmHls = new Hls();
+                    mmHls.loadSource(movieHls);
+                    mmHls.attachMedia(video);
+                    mmHls.on(Hls.Events.MANIFEST_PARSED, function (e, data) {
+                        buildQualityMenu(data.levels);
+                        video.play().catch(() => {});
+                    });
+                    mmHls.on(Hls.Events.ERROR, function (e, data) {
+                        if (!data.fatal) return;
+                        if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                            mmHls.recoverMediaError();
+                        }
+                    });
+                } else {
+                    video.src = movieHls;
+                    video.play().catch(() => {});
+                }
+            } else {
+                video.src = isExternal ? movieFile : '{{ route('stream.movie', $movie->id) }}';
+                video.play().catch(() => {});
+            }
+
             mmViewTracker.trackVideo(video, 'movie', {{ $movie->id }});
         }
 
         function closeStreamModal() {
             const video = document.getElementById('streamVideo');
+            destroyHls();
             video.pause();
             video.onloadedmetadata = null;
             video.ontimeupdate = null;
