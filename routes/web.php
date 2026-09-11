@@ -110,6 +110,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->name('admin.')->group(fun
     Route::get('/analytics', [VisitorAnalyticsController::class, 'index'])->name('analytics.index');
     Route::get('/analytics/realtime', [VisitorAnalyticsController::class, 'realtime'])->name('analytics.realtime');
     Route::get('/analytics/clear', [VisitorAnalyticsController::class, 'clearData'])->name('analytics.clear');
+    Route::match(['get', 'post'], '/analytics/export', [VisitorAnalyticsController::class, 'export'])->name('analytics.export');
 
     Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
