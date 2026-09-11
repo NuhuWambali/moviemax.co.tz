@@ -412,6 +412,7 @@
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
     // Visitor Trend Chart
     const dailyData = @json($dailyData);
@@ -569,6 +570,33 @@
     
     function refreshData() {
         location.reload();
+    }
+
+    // PDF export for visitors table
+    function exportVisitorsPDF() {
+        // Print the visitor table
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Visitor Analytics - PDF Export</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        .title { text-align: center; margin-bottom: 20px; color: #e31c25; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                        th, td { border: 1px solid #dee2e6; padding: 8px; text-align: left; }
+                        th { background-color: #f8f9fa; }
+                    </style>
+                </head>
+                <body>
+                    <h3 class="title">Visitor Analytics - Visitor List</h3>
+                    {{ table.outerHTML }}
+                    <button onclick="window.print()" style="margin-top: 20px; padding: 8px 15px; background: #e31c25; color: white; border: none; border-radius: 4px;">Print/Export PDF</button>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
     }
     
     updateOnlineCount();
