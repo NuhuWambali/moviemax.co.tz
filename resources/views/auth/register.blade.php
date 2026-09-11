@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - MovieMax</title>
     @include('partials.seo', ['seoTitle' => 'Create Account - MovieMax', 'seoDescription' => 'Create a free MovieMax account to save favorites, react and comment.', 'seoNoindex' => true])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         :root {
             --bg-deep: #0a0d12;
@@ -22,57 +23,97 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg-deep);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            overflow: hidden;
             position: relative;
+            background: #05070b;
         }
-        body::before {
+        .bg {
+            position: fixed; inset: 0; z-index: 0;
+            background: url('/images/auth-bg.jpg') center/cover no-repeat;
+            transform: scale(1.08);
+        }
+        .bg::after {
             content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(ellipse at 30% 20%, rgba(229, 9, 20, 0.06) 0%, transparent 50%),
-                        radial-gradient(ellipse at 70% 80%, rgba(229, 9, 20, 0.06) 0%, transparent 50%);
+            position: absolute; inset: 0;
+            background:
+                linear-gradient(180deg, rgba(5,7,11,0.55) 0%, rgba(5,7,11,0.35) 40%, rgba(5,7,11,0.88) 100%),
+                radial-gradient(ellipse at 50% -20%, rgba(229, 9, 20, 0.22) 0%, transparent 55%);
+        }
+        .bg::before {
+            content: '';
+            position: absolute; inset: 0; z-index: 1;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(229, 9, 20, 0.10) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(255, 215, 0, 0.05) 0%, transparent 50%);
             animation: bgFloat 15s ease-in-out infinite alternate;
         }
         @keyframes bgFloat {
             0% { transform: translate(0, 0) rotate(0deg); }
-            100% { transform: translate(-5%, 3%) rotate(3deg); }
+            100% { transform: translate(-2%, 2%) rotate(1.5deg); }
         }
-        .auth-container { max-width: 440px; width: 100%; position: relative; z-index: 1; }
+        .auth-container { max-width: 460px; width: 100%; position: relative; z-index: 2; }
         .auth-card {
-            background: rgba(10, 13, 18, 0.6);
-            backdrop-filter: blur(30px) saturate(180%);
-            -webkit-backdrop-filter: blur(30px) saturate(180%);
-            border-radius: 24px;
-            padding: 2.5rem;
-            border: 1px solid rgba(229, 9, 20, 0.18);
-            box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5), 0 0 80px -30px rgba(229, 9, 20, 0.08);
+            background: rgba(10, 13, 18, 0.62);
+            backdrop-filter: blur(34px) saturate(170%);
+            -webkit-backdrop-filter: blur(34px) saturate(170%);
+            border-radius: 26px;
+            padding: 2.6rem 2.5rem;
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 40px 80px -30px rgba(0,0,0,0.85), 0 0 120px -40px rgba(229, 9, 20, 0.18), inset 0 1px 0 rgba(255,255,255,0.06);
             animation: fadeInUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px) scale(0.97); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .logo {
+        .auth-card::before {
+            content: '';
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 120px; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent-red), var(--accent-purple), transparent);
+            border-radius: 0 0 4px 4px;
+        }
+        .auth-card::after {
+            content: '';
+            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 120px; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent-red), transparent);
+            border-radius: 4px 4px 0 0;
+            opacity: 0.6;
+        }
+        .logo-wrap {
             text-align: center;
+            margin-bottom: 1.25rem;
+        }
+        .logo {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.5rem;
+            font-size: 2.6rem;
             letter-spacing: 4px;
-            background: var(--text-primary);
+            background: linear-gradient(120deg, #ffffff 30%, #f5c518 60%, #e50914 90%);
             background-size: 200% 200%;
-            animation: gradientShift 4s ease infinite;
+            animation: gradientShift 6s ease infinite;
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-bottom: 0.5rem;
+            line-height: 1;
         }
         @keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        .logo-badge {
+            display: inline-block;
+            margin-bottom: 0.75rem;
+            padding: 0.28rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.06);
+            color: var(--text-secondary);
+            font-size: 0.68rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
         .subtitle {
             text-align: center;
             color: var(--text-secondary);
@@ -86,15 +127,15 @@
         }
         .input-group {
             display: flex; align-items: center;
-            background: rgba(255,255,255,0.03);
+            background: rgba(255,255,255,0.045);
             border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.10);
             transition: all 0.3s ease;
         }
         .input-group:focus-within {
             border-color: var(--accent-red);
-            box-shadow: 0 0 15px rgba(229, 9, 20, 0.12);
-            background: rgba(255,255,255,0.05);
+            box-shadow: 0 0 18px rgba(229, 9, 20, 0.16);
+            background: rgba(255,255,255,0.07);
         }
         .input-group i {
             padding: 0 1.1rem;
@@ -109,7 +150,7 @@
         .input-group input::placeholder { color: var(--text-muted); }
         .btn-register {
             width: 100%;
-            background: var(--accent-red);
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-red-dark));
             color: white; border: none;
             padding: 1rem; border-radius: 14px;
             font-size: 1rem; font-weight: 700;
@@ -128,13 +169,14 @@
             transition: left 0.6s ease;
         }
         .btn-register:hover::before { left: 100%; }
+        @media (hover: none) { .btn-register:hover { transform: none; } }
         .divider {
             display: flex; align-items: center; gap: 1rem;
             margin: 1.5rem 0; color: var(--text-muted); font-size: 0.8rem;
         }
         .divider::before, .divider::after {
             content: ''; flex: 1; height: 1px;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.10);
         }
         .btn-google {
             width: 100%;
@@ -151,6 +193,7 @@
             transform: translateY(-3px);
             box-shadow: 0 10px 30px rgba(66, 133, 244, 0.25);
         }
+        .btn-google:active { transform: translateY(-1px); }
         .btn-google .g-logo {
             width: 20px; height: 20px;
         }
@@ -164,8 +207,8 @@
         }
         .login-link a:hover { text-decoration: underline; }
         .error-message {
-            background: rgba(229,28,37,0.12);
-            border: 1px solid rgba(229,28,37,0.3);
+            background: rgba(229,28,37,0.14);
+            border: 1px solid rgba(229,28,37,0.35);
             color: #fbbf24;
             padding: 0.75rem 1rem;
             border-radius: 12px;
@@ -173,13 +216,26 @@
             font-size: 0.88rem;
             backdrop-filter: blur(10px);
         }
+        .pw-hint {
+            margin: -0.4rem 0 0.1rem;
+            color: var(--text-muted);
+            font-size: 0.74rem;
+        }
+        @media (max-width: 520px) {
+            body { padding: 1rem; }
+            .auth-card { padding: 2rem 1.4rem; border-radius: 20px; }
+        }
     </style>
 </head>
 <body>
+<div class="bg"></div>
 @include('partials.loader')    <div class="auth-container">
         <div class="auth-card">
-            <div class="logo">MOVIEMAX</div>
-            <div class="subtitle">Create your account to get started</div>
+            <div class="logo-wrap">
+                <div class="logo-badge">Free · Unlimited · HD</div>
+                <div class="logo">MOVIEMAX</div>
+            </div>
+            <div class="subtitle">Join MovieMax — save favorites, get alerts & keep watching.</div>
 
             @if($errors->any())
                 <div class="error-message">
@@ -211,6 +267,7 @@
                         <i class="fas fa-lock"></i>
                         <input type="password" name="password" required placeholder="Min. 8 characters">
                     </div>
+                    <div class="pw-hint">Minimum 8 characters</div>
                 </div>
                 <div class="form-group">
                     <label>Confirm Password</label>
