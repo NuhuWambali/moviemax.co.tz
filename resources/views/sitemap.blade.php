@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+{!! '<?xml version="1.0" encoding="UTF-8"?>' !!}
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 @php
     $static = [
@@ -37,7 +37,7 @@
 @endforeach
 @foreach($trailers as $trailer)
     <url>
-        <loc>{{ url('/trailers/' . $trailer->id) }}</loc>
+        <loc>{{ url('/trailers/' . $trailer->slug) }}</loc>
         <lastmod>{{ optional($trailer->updated_at)->toDateString() ?? date('Y-m-d') }}</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
