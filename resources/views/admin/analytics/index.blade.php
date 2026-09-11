@@ -362,7 +362,7 @@
                     </thead>
                     <tbody>
                         @foreach($recentVisitors as $visitor)
-                        <tr style="background: {{ $loop->isOdd() ? 'rgba(255,255,255,0.03)' : 'transparent' }};">
+                        <tr style="background: {{ $loop->odd ? 'rgba(255,255,255,0.03)' : 'transparent' }};">
                             <td style="padding: 0.5rem;">{{ $loop->iteration }}</td>
                             <td style="padding: 0.5rem; font-size: 0.75rem;">{{ $visitor->ip_address }}</td>
                             <td style="padding: 0.5rem; font-size: 0.75rem;">{{ $visitor->browser ?? 'Unknown' }}</td>
