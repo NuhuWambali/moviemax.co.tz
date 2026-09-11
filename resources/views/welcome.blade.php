@@ -721,9 +721,9 @@
             margin-top: 0.8rem;
             padding: 0.55rem 0.8rem;
             border-radius: 10px;
-            background: rgba(229, 9, 20, 0.15);
-            border: 1px solid rgba(229, 9, 20, 0.3);
-            color: #ffc46b;
+            background: var(--accent-red);
+            border: 1px solid rgba(229, 9, 20, 0.5);
+            color: #ffffff;
             font-size: 0.75rem;
             font-weight: 700;
             text-decoration: none;
@@ -731,10 +731,10 @@
             width: 100%;
         }
         .trailer-download:hover {
-            background: var(--accent-red);
+            background: var(--accent-red-dark);
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.35);
+            box-shadow: 0 8px 24px rgba(229, 9, 20, 0.45);
         }
         .trailer-download-off {
             background: rgba(255,255,255,0.05);
