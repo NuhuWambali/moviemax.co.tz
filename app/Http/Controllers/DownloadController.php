@@ -23,7 +23,26 @@ class DownloadController extends Controller
         // External URL (works locally or hosted like Cloudinary)
         $videoUrl = $movie->video_url;
         if (!empty($videoUrl) && preg_match('#^https?://#i', $videoUrl)) {
-            return redirect()->away($videoUrl);
+            $downloadUrl = $this->forceDownloadUrl($videoUrl);
+            if ($downloadUrl) {
+                return redirect()->away($downloadUrl);
+            }
+
+            // Fallback: stream the remote file through the server as a download
+            return response()->streamDownload(
+                function () use ($videoUrl) {
+                    $stream = @fopen($videoUrl, 'r');
+                    if ($stream) {
+                        while (!feof($stream)) {
+                            echo fread($stream, 1024 * 1024);
+                            flush();
+                        }
+                        fclose($stream);
+                    }
+                },
+                $movie->title . '.mp4',
+                ['Content-Type' => 'video/mp4']
+            );
         }
         
         // Find the file
@@ -94,6 +113,23 @@ class DownloadController extends Controller
         abort(404, 'Series file not found');
     }
     
+    /**
+     * Turn an external video URL into one that forces a browser download.
+     * Cloudinary supports the fl_attachment flag for this.
+     */
+    private function forceDownloadUrl(string $url): ?string
+    {
+        if (preg_match('#^https://res\.cloudinary\.com/([^/]+)/video/(upload|fetch)/#i', $url, $m)) {
+            $base = 'https://res.cloudinary.com/' . $m[1] . '/video/' . $m[2] . '/fl_attachment/';
+            $rest = substr($url, strlen('https://res.cloudinary.com/' . $m[1] . '/video/' . $m[2] . '/'));
+            if ($rest !== '') {
+                return $base . $rest;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Find movie file in various possible locations
      */
