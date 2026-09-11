@@ -121,7 +121,7 @@ class Movie extends Model
     public function getHlsUrlAttribute()
     {
         $path = trim((string) $this->file_path);
-        if ($path === '' || !preg_match('#^https://res\.cloudinary\.com/[^/]+/video/upload/.*\.mp4(#|\?|$)#i', $path)) {
+        if ($path === '' || !preg_match('~^https://res\.cloudinary\.com/[^/]+/video/upload/.*\.mp4(#|\?|$)~i', $path)) {
             return null;
         }
 
