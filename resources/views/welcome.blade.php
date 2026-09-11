@@ -514,6 +514,20 @@
             background: var(--accent-red);
             border-radius: 0 2px 2px 0;
         }
+        .continue-pill {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 3;
+            padding: 0.3rem 0.65rem;
+            border-radius: 30px;
+            background: rgba(229, 9, 20, 0.9);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 600;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+        }
         .card-overlay i {
             width: 50px;
             height: 50px;
@@ -1100,19 +1114,23 @@
     @endforeach
 </div>
 
-@if($continueWatching->count() > 0)
+@if(Auth::check() || $continueWatching->count() > 0)
 <!-- Continue Watching -->
-<div class="section reveal" id="continue-watching">
+<div class="section reveal" id="continue-watching" @if(Auth::guest() && $continueWatching->count() === 0) style="display:none" @endif>
     <div class="section-header">
-        <h2><i class="fas fa-play-circle"></i> Continue Watching</h2>
+        <h2><i class="fas fa-play-circle" style="color: var(--accent-red); margin-right: 0.5rem; font-size: 1.2rem;"></i> Continue Watching</h2>
         <a href="{{ route('movies.index') }}" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
     </div>
-    <div class="movie-grid">
+    <div class="movie-grid" id="continue-grid">
         @foreach($continueWatching as $entry)
+        @php $remaining = max(0, (int) ($entry->duration_seconds ?? 0) - (int) ($entry->progress_seconds ?? 0)); @endphp
         <a class="movie-card" href="{{ route('movies.show', $entry->movie->slug) }}" title="{{ $entry->movie->title }}">
             <div class="card-img-wrap">
-                <img class="card-img" src="{{ $entry->movie->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $entry->movie->title }}" loading="lazy">
+                <img class="card-img" src="{{ $entry->movie->poster_url ?? '/images/posters/dummy-poster.png' }}" alt="{{ $entry->movie->title }}" loading="lazy">
                 <div class="card-overlay"><i class="fas fa-play"></i></div>
+                @if($remaining > 0)
+                    <span class="continue-pill">{{ gmdate('i:s', $remaining) }} left</span>
+                @endif
                 <div class="continue-bar"><span style="width: {{ max(5, min(100, ($entry->ratio ?? 0) * 100)) }}%"></span></div>
             </div>
             <div class="card-info">
@@ -1715,6 +1733,44 @@
             }
         } catch (err) {}
     }
+
+    // Continue Watching for guests: rendered client-side from localStorage "mm_recent"
+    (function renderGuestContinueWatching() {
+        if (@json(Auth::check())) return;
+        const section = document.getElementById('continue-watching');
+        const grid = document.getElementById('continue-grid');
+        if (!section || !grid) return;
+        let recent = [];
+        try {
+            recent = JSON.parse(localStorage.getItem('mm_recent') || '[]');
+        } catch (e) {}
+        recent = (Array.isArray(recent) ? recent : [])
+            .filter(i => i && i.id && i.p && i.p > 5 && i.d && i.p < (i.d - 15))
+            .sort((a, b) => (b.ts || 0) - (a.ts || 0))
+            .slice(0, 6);
+        if (recent.length === 0) return;
+        grid.innerHTML = recent.map(function(it) {
+            const ratio = Math.max(0.05, Math.min(1, it.p / it.d));
+            const remaining = Math.max(0, it.d - it.p);
+            const mins = String(Math.floor(remaining / 60)).padStart(2, '0');
+            const secs = String(remaining % 60).padStart(2, '0');
+            const poster = it.poster || '/images/posters/dummy-poster.png';
+            const href = '/movies/' + (it.slug || it.id);
+            return '<a class="movie-card" href="' + href + '" title="' + (it.title || '').replace(/"/g, '&quot;') + '">' +
+                '<div class="card-img-wrap">' +
+                    '<img class="card-img" src="' + poster + '" alt="' + (it.title || '').replace(/"/g, '&quot;') + '" loading="lazy">' +
+                    '<div class="card-overlay"><i class="fas fa-play"></i></div>' +
+                    '<span class="continue-pill">' + mins + ':' + secs + ' left</span>' +
+                    '<div class="continue-bar"><span style="width:' + (ratio * 100).toFixed(1) + '%"></span></div>' +
+                '</div>' +
+                '<div class="card-info">' +
+                    '<h4>' + (it.title || 'Movie').replace(/"/g, '&quot;') + '</h4>' +
+                    '<div class="meta"><span><i class="fas fa-calendar-alt"></i> ' + (it.year || 'N/A') + '</span><span><i class="fas fa-clock"></i> ' + (it.duration || 'N/A') + '</span></div>' +
+                '</div>' +
+            '</a>';
+        }).join('');
+        section.style.display = '';
+    })();
 </script>
 </body>
 </html>

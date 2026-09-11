@@ -1134,14 +1134,39 @@
         }
 
         const movieFile = {!! json_encode($movie->video_url) !!};
-        const moviePoster = {!! json_encode($movie->poster_path) !!};
+        const moviePoster = {!! json_encode($movie->poster_url) !!};
         const movieTrackId = {{ $movie->id }};
+        const mmMovieMeta = {
+            id: {{ $movie->id }},
+            slug: {!! json_encode($movie->slug) !!},
+            title: {!! json_encode($movie->title) !!},
+            poster: moviePoster,
+            year: {!! json_encode($movie->release_year) !!},
+            duration: {!! json_encode($movie->duration) !!},
+            posterPath: {!! json_encode($movie->poster_path) !!}
+        };
         const mmAuth = @json(auth()->check());
         const serverResume = {{ $resume ? (int) $resume->progress_seconds : 0 }};
+
+        function saveRecentLocal(progress, duration) {
+            if (mmAuth) return;
+            try {
+                const d = duration || 0;
+                if (d <= 0) return;
+                let recent = JSON.parse(localStorage.getItem('mm_recent') || '[]');
+                if (!Array.isArray(recent)) recent = [];
+                const idx = recent.findIndex(i => i && i.id === mmMovieMeta.id);
+                const entry = Object.assign({}, mmMovieMeta, { p: Math.round(progress || 0), d: Math.round(d), ts: Date.now() });
+                if (idx > -1) recent[idx] = entry; else recent.push(entry);
+                if (recent.length > 20) recent = recent.slice(-20);
+                localStorage.setItem('mm_recent', JSON.stringify(recent));
+            } catch (e) {}
+        }
 
         function playbackSave(progress, duration) {
             const dur = Math.round(duration || 0);
             const data = { watchable_type: 'App\\Models\\Movie', watchable_id: movieTrackId, progress: Math.round(progress || 0), duration: dur };
+            saveRecentLocal(progress, duration);
             try {
                 localStorage.setItem('mm_progress_' + movieTrackId, JSON.stringify({ p: Math.round(progress || 0), d: dur }));
             } catch (e) {}
