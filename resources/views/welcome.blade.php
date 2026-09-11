@@ -650,7 +650,7 @@
             border-radius: 8px;
             font-size: 0.65rem;
             font-weight: 700;
-            color: white;
+            color: #000;
             z-index: 3;
             letter-spacing: 0.5px;
             display: inline-flex;
