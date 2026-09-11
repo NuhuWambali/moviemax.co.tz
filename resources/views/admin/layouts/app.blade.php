@@ -9,14 +9,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-deep: #0a1120;
-            --bg-surface: #101a30;
-            --bg-card: #16223a;
+            --bg-deep: #0a0a0d;
+            --bg-surface: #111216;
+            --bg-card: #17181d;
             --accent: #2563eb;
             --accent-dark: #1d4ed8;
-            --text-primary: #eef2f9;
-            --text-secondary: #a6b3cc;
-            --text-muted: #7d8aa6;
+            --text-primary: #f2f4f8;
+            --text-secondary: #b0b6c2;
+            --text-muted: #83888f;
             --border: rgba(255, 255, 255, 0.08);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,7 +24,7 @@
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-deep);
-            background-image: radial-gradient(ellipse at 20% -10%, rgba(37, 99, 235, 0.12) 0%, transparent 55%);
+            background-image: radial-gradient(ellipse at 20% -10%, rgba(255, 255, 255, 0.04) 0%, transparent 55%);
             color: var(--text-primary);
             min-height: 100vh;
         }
@@ -35,14 +35,14 @@
         /* ---------- Sidebar ---------- */
         .sidebar {
             width: 260px;
-            background: linear-gradient(180deg, #0d1830 0%, #0a1120 100%);
+            background: linear-gradient(180deg, #131418 0%, #0a0a0d 100%);
             border-right: 1px solid var(--border);
             position: fixed;
             height: 100vh;
             overflow-y: auto;
             z-index: 100;
             scrollbar-width: thin;
-            scrollbar-color: rgba(37,99,235,0.4) transparent;
+            scrollbar-color: rgba(255,255,255,0.18) transparent;
         }
         .sidebar-header {
             padding: 1.6rem 1.5rem 1.2rem;
@@ -99,7 +99,7 @@
         /* ---------- Main ---------- */
         .main-content { flex: 1; margin-left: 260px; padding: 1.8rem 2rem 3rem; }
         .top-bar {
-            background: rgba(12, 22, 44, 0.8);
+            background: rgba(10, 10, 13, 0.92);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--border);
@@ -176,7 +176,7 @@
             margin-bottom: 1.8rem;
         }
         .stat-card {
-            background: linear-gradient(160deg, var(--bg-card), #101a30);
+            background: linear-gradient(160deg, var(--bg-card), #111216);
             border-radius: 18px;
             padding: 1.4rem 1.5rem;
             border: 1px solid var(--border);
@@ -199,7 +199,7 @@
 
         /* ---------- Cards ---------- */
         .card {
-            background: linear-gradient(160deg, var(--bg-card), #101a30);
+            background: linear-gradient(160deg, var(--bg-card), #111216);
             border-radius: 18px;
             padding: 1.5rem;
             border: 1px solid var(--border);
@@ -232,7 +232,7 @@
         .form-control {
             width: 100%;
             padding: 0.72rem 0.9rem;
-            background: #0d1830;
+            background: #111216;
             border: 1px solid var(--border);
             border-radius: 10px;
             color: #fff;
