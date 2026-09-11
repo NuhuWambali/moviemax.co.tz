@@ -451,8 +451,37 @@ class MovieController extends Controller
         $trailers = Trailer::where('is_active', true)->get();
         $genres = ['Action', 'Adventure', 'Animation', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'Horror', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western'];
 
-        return response()
-            ->view('sitemap', compact('movies', 'series', 'trailers', 'genres'))
-            ->header('Content-Type', 'application/xml');
+        $e = fn ($v) => htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8');
+
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+
+        $static = [
+            ['loc' => url('/'), 'freq' => 'daily', 'priority' => '1.0'],
+            ['loc' => url('/movies'), 'freq' => 'daily', 'priority' => '0.9'],
+            ['loc' => url('/series'), 'freq' => 'daily', 'priority' => '0.9'],
+            ['loc' => url('/trailers'), 'freq' => 'daily', 'priority' => '0.8'],
+            ['loc' => url('/about'), 'freq' => 'monthly', 'priority' => '0.5'],
+        ];
+        foreach ($genres as $genre) {
+            $static[] = ['loc' => url('/genre/' . rawurlencode($genre)), 'freq' => 'weekly', 'priority' => '0.6'];
+        }
+
+        foreach ($static as $page) {
+            $xml .= '  <url><loc>' . $e($page['loc']) . '</loc><changefreq>' . $e($page['freq']) . '</changefreq><priority>' . $e($page['priority']) . '</priority></url>' . "\n";
+        }
+        foreach ($movies as $movie) {
+            $xml .= '  <url><loc>' . $e(url('/movies/' . $movie->slug)) . '</loc><lastmod>' . (optional($movie->updated_at)->toDateString() ?? date('Y-m-d')) . '</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>' . "\n";
+        }
+        foreach ($series as $item) {
+            $xml .= '  <url><loc>' . $e(url('/series/' . $item->id)) . '</loc><lastmod>' . (optional($item->updated_at)->toDateString() ?? date('Y-m-d')) . '</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>' . "\n";
+        }
+        foreach ($trailers as $trailer) {
+            $xml .= '  <url><loc>' . $e(url('/trailers/' . $trailer->slug)) . '</loc><lastmod>' . (optional($trailer->updated_at)->toDateString() ?? date('Y-m-d')) . '</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>' . "\n";
+        }
+
+        $xml .= '</urlset>';
+
+        return response($xml, 200)->header('Content-Type', 'application/xml');
     }
 }
