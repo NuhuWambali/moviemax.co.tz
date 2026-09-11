@@ -21,24 +21,15 @@
             } catch (e) {}
         }
 
-        var ytQueue = [], ytReady = false;
-        function ytInit() {
-            if (ytReady) return;
-            ytReady = true;
-            var prev = window.onYouTubeIframeAPIReady;
-            window.onYouTubeIframeAPIReady = function () {
-                ytQueue.forEach(function (fn) {
-                    try { fn(); } catch (e) {}
-                });
-                if (prev) prev();
-            };
-            if (window.YT && window.YT.Player) {
-                window.onYouTubeIframeAPIReady();
-            } else {
-                var s = document.createElement('script');
-                s.src = 'https://www.youtube.com/iframe_api';
-                document.head.appendChild(s);
-            }
+        // Correct visibility check: offsetParent is always null for
+        // position:fixed elements (modals), so we use the viewport rect.
+        function isVisible(el) {
+            if (!el) return false;
+            var r = el.getBoundingClientRect();
+            if (r.width <= 0 || r.height <= 0) return false;
+            var vw = window.innerWidth || document.documentElement.clientWidth;
+            var vh = window.innerHeight || document.documentElement.clientHeight;
+            return r.top < vh && r.bottom > 0 && r.left < vw && r.right > 0;
         }
 
         window.mmViewTracker = {
@@ -64,56 +55,49 @@
                 function fireOnce() {
                     if (fired) return;
                     fired = true;
+                    cleanup();
                     fire(type, id);
                 }
 
-                // Fallback counter: if the trailer stays on-screen for ~15s,
-                // count a view even if the IFrame API fails to initialise.
-                (function () {
-                    var box = iframe.closest('.player-box') || iframe.closest('.trailer-modal') || iframe;
-                    var started = null;
-                    var timer = setInterval(function () {
-                        if (document.hidden || !box.offsetParent) { started = null; return; }
-                        if (started === null) started = Date.now();
-                        if (Date.now() - started >= 15000) {
-                            clearInterval(timer);
-                            fireOnce();
-                        }
-                    }, 1000);
-                })();
+                // Track real playback by reading the player's currentTime.
+                var counted = 0, last = null, paused = true;
 
-                // Primary: hook real playback through the YouTube IFrame API.
-                function to(v) { return (typeof v === 'number') ? v : 0; }
-                ytQueue.push(function () {
+                // 1) postMessage events: when the embed has enablejsapi=1,
+                //    YouTube reports onStateChange + infoDelivery to the parent.
+                var win = iframe.contentWindow;
+                function onMessage(e) {
                     try {
-                        var m = (iframe.src || '').match(/embed\/([\w-]{11})/) || (iframe.src || '').match(/v=([\w-]{11})/);
-                        var videoId = m ? m[1] : '';
-                        if (!videoId) return;
-                        if (!iframe.id) iframe.id = 'mmyt_' + type + '_' + id;
-                        var player = new YT.Player(iframe.id, {
-                            videoId: videoId,
-                            playerVars: { autoplay: 1, rel: 0, modestbranding: 1, iv_load_policy: 3 },
-                            events: {
-                                onReady: function () {
-                                    var counted = 0, last = null;
-                                    var timer = setInterval(function () {
-                                        var p = player;
-                                        if (!p || typeof p.getPlayerState !== 'function') return;
-                                        if (p.getPlayerState() !== 1) { last = null; return; }
-                                        var t = to(p.getCurrentTime());
-                                        if (last !== null && t > last) counted += (t - last);
-                                        last = t;
-                                        if (counted >= 5) {
-                                            clearInterval(timer);
-                                            fireOnce();
-                                        }
-                                    }, 1000);
-                                }
-                            }
-                        });
-                    } catch (e) {}
-                });
-                ytInit();
+                        if (e.source !== win || !e.data || typeof e.data !== 'object') return;
+                        var d = e.data;
+                        if (d.event === 'onStateChange') {
+                            paused = (d.info !== 1); // 1 == playing
+                            if (paused) last = null;
+                        } else if (d.event === 'infoDelivery' && d.info && typeof d.info.currentTime === 'number') {
+                            if (paused) { last = null; return; }
+                            var t = d.info.currentTime;
+                            if (last !== null && t > last) counted += (t - last);
+                            last = t;
+                            if (counted >= 5) fireOnce();
+                        }
+                    } catch (e2) {}
+                }
+
+                // 2) Poll the container while the modal is open; count a view
+                //    after ~15s of it being on-screen even if the API is blocked.
+                var box = iframe.closest('.player-box') || iframe.closest('.trailer-modal') || iframe;
+                var started = null;
+                var pollTimer = setInterval(function () {
+                    if (document.hidden || !isVisible(box)) { started = null; return; }
+                    if (started === null) started = Date.now();
+                    if (Date.now() - started >= 15000) fireOnce();
+                }, 1000);
+
+                function cleanup() {
+                    if (pollTimer) clearInterval(pollTimer);
+                    if (win) window.removeEventListener('message', onMessage);
+                }
+
+                window.addEventListener('message', onMessage);
             }
         };
     })();

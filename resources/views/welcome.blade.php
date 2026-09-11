@@ -1658,7 +1658,7 @@
         const viewType = type || 'trailer';
         const viewId = id || 0;
         if (ytId) {
-            frame.src = 'https://www.youtube-nocookie.com/embed/' + ytId + '?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3';
+            frame.src = 'https://www.youtube-nocookie.com/embed/' + ytId + '?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1';
             frame.style.display = '';
             if (trackable && window.mmViewTracker) {
                 try { window.mmViewTracker.trackYouTube(frame, viewType, viewId); } catch (e) {}

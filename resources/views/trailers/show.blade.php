@@ -260,7 +260,7 @@
                 Your browser does not support the video tag.
             </video>
         @elseif($trailer->youtube_id)
-            <iframe src="https://www.youtube-nocookie.com/embed/{{ $trailer->youtube_id }}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3"
+            <iframe src="https://www.youtube-nocookie.com/embed/{{ $trailer->youtube_id }}?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1"
                     title="{{ $trailer->title }}" frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
         @else

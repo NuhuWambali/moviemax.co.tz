@@ -1355,7 +1355,7 @@
                 const id = extractYouTubeId(url);
                 if (id) {
                     const frame = document.getElementById('trailerFrame');
-                    frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3';
+                    frame.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1';
                     document.getElementById('trailerModal').classList.add('active');
                     document.body.style.overflow = 'hidden';
                     if (window.mmViewTracker) {
