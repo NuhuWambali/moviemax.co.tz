@@ -53,7 +53,7 @@
         font-weight: 500;
     }
     
-    .device-desktop { background: rgba(0,100,255,0.2); color: #44f; }
+    .device-desktop { background: rgba(227,28,37,0.2); color: #fca5a5; }
     .device-mobile { background: rgba(0,255,0,0.2); color: #0f0; }
     .device-tablet { background: rgba(255,100,0,0.2); color: #fa0; }
     

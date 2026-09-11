@@ -51,7 +51,7 @@
         <div class="form-group" id="fileGroup">
             <label>Video</label>
             @if($trailer->source_type === 'file' && $trailer->file_path)
-                <div style="margin-bottom: 0.6rem; background: rgba(37,99,235,0.1); border: 1px solid rgba(37,99,235,0.3); border-radius: 10px; padding: 0.6rem 0.8rem; font-size: 0.85rem; color: #93c5fd;">
+                <div style="margin-bottom: 0.6rem; background: rgba(227,28,37,0.1); border: 1px solid rgba(227,28,37,0.3); border-radius: 10px; padding: 0.6rem 0.8rem; font-size: 0.85rem; color: #fca5a5;">
                     <i class="fas fa-file-video"></i> Current file: {{ basename($trailer->file_path) }}
                 </div>
             @endif

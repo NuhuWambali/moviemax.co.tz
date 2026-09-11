@@ -98,11 +98,11 @@
             datasets: [{
                 label: 'Downloads',
                 data: {!! json_encode($monthlyDownloads ?? array_fill(0, 12, rand(100, 500))) !!},
-                borderColor: '#2563eb',
-                backgroundColor: 'rgba(37, 99, 235, 0.12)',
+                borderColor: '#e31c25',
+                backgroundColor: 'rgba(227, 28, 37, 0.12)',
                 tension: 0.4,
                 fill: true,
-                pointBackgroundColor: '#2563eb',
+                pointBackgroundColor: '#e31c25',
                 pointBorderColor: '#fff',
                 pointRadius: 4,
                 pointHoverRadius: 6
@@ -126,7 +126,7 @@
             labels: ['Movies', 'TV Series', 'Episodes'],
             datasets: [{
                 data: [{{ $stats['movies'] }}, {{ $stats['series'] }}, {{ $stats['episodes'] ?? 0 }}],
-                backgroundColor: ['#2563eb', '#3b82f6', '#60a5fa'],
+                backgroundColor: ['#e31c25', '#b30610', '#7a0e15'],
                 borderWidth: 0,
                 hoverOffset: 10
             }]
