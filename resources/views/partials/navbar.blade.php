@@ -123,37 +123,23 @@
     .btn-login {
         display: inline-flex;
         align-items: center;
-        gap: 9px;
-        padding: 0.42rem 1.35rem 0.42rem 0.45rem;
-        border-radius: 40px;
+        height: 40px;
+        padding: 0 1.4rem;
+        border-radius: 10px;
         position: relative;
         background: linear-gradient(135deg, #ff4757 0%, var(--accent-red) 45%, var(--accent-red-dark) 100%);
         color: #fff !important;
         font-weight: 700 !important;
-        font-size: 0.8rem !important;
+        font-size: 0.82rem !important;
         letter-spacing: 0.6px;
         text-transform: uppercase;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        box-shadow: 0 6px 20px rgba(229, 9, 20, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25), inset 0 -2px 6px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 6px 20px rgba(229, 9, 20, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.22);
         transition: all 0.3s ease;
         overflow: hidden;
+        white-space: nowrap;
     }
-    .btn-login .login-ico {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.2);
-    }
-    .btn-login .login-ico i {
-        font-size: 0.8rem;
-        line-height: 1;
-        margin: 0;
-    }
+    .btn-login i { font-size: 0.82rem; }
     .btn-login::before {
         content: '';
         position: absolute;
@@ -452,7 +438,7 @@
             </form>
         </div>
         @else
-        <a href="{{ route('login') }}" class="btn-login"><span class="login-ico"><i class="fas fa-user-circle"></i></span> Login</a>
+        <a href="{{ route('login') }}" class="btn-login"><i class="fas fa-sign-in-alt"></i> Login</a>
         @endauth
     </div>
 </nav>
