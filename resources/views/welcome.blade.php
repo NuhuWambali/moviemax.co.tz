@@ -722,7 +722,7 @@
             padding: 0.55rem 0.8rem;
             border-radius: 10px;
             background: var(--accent-red);
-            border: 1px solid rgba(229, 9, 20, 0.5);
+            border: none;
             color: #ffffff;
             font-size: 0.75rem;
             font-weight: 700;
