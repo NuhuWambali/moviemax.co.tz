@@ -31,22 +31,19 @@
             position: relative;
             background: #05070b;
         }
-        .bg-slide {
+        .bg {
             position: fixed; inset: 0; z-index: 0;
-            background-position: center; background-size: cover;
+            background: url('/images/auth-bg.jpg') center/cover no-repeat;
             transform: scale(1.08);
-            opacity: 0;
-            transition: opacity 2s ease;
         }
-        .bg-slide.active { opacity: 1; z-index: 1; }
-        .bg-slide::after {
+        .bg::after {
             content: '';
             position: absolute; inset: 0;
             background:
                 linear-gradient(180deg, rgba(5,7,11,0.55) 0%, rgba(5,7,11,0.35) 40%, rgba(5,7,11,0.88) 100%),
                 radial-gradient(ellipse at 50% -20%, rgba(229, 9, 20, 0.22) 0%, transparent 55%);
         }
-        .bg-slide::before {
+        .bg::before {
             content: '';
             position: absolute; inset: 0; z-index: 1;
             background:
@@ -229,10 +226,7 @@
     </style>
 </head>
 <body>
-<div class="bg-slide active" style="background-image:url('/images/auth-bg.jpg')"></div>
-<div class="bg-slide" style="background-image:url('/images/auth-bg-2.jpg')"></div>
-<div class="bg-slide" style="background-image:url('/images/auth-bg-3.jpg')"></div>
-<div class="bg-slide" style="background-image:url('/images/auth-bg-4.jpg')"></div>
+<div class="bg"></div>
 @include('partials.loader')    <div class="auth-container">
         <div class="auth-card">
             <div class="logo-wrap">
