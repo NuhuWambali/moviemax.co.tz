@@ -617,24 +617,6 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
         }
-        .trailer-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 16px;
-            padding: 1px;
-            background: rgba(229, 9, 20, 0.25);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            transition: background 0.4s ease;
-            pointer-events: none;
-            z-index: 4;
-        }
-        .trailer-card:hover::before {
-            background: rgba(229, 9, 20, 0.5);
-        }
         .trailer-card:hover {
             transform: translateY(-10px) scale(1.02);
             box-shadow: 0 20px 40px -15px rgba(229, 9, 20, 0.25), 0 0 60px -20px rgba(229, 9, 20, 0.2);
