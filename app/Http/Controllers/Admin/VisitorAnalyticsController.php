@@ -91,6 +91,11 @@ class VisitorAnalyticsController extends Controller
         
         // Recent visitors - Get latest records
         $recentVisitors = VisitorTracking::orderBy('last_visit', 'desc')
+            ->limit(20)
+            ->get();
+
+        // All visitors - paginated table (100 per page)
+        $allVisitors = VisitorTracking::orderBy('last_visit', 'desc')
             ->paginate(100);
         
         // Hourly activity - Last 24 hours
@@ -121,7 +126,7 @@ class VisitorAnalyticsController extends Controller
         
         return view('admin.analytics.index', compact(
             'stats', 'dailyData', 'devices', 'browsers', 
-            'topPages', 'recentVisitors', 'hourlyActivity', 
+            'topPages', 'recentVisitors', 'allVisitors', 'hourlyActivity', 
             'countries', 'days', 'operatingSystems'
         ));
     }
