@@ -1770,7 +1770,7 @@
             const href = '/movies/' + (it.slug || it.id);
             return '<a class="movie-card" href="' + href + '" title="' + (it.title || '').replace(/"/g, '&quot;') + '">' +
                 '<div class="card-img-wrap">' +
-                    '<img class="card-img" src="' + poster + '" alt="' + (it.title || '').replace(/"/g, '&quot;') + '" loading="lazy">' +
+                    '<img class="card-img" src="' + poster + '" alt="' + (it.title || '').replace(/"/g, '&quot;') + '" loading="lazy" onerror="this.onerror=null;this.src=\'/images/posters/dummy-poster.png\';">' +
                     '<div class="card-overlay"><i class="fas fa-play"></i></div>' +
                     '<span class="continue-pill">' + mins + ':' + secs + ' left</span>' +
                     '<div class="continue-bar"><span style="width:' + (ratio * 100).toFixed(1) + '%"></span></div>' +

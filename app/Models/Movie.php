@@ -77,8 +77,15 @@ class Movie extends Model
         if (filter_var($this->poster_path, FILTER_VALIDATE_URL)) {
             return $this->poster_path;
         }
-        
-        return asset('storage/' . $this->poster_path);
+
+        $path = $this->poster_path;
+
+        // Already a storage path (with or without leading slash) -> resolve directly
+        if (preg_match('#^(?:/)?storage/#', $path)) {
+            return asset(ltrim($path, '/'));
+        }
+
+        return asset('storage/' . ltrim($path, '/'));
     }
 
     /**
