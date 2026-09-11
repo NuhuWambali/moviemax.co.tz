@@ -20,6 +20,12 @@ class DownloadController extends Controller
         // Increment download count for movie
         $movie->increment('download_count');
         
+        // External URL (works locally or hosted like Cloudinary)
+        $videoUrl = $movie->video_url;
+        if (!empty($videoUrl) && preg_match('#^https?://#i', $videoUrl)) {
+            return redirect()->away($videoUrl);
+        }
+        
         // Find the file
         $filePath = $this->findMovieFile($movie->file_path);
         
@@ -39,8 +45,9 @@ class DownloadController extends Controller
     {
         $movie = Movie::findOrFail($id);
         
-        if (!empty($movie->file_path) && preg_match('#^https?://#i', $movie->file_path)) {
-            return redirect()->away($movie->file_path);
+        $videoUrl = $movie->video_url;
+        if (!empty($videoUrl) && preg_match('#^https?://#i', $videoUrl)) {
+            return redirect()->away($videoUrl);
         }
         
         $filePath = $this->findMovieFile($movie->file_path);

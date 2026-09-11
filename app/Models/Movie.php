@@ -81,6 +81,39 @@ class Movie extends Model
         return asset('storage/' . $this->poster_path);
     }
 
+    /**
+     * Playable/downloadable video URL. Cloudinary embed-player links are
+     * automatically converted to a direct video file so watch/download work.
+     */
+    public function getVideoUrlAttribute()
+    {
+        $path = trim((string) $this->file_path);
+        if ($path === '') {
+            return null;
+        }
+
+        if (preg_match('#^https?://player\.cloudinary\.com/embed/\?#i', $path)) {
+            $query = [];
+            parse_str((string) parse_url($path, PHP_URL_QUERY), $query);
+            $cloud = $query['cloud_name'] ?? null;
+            $publicId = $query['public_id'] ?? null;
+
+            if ($cloud && $publicId) {
+                $direct = 'https://res.cloudinary.com/' . $cloud . '/video/upload/' . $publicId . '.mp4';
+                if (filter_var($direct, FILTER_VALIDATE_URL)) {
+                    $path = $direct;
+                }
+            }
+        }
+
+        return $path;
+    }
+
+    public function getIsExternalVideoAttribute()
+    {
+        return preg_match('#^https?://#i', (string) $this->video_url) === 1;
+    }
+
     public function isSeries()
     {
         return $this->type === 'series';

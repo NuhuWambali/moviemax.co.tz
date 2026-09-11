@@ -1133,7 +1133,7 @@
             });
         }
 
-        const movieFile = {!! json_encode($movie->file_path) !!};
+        const movieFile = {!! json_encode($movie->video_url) !!};
         const moviePoster = {!! json_encode($movie->poster_path) !!};
         const movieTrackId = {{ $movie->id }};
         const mmAuth = @json(auth()->check());
