@@ -1137,7 +1137,7 @@
                 <h4>{{ $entry->movie->title }}</h4>
                 <div class="meta">
                     <span><i class="fas fa-calendar-alt"></i> {{ $entry->movie->release_year ?? 'N/A' }}</span>
-                    <span><i class="fas fa-clock"></i> {{ $entry->movie->duration ?? 'N/A' }}</span>
+                    <span><i class="fas fa-clock"></i> {{ $entry->movie->duration_label }}</span>
                 </div>
             </div>
         </a>
@@ -1212,7 +1212,7 @@
                         <h4>{{ $movie->title }}</h4>
                         <div class="meta">
                             <span><i class="fas fa-calendar-alt"></i> {{ $movie->release_year ?? 'N/A' }}</span>
-                            <span><i class="fas fa-clock"></i> {{ $movie->duration ?? 'N/A' }}</span>
+                            <span><i class="fas fa-clock"></i> {{ $movie->duration_label }}</span>
                             <span><i class="fas fa-eye"></i> {{ number_format($movie->views ?? 0) }}</span>
                         </div>
                     </div>
@@ -1530,12 +1530,24 @@
 
     // Modal
     let currentMovie = null;
+    function fmtDuration(v) {
+        if (!v) return 'N/A';
+        v = String(v).trim();
+        if (/^\d+$/.test(v) && Number(v) > 200) {
+            const total = Math.max(0, parseInt(v, 10));
+            const h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60);
+            if (h > 0 && m > 0) return h + 'h ' + m + 'min';
+            if (h > 0) return h + 'h';
+            return m > 0 ? m + 'min' : total + 'sec';
+        }
+        return v;
+    }
     function openMovieModal(movieId, title, poster, year, duration, genre, description, filePath) {
         currentMovie = { id: movieId, title, poster, year, duration, genre, description, filePath };
         document.getElementById('modalPoster').src = poster || '/images/posters/dummy-poster.png';
         document.getElementById('modalTitle').innerText = title;
         document.getElementById('modalYear').innerText = year || 'N/A';
-        document.getElementById('modalDuration').innerText = duration || 'N/A';
+        document.getElementById('modalDuration').innerText = fmtDuration(duration);
         document.getElementById('modalGenre').innerText = genre || 'General';
         document.getElementById('modalDescription').innerText = description || 'No description available.';
         updateButtons(filePath);
@@ -1765,7 +1777,7 @@
                 '</div>' +
                 '<div class="card-info">' +
                     '<h4>' + (it.title || 'Movie').replace(/"/g, '&quot;') + '</h4>' +
-                    '<div class="meta"><span><i class="fas fa-calendar-alt"></i> ' + (it.year || 'N/A') + '</span><span><i class="fas fa-clock"></i> ' + (it.duration || 'N/A') + '</span></div>' +
+                    '<div class="meta"><span><i class="fas fa-calendar-alt"></i> ' + (it.year || 'N/A') + '</span><span><i class="fas fa-clock"></i> ' + fmtDuration(it.duration) + '</span></div>' +
                 '</div>' +
             '</a>';
         }).join('');

@@ -43,7 +43,7 @@
                     <br><small style="color: #888;">{{ \Illuminate\Support\Str::limit($episode->description, 60) }}</small>
                     @endif
                 </td>
-                <td>{{ $episode->duration }}</td>
+                <td>{{ $episode->duration_label }}</td>
                 <td>{{ $episode->file_size ?? 'N/A' }}</td>
                 <td>
                     <div style="display: flex; gap: 0.5rem;">

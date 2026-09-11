@@ -188,7 +188,7 @@
                                 <span><i class="fas fa-calendar-alt"></i> {{ $movie->release_year }}</span>
                             </div>
                             <div class="movie-meta" style="margin-top: 0.3rem;">
-                                <span><i class="fas fa-clock"></i> {{ $movie->duration }}</span>
+                                <span><i class="fas fa-clock"></i> {{ $movie->duration_label }}</span>
                                 <span><i class="fas fa-eye"></i> {{ number_format($movie->views ?? 0) }}</span>
                             </div>
                         </div>

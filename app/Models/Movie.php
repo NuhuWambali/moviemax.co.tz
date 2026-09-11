@@ -114,6 +114,11 @@ class Movie extends Model
         return preg_match('#^https?://#i', (string) $this->video_url) === 1;
     }
 
+    public function getDurationLabelAttribute()
+    {
+        return format_duration($this->duration);
+    }
+
     /**
      * Adaptive-streaming (HLS) URL. Derived from hosted video files so the
      * player can switch quality and stream smoothly.

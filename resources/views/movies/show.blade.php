@@ -930,7 +930,7 @@
 
                 <div class="movie-meta">
                     <span><i class="fas fa-calendar"></i> {{ $movie->release_year ?? 'N/A' }}</span>
-                    <span><i class="fas fa-clock"></i> {{ $movie->duration ?? 'N/A' }}</span>
+                    <span><i class="fas fa-clock"></i> {{ $movie->duration_label }}</span>
                     <span><i class="fas fa-film"></i> {{ $movie->genre ?? 'General' }}</span>
                     <span><i class="fas fa-language"></i> {{ $movie->language ?? 'English' }}</span>
                     <span><i class="fas fa-star" style="color: #ffd700;"></i> {{ $movie->rating ?? 'N/A' }}</span>
@@ -1201,7 +1201,7 @@
             title: {!! json_encode($movie->title) !!},
             poster: moviePoster,
             year: {!! json_encode($movie->release_year) !!},
-            duration: {!! json_encode($movie->duration) !!},
+            duration: {!! json_encode($movie->duration_label) !!},
             posterPath: {!! json_encode($movie->poster_path) !!}
         };
         const mmAuth = @json(auth()->check());

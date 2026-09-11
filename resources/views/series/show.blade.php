@@ -964,7 +964,7 @@
                                 <div class="episode-left">
                                     <div class="episode-num">Episode {{ $episode->episode_number }} {!! $epDone ? '<i class="fas fa-check-circle episode-checked" title="Watched"></i>' : '' !!}</div>
                                     <div class="episode-name">{{ $episode->episode_title ?? $episode->title }}</div>
-                                    <div class="episode-duration"><i class="fas fa-clock"></i> {{ $episode->duration }}</div>
+                                    <div class="episode-duration"><i class="fas fa-clock"></i> {{ $episode->duration_label }}</div>
                                 </div>
                                 <div class="episode-buttons">
                                     <button class="btn-watch" onclick="watchEpisode({{ $episode->id }}, '{{ addslashes($episode->episode_title ?? $episode->title) }}')">

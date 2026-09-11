@@ -92,7 +92,7 @@
                     </td>
                     <td>
                         <strong>{{ $movie->title }}</strong>
-                        <small style="display: block; color: #888;">{{ $movie->duration }}</small>
+                        <small style="display: block; color: #888;">{{ $movie->duration_label }}</small>
                     </td>
                     <td><span style="background: rgba(227,28,37,0.2); padding: 0.2rem 0.5rem; border-radius: 20px; font-size: 0.75rem;">{{ $movie->genre }}</span></td>
                     <td>{{ $movie->release_year }}</td>
