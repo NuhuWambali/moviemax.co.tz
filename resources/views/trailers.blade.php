@@ -223,6 +223,7 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 1.4rem;
+            align-items: start;
         }
         .trailer-card {
             display: block;
@@ -239,10 +240,9 @@
             border-color: rgba(229, 9, 20, 0.55);
             box-shadow: 0 18px 45px rgba(0, 0, 0, 0.55);
         }
-        .thumb-wrap { position: relative; overflow: hidden; aspect-ratio: 16/9; background: var(--bg-surface); }
+        .thumb-wrap { position: relative; overflow: hidden; background: var(--bg-surface); }
         .thumb-wrap img {
-            width: 100%; height: 100%;
-            object-fit: cover;
+            width: 100%; height: auto;
             display: block;
             transition: transform 0.55s ease;
         }
