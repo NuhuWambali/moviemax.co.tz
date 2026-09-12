@@ -609,6 +609,9 @@
             gap: 1.5rem;
         }
         .trailer-card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
             border-radius: 16px;
             overflow: hidden;
             background: var(--bg-card);
@@ -1215,11 +1218,10 @@
     @if($trailerMovies->count() > 0)
         <div class="trailer-grid">
             @foreach($trailerMovies as $trailerMovie)
-                <div class="trailer-card" onclick="openTrailerModal('{{ addslashes($trailerMovie->trailer_url) }}', 'movie', {{ $trailerMovie->id }})">
+                <a href="{{ route('movies.show', $trailerMovie->slug) }}" class="trailer-card">
                     <div class="trailer-thumb">
                         <span class="trailer-badge"><i class="fas fa-video"></i> TRAILER</span>
                         <img src="{{ $trailerMovie->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $trailerMovie->title }}" loading="lazy">
-                        <div class="trailer-play"><i class="fas fa-play"></i></div>
                     </div>
                     <div class="trailer-info">
                         <h4>{{ $trailerMovie->title }}</h4>
@@ -1228,17 +1230,8 @@
                             <span><i class="fas fa-film"></i> {{ $trailerMovie->genre ?? 'General' }}</span>
                             <span><i class="fas fa-star" style="color:#ffd700;"></i> {{ $trailerMovie->rating ?? 'N/A' }}</span>
                         </div>
-                        @if($trailerMovie->file_path)
-                            <a href="{{ route('movies.show', $trailerMovie->slug) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $trailerMovie->title }} to download the full movie">
-                                <i class="fas fa-download"></i> Download Movie
-                            </a>
-                        @else
-                            <div class="trailer-download trailer-download-off">
-                                <i class="fas fa-play-circle"></i> Watch on Movie Page
-                            </div>
-                        @endif
                     </div>
-                </div>
+                </a>
             @endforeach
         </div>
     @elseif($trailerSeries->count() === 0 && $homeTrailers->count() === 0)
@@ -1251,11 +1244,10 @@
         </h3>
         <div class="trailer-grid">
             @foreach($trailerSeries as $trailerSeriesItem)
-                <div class="trailer-card" onclick="openTrailerModal('{{ addslashes($trailerSeriesItem->trailer_url) }}', 'series', {{ $trailerSeriesItem->id }})">
+                <a href="{{ route('series.show', $trailerSeriesItem->id) }}" class="trailer-card">
                     <div class="trailer-thumb">
                         <span class="trailer-badge"><i class="fas fa-video"></i> TRAILER</span>
                         <img src="{{ $trailerSeriesItem->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $trailerSeriesItem->title }}" loading="lazy">
-                        <div class="trailer-play"><i class="fas fa-play"></i></div>
                     </div>
                     <div class="trailer-info">
                         <h4>{{ $trailerSeriesItem->title }}</h4>
@@ -1264,11 +1256,8 @@
                             <span><i class="fas fa-layer-group"></i> {{ $trailerSeriesItem->seasons_count }} Seasons</span>
                             <span><i class="fas fa-star" style="color:#ffd700;"></i> {{ $trailerSeriesItem->rating ?? 'N/A' }}</span>
                         </div>
-                        <a href="{{ route('series.show', $trailerSeriesItem->id) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $trailerSeriesItem->title }} to watch the series">
-                            <i class="fas fa-eye"></i> Watch Series
-                        </a>
                     </div>
-                </div>
+                </a>
             @endforeach
         </div>
     @endif
@@ -1278,16 +1267,10 @@
         </h3>
         <div class="trailer-grid">
             @foreach($homeTrailers as $homeTrailer)
-                @php
-                    $playSrc = $homeTrailer->source_type === 'file' && $homeTrailer->file_path
-                        ? $homeTrailer->file_path
-                        : $homeTrailer->trailer_url;
-                @endphp
-                <div class="trailer-card" onclick="openTrailerModal('{{ addslashes($playSrc ?? '') }}', 'trailer', {{ $homeTrailer->id }})">
+                <a href="{{ route('trailers.show', $homeTrailer->slug) }}" class="trailer-card">
                     <div class="trailer-thumb">
                         <span class="trailer-badge"><i class="fas fa-video"></i> TRAILER</span>
                         <img src="{{ $homeTrailer->thumb_url }}" alt="{{ $homeTrailer->title }}" loading="lazy">
-                        <div class="trailer-play"><i class="fas fa-play"></i></div>
                     </div>
                     <div class="trailer-info">
                         <h4>{{ $homeTrailer->title }}</h4>
@@ -1295,11 +1278,8 @@
                             <span><i class="fas fa-calendar-alt"></i> {{ $homeTrailer->created_at?->format('M Y') ?? 'N/A' }}</span>
                             <span><i class="fas fa-eye"></i> {{ number_format($homeTrailer->views) }} views</span>
                         </div>
-                        <a href="{{ route('trailers.show', $homeTrailer->slug) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $homeTrailer->title }}">
-                            <i class="fas fa-eye"></i> Watch Trailer
-                        </a>
                     </div>
-                </div>
+                </a>
             @endforeach
         </div>
     @endif
