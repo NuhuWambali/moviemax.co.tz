@@ -463,7 +463,7 @@
                         <span><i class="fas fa-thumbs-up"></i> {{ $first->likesCount() }} likes</span>
                         <span><i class="fas fa-calendar-alt"></i> {{ $first->created_at->diffForHumans() }}</span>
                     </div>
-                    <span class="featured-btn"><i class="fas fa-play"></i> Watch Trailer</span>
+                    <span class="featured-btn"><i class="fas fa-video"></i> View Trailer</span>
                 </div>
             </div>
         </a>
@@ -477,7 +477,6 @@
                     <div class="thumb-wrap">
                         <span class="trailer-badge">Trailer</span>
                         <img src="{{ $trailer->thumb_url }}" alt="{{ $trailer->title }}" loading="lazy">
-                        <div class="thumb-play"><i class="fas fa-play"></i></div>
                     </div>
                     <div class="trailer-info">
                         <h3>{{ $trailer->title }}</h3>
@@ -515,7 +514,6 @@
                     <span class="trending-rank">{{ $i + 1 }}</span>
                     <span class="trending-thumb">
                         <img src="{{ $trending->thumb_url }}" alt="{{ $trending->title }}" loading="lazy">
-                        <span class="mini-play"><i class="fas fa-play"></i></span>
                     </span>
                     <span class="trending-info">
                         <h4>{{ $trending->title }}</h4>
