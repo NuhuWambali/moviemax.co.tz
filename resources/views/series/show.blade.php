@@ -1046,7 +1046,7 @@
                                 <img class="related-img" src="{{ $item->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $item->title }}" loading="lazy">
                                 <div class="related-info">
                                     <div class="related-title">{{ $item->title }}</div>
-                                    <div class="related-meta">{{ $item->created_at->diffForHumans() }}</div>
+                                    <div class="related-meta">{{ $item->created_at ? $item->created_at->diffForHumans() : 'Recently added' }}</div>
                                 </div>
                             </a>
                         @endforeach
