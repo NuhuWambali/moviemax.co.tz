@@ -53,6 +53,7 @@ Route::get('/download/series/{id}/season/{season}/episode/{episode}', [DownloadC
 // Interactions (favorites, reactions, comments) - login required
 Route::post('/interactions/favorite-toggle', [InteractionController::class, 'toggleFavorite'])->name('interactions.favorite');
 Route::post('/interactions/react', [InteractionController::class, 'react'])->name('interactions.react');
+Route::get('/interactions/stats', [InteractionController::class, 'stats'])->name('interactions.stats');
 Route::post('/interactions/comment', [InteractionController::class, 'storeComment'])->name('interactions.comment');
 Route::delete('/interactions/comment/{id}', [InteractionController::class, 'deleteComment'])->name('interactions.comment.delete');
 Route::get('/favorites', [InteractionController::class, 'favorites'])->name('favorites');

@@ -936,7 +936,7 @@
 
                 <div class="interaction-bar">
                     <button class="interaction-btn {{ $interaction['favorited'] ? 'active' : '' }}" type="button" data-type="movie" data-id="{{ $movie->id }}" onclick="toggleFavorite(event, 'movie', {{ $movie->id }}, this)" title="Add to favorites">
-                        <i class="fas fa-heart"></i> <span class="count">Favourite</span>
+                        <i class="fas fa-heart"></i> <span class="count fav-count">{{ $movie->favorites()->count() }}</span>
                     </button>
                     <button class="interaction-btn up {{ $interaction['my_reaction'] === 'like' ? 'active' : '' }}" type="button" onclick="react(event, 'movie', {{ $movie->id }}, 'like', this)">
                         <i class="fas fa-thumbs-up"></i> <span class="count">{{ $interaction['likes'] ?? 0 }}</span>
@@ -964,7 +964,7 @@
 
     <!-- Comments -->
     <div class="comments-section reveal">
-        <h2><i class="fas fa-comments"></i> Comments ({{ $comments->count() }})</h2>
+        <h2><i class="fas fa-comments"></i> Comments (<span class="comment-total">{{ $comments->count() }}</span>)</h2>
         <form class="comment-form" onsubmit="submitComment(event)">
             <textarea id="commentBody" placeholder="Share your thoughts..." required></textarea>
             <div class="form-actions">
@@ -1436,8 +1436,10 @@
             try {
                 const data = await jsonPost('/interactions/favorite-toggle', { type: type, id: id });
                 if (handleLoginRequired(data)) return;
-                if (data.favorited) { btn.classList.add('active'); btn.title = 'Remove from favorites'; }
-                else { btn.classList.remove('active'); btn.title = 'Add to favorites'; }
+                if (data.favorited) btn.classList.add('active');
+                else btn.classList.remove('active');
+                const c = btn.querySelector('.fav-count');
+                if (c && typeof data.count === 'number') c.textContent = data.count.toLocaleString();
             } catch (err) {}
         }
         async function react(e, type, id, kind, btn) {
@@ -1469,7 +1471,11 @@
                     body: body
                 });
                 if (handleLoginRequired(data)) { btn.disabled = false; return; }
-                window.location.reload();
+                btn.disabled = false;
+                if (data.id) {
+                    document.getElementById('commentBody').value = '';
+                    insertCommentNode(data);
+                }
             } catch (err) {
                 btn.disabled = false;
             }
@@ -1477,6 +1483,7 @@
         async function submitReply(rootId) {
             const body = document.getElementById('replyBody-' + rootId).value.trim();
             if (!body) return;
+            const cb = document.querySelector('#reply-form-' + rootId + ' .comment-submit');
             try {
                 const data = await jsonPost('/interactions/comment', {
                     type: 'movie',
@@ -1485,8 +1492,36 @@
                     parent_id: rootId
                 });
                 if (handleLoginRequired(data)) return;
-                window.location.reload();
-            } catch (err) {}
+                if (data.id) {
+                    document.getElementById('replyBody-' + rootId).value = '';
+                    toggleReplyForm(rootId);
+                    insertReplyNode(data, rootId);
+                }
+                if (cb) cb.disabled = false;
+            } catch (err) { if (cb) cb.disabled = false; }
+        }
+        function insertCommentNode(data) {
+            const list = document.getElementById('commentsList');
+            if (!list) return;
+            const no = list.querySelector('.no-comments');
+            if (no) no.remove();
+            const node = window.mmCommentNode({ id: data.id, root_id: data.id, is_reply: false, author: data.author, created: data.created || 'just now', body: data.body, can_delete: true });
+            list.prepend(node);
+            const total = document.querySelector('.comment-total');
+            if (total) total.textContent = ((parseInt(total.textContent.replace(/[^\d]/g, ''), 10) || 0) + 1).toLocaleString();
+            if (window.__mmLiveStats) window.__mmLiveStats.refresh();
+        }
+        function insertReplyNode(data, rootId) {
+            const host = document.getElementById('comment-' + rootId);
+            if (!host) return;
+            let wrap = host.querySelector('.comment-replies');
+            const node = window.mmCommentNode({ id: data.id, root_id: rootId, is_reply: true, author: data.author, created: data.created || 'just now', body: data.body, can_delete: true });
+            if (!wrap) {
+                wrap = document.createElement('div');
+                wrap.className = 'comment-replies';
+                host.appendChild(wrap);
+            }
+            wrap.appendChild(node);
         }
         async function deleteComment(commentId) {
             if (!confirm('Delete this comment?')) return;
@@ -1497,10 +1532,22 @@
                 });
                 const data = await res.json();
                 if (handleLoginRequired(data)) return;
-                if (data.ok) window.location.reload();
-                else if (data.error) Swal.fire({ title: 'Oops', text: data.error, icon: 'error', background: '#161c26', color: '#fff', confirmButtonColor: '#e50914' });
+                if (data.ok) {
+                    const el = document.getElementById('comment-' + commentId);
+                    if (el) el.remove();
+                    const total = document.querySelector('.comment-total');
+                    if (total) total.textContent = (Math.max(0, (parseInt(total.textContent.replace(/[^\d]/g, ''), 10) || 0) - 1)).toLocaleString();
+                    if (window.__mmLiveStats) window.__mmLiveStats.refresh();
+                } else if (data.error) Swal.fire({ title: 'Oops', text: data.error, icon: 'error', background: '#161c26', color: '#fff', confirmButtonColor: '#e50914' });
             } catch (err) {}
         }
+        window.mmPostComment = function (rootId, body, done) {
+            jsonPost('/interactions/comment', { type: 'movie', id: {{ $movie->id }}, body: body, parent_id: rootId })
+                .then(function (data) {
+                    if (handleLoginRequired(data)) return done && done();
+                    if (data.id) { insertReplyNode(data, rootId); done && done(); }
+                });
+        };
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') { closeTrailerModal(); }
@@ -1525,5 +1572,6 @@
         });
     </script>
 @include('partials.view-tracker')
+@include('partials.live-stats', ['itemType' => 'movie', 'itemId' => $movie->id])
 </body>
 </html>

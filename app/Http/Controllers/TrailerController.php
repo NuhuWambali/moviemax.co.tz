@@ -51,6 +51,10 @@ class TrailerController extends Controller
             'dislikes'    => $trailer->dislikesCount(),
         ];
 
+        $favCount = Favorite::where('favoritable_type', Trailer::class)
+            ->where('favoritable_id', $trailer->id)
+            ->count();
+
         if ($userId = Auth::id()) {
             $interaction['favorited'] = Favorite::where('favoritable_type', Trailer::class)
                 ->where('favoritable_id', $trailer->id)
@@ -70,6 +74,6 @@ class TrailerController extends Controller
             ->where('id', '!=', $trailer->id)
             ->latest()->take(8)->get();
 
-        return view('trailers.show', compact('trailer', 'interaction', 'comments', 'moreTrailers'));
+        return view('trailers.show', compact('trailer', 'interaction', 'favCount', 'comments', 'moreTrailers'));
     }
 }

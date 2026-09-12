@@ -190,6 +190,30 @@ class InteractionController extends Controller
         return response()->json(['error' => 'You can only delete your own comment.'], 403);
     }
 
+    public function stats(Request $request)
+    {
+        $request->validate([
+            'type' => 'required|in:movie,series,trailer',
+            'id'   => 'required|integer|min:1',
+        ]);
+
+        $item = $this->resolveItem($request->type, (int) $request->id);
+        if (!$item) return response()->json(['error' => 'Item not found.'], 404);
+
+        $morph = $this->morphTypes($request->type);
+
+        return response()->json([
+            'ok'        => true,
+            'views'     => (int) ($item->views ?? 0),
+            'likes'     => $item->likesCount(),
+            'dislikes'  => $item->dislikesCount(),
+            'favorites' => Favorite::where('favoritable_type', $morph['class'])
+                ->where('favoritable_id', $item->id)
+                ->count(),
+            'comments'  => $item->comments()->whereNull('parent_id')->count(),
+        ]);
+    }
+
     public function favorites(Request $request)
     {
         if (!Auth::check()) return redirect('/login');
