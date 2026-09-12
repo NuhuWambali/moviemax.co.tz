@@ -1185,18 +1185,9 @@
             @foreach($trendingMovies as $movie)
                 <div class="movie-card" data-slug="{{ $movie->slug }}" data-id="{{ $movie->id }}" data-title="{{ $movie->title }}" data-poster="{{ $movie->poster_path }}" data-year="{{ $movie->release_year }}" data-duration="{{ $movie->duration }}" data-genre="{{ $movie->genre }}" data-description="{{ $movie->description }}" data-file="{{ $movie->file_path }}">
                     <div class="card-img-wrap">
-                        <span class="card-badge">TRENDING</span>
                         <img class="card-img" src="{{ $movie->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $movie->title }}" loading="lazy">
                         <div class="card-overlay"><i class="fas fa-play"></i></div>
                         <button class="fav-heart" type="button" data-type="movie" data-id="{{ $movie->id }}" onclick="toggleFavorite(event,'movie',{{ $movie->id }},this)" title="Add to favorites"><i class="fas fa-heart"></i></button>
-                    </div>
-                    <div class="card-info">
-                        <h4>{{ $movie->title }}</h4>
-                        <div class="meta">
-                            <span><i class="fas fa-calendar-alt"></i> {{ $movie->release_year ?? 'N/A' }}</span>
-                            <span><i class="fas fa-clock"></i> {{ $movie->duration_label }}</span>
-                            <span><i class="fas fa-eye"></i> {{ number_format($movie->views ?? 0) }}</span>
-                        </div>
                     </div>
                 </div>
             @endforeach
@@ -1316,17 +1307,9 @@
             @foreach($trendingSeries as $series)
                 <div class="movie-card" data-genre="{{ $series->genre ?? 'General' }}" onclick="location.href='{{ route('series.show', $series->id) }}'">
                     <div class="card-img-wrap">
-                        <span class="card-badge" style="background: var(--accent-cyan);">SERIES</span>
                         <img class="card-img" src="{{ $series->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $series->title }}" loading="lazy">
                         <div class="card-overlay"><i class="fas fa-play"></i></div>
                         <button class="fav-heart" type="button" data-type="series" data-id="{{ $series->id }}" onclick="toggleFavorite(event,'series',{{ $series->id }},this)" title="Add to favorites"><i class="fas fa-heart"></i></button>
-                    </div>
-                    <div class="card-info">
-                        <h4>{{ $series->title }}</h4>
-                        <div class="meta">
-                            <span><i class="fas fa-calendar-alt"></i> {{ $series->release_year ?? 'N/A' }}</span>
-                            <span><i class="fas fa-layer-group"></i> {{ $series->seasons_count }} Season{{ $series->seasons_count > 1 ? 's' : '' }}</span>
-                        </div>
                     </div>
                 </div>
             @endforeach
