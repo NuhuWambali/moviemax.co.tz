@@ -1121,6 +1121,8 @@
                     </div>
                 </div>
                 <video id="streamVideo" controls autoplay playsinline preload="metadata"></video>
+                <iframe id="streamFrame" src="" title="{{ $movie->title }}" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="display:none; width:100%; height:100%;"></iframe>
             </div>
         </div>
     </div>
@@ -1274,9 +1276,25 @@
         function streamMovie(quality) {
             Swal.close();
             const video = document.getElementById('streamVideo');
+            const frame = document.getElementById('streamFrame');
             const isExternal = /^https?:\/\//i.test(movieFile);
 
             destroyHls();
+
+            // Mega.nz links are not direct video files; use Mega's embed player instead.
+            const mega = isExternal ? megaEmbedUrl(movieFile) : null;
+            if (mega) {
+                video.removeAttribute('src');
+                frame.src = mega;
+                frame.style.display = 'block';
+                video.style.display = 'none';
+                document.getElementById('streamModal').classList.add('active');
+                document.body.style.overflow = 'hidden';
+                mmViewTracker.trackYouTube(frame, 'movie', {{ $movie->id }});
+                return;
+            }
+            frame.style.display = 'none';
+            video.style.display = 'block';
 
             let resumeAt = serverResume;
             if (!mmAuth) {
@@ -1339,6 +1357,7 @@
 
         function closeStreamModal() {
             const video = document.getElementById('streamVideo');
+            const frame = document.getElementById('streamFrame');
             destroyHls();
             video.pause();
             video.onloadedmetadata = null;
@@ -1346,6 +1365,7 @@
             video.onended = null;
             video.removeAttribute('src');
             video.load();
+            frame.removeAttribute('src');
             document.getElementById('streamModal').classList.remove('active');
             document.body.style.overflow = 'auto';
         }
@@ -1399,6 +1419,14 @@
         function csrfToken() {
             const m = document.querySelector('meta[name="csrf-token"]');
             return m ? m.content : '';
+        }
+        function megaEmbedUrl(url) {
+            if (!url) return null;
+            const m = url.match(/https?:\/\/(?:www\.)?mega\.nz\/file\/([A-Za-z0-9_\-]+)#([A-Za-z0-9_\-!]+)/);
+            if (m) return 'https://mega.nz/embed/' + m[1] + '#' + m[2];
+            const old = url.match(/https?:\/\/(?:www\.)?mega\.nz\/#!(?:file\/)?([A-Za-z0-9_\-]+)!([A-Za-z0-9_\-!]+)/);
+            if (old) return 'https://mega.nz/embed#!' + old[1] + '!' + old[2];
+            return null;
         }
         async function jsonPost(url, payload) {
             const res = await fetch(url, {
