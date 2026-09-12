@@ -463,7 +463,6 @@
                         <span><i class="fas fa-thumbs-up"></i> {{ $first->likesCount() }} likes</span>
                         <span><i class="fas fa-calendar-alt"></i> {{ $first->created_at->diffForHumans() }}</span>
                     </div>
-                    <span class="featured-btn"><i class="fas fa-video"></i> View Trailer</span>
                 </div>
             </div>
         </a>
