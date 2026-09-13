@@ -135,10 +135,10 @@ class DownloadController extends Controller
         }
 
         // Google Drive share links -> direct download endpoint
-        if (preg_match('#^https?://(?:drive|docs)\.google\.com/file/d/([^/?#]+)#i', $url, $m)) {
+        if (preg_match('~^https?://(?:drive|docs)\.google\.com/file/d/([^/?#]+)~i', $url, $m)) {
             return 'https://drive.google.com/uc?export=download&id=' . $m[1];
         }
-        if (preg_match('#^https?://drive\.google\.com/(?:open|uc)\?.*?id=([A-Za-z0-9_-]+)#i', $url, $m)) {
+        if (preg_match('~^https?://drive\.google\.com/(?:open|uc)\?.*?id=([A-Za-z0-9_-]+)~i', $url, $m)) {
             return 'https://drive.google.com/uc?export=download&id=' . $m[1];
         }
 
@@ -152,8 +152,8 @@ class DownloadController extends Controller
      */
     private function isWebPageLink(string $url): bool
     {
-        return preg_match('#^https?://(?:www\.)?(?:drive|docs)\.google\.com/#i', $url) === 1
-            || preg_match('#^https?://(?:www\.)?(?:mega\.nz|mb\.nz|mega\.io|mega\.co\.nz)/#i', $url) === 1;
+        return preg_match('~^https?://(?:www\.)?(?:drive|docs)\.google\.com/~i', $url) === 1
+            || preg_match('~^https?://(?:www\.)?(?:mega\.nz|mb\.nz|mega\.io|mega\.co\.nz)/~i', $url) === 1;
     }
 
     /**
