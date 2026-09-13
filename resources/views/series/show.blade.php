@@ -967,9 +967,6 @@
                                     <div class="episode-duration"><i class="fas fa-clock"></i> {{ $episode->duration_label }}</div>
                                 </div>
                                 <div class="episode-buttons">
-                                    <button class="btn-watch" onclick="watchEpisode({{ $episode->id }}, '{{ addslashes($episode->episode_title ?? $episode->title) }}')">
-                                        <i class="fas fa-play"></i> {{ $epDone ? 'Re-watch' : 'Watch' }}
-                                    </button>
                                     <button class="btn-download" onclick="downloadEpisode({{ $episode->id }}, '{{ addslashes($episode->episode_title ?? $episode->title) }}')">
                                         <i class="fas fa-download"></i> Download
                                     </button>
@@ -1126,17 +1123,6 @@
         @include('partials.footer')
     </div>
 
-    <!-- Video Modal -->
-    <div id="videoModal" class="video-modal">
-        <button class="close-video" onclick="closeVideo()">&times;</button>
-        <div class="video-container">
-            <video id="videoPlayer" controls autoplay>
-                <source id="videoSource" src="" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-    </div>
-
     <script>
         // ============ SEASON FILTER ============
         const seasonSelect = document.getElementById('seasonSelect');
@@ -1147,131 +1133,6 @@
                     el.style.display = el.getAttribute('data-season') == val ? 'flex' : 'none';
                 });
             });
-        }
-
-        // ============ WATCH EPISODE ============
-        const mmAuth = @json(auth()->check());
-        const mmEpisodeIds = {!! $episodes->pluck('id') !!};
-        const mmEpisodeTitles = {!! $episodes->map(fn($e) => [$e->id, $e->episode_title ?? $e->title])->values()->toJson() !!};
-        const SERIES_ID = {{ $series->id }};
-
-        function playbackSave(progress, duration) {
-            const dur = Math.round(duration || 0);
-            try {
-                localStorage.setItem('mm_progress_' + currentEpisodeId, JSON.stringify({ p: Math.round(progress || 0), d: dur }));
-            } catch (e) {}
-            if (mmAuth) {
-                fetch('/watch/progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
-                    body: JSON.stringify({ watchable_type: 'App\\Models\\Movie', watchable_id: currentEpisodeId, progress: Math.round(progress || 0), duration: dur })
-                }).catch(() => {});
-            }
-        }
-
-        let currentEpisodeId = null;
-
-        function watchEpisode(id, title) {
-            Swal.fire({
-                title: 'Watch ' + title,
-                background: '#161c26',
-                color: '#ffffff',
-                showCancelButton: true,
-                confirmButtonColor: '#e50914',
-                confirmButtonText: 'Watch Now',
-                cancelButtonText: 'Cancel',
-                html: `
-                    <div style="margin-top: 1rem;">
-                        <button onclick="streamNow(${id})" style="width:100%; padding:0.6rem; background:#e50914; border:none; border-radius:8px; color:#fff; cursor:pointer; font-weight:600;">&#9654; Play Episode</button>
-                    </div>
-                `,
-                showConfirmButton: false
-            });
-        }
-
-        function nextEpisodeId(id) {
-            const i = mmEpisodeIds.indexOf(id);
-            return i >= 0 && i < mmEpisodeIds.length - 1 ? mmEpisodeIds[i + 1] : null;
-        }
-
-        function episodeTitle(id) {
-            const found = mmEpisodeTitles.find(e => e[0] === id);
-            return found ? found[1] : 'Episode';
-        }
-
-        function markEpisodeComplete(id) {
-            const row = document.querySelector('.episode[data-episode-id="' + id + '"]');
-            if (row && !row.classList.contains('completed')) {
-                row.classList.add('completed');
-                row.setAttribute('data-resume', '0');
-                const num = row.querySelector('.episode-num');
-                if (num && !num.querySelector('.episode-checked')) {
-                    num.insertAdjacentHTML('beforeend', '<i class="fas fa-check-circle episode-checked" title="Watched"></i>');
-                }
-                const watchBtn = row.querySelector('.btn-watch');
-                if (watchBtn) watchBtn.innerHTML = '<i class="fas fa-play"></i> Re-watch';
-            }
-        }
-
-        function streamNow(id) {
-            Swal.close();
-            currentEpisodeId = id;
-            const videoModal = document.getElementById('videoModal');
-            const videoSource = document.getElementById('videoSource');
-            const videoPlayer = document.getElementById('videoPlayer');
-            videoSource.src = '/download/stream/' + id;
-            videoPlayer.load();
-            mmViewTracker.trackVideo(videoPlayer, 'series', SERIES_ID);
-            videoModal.style.display = 'block';
-
-            const row = document.querySelector('.episode[data-episode-id="' + id + '"]');
-            let resumeAt = parseInt(row ? row.getAttribute('data-resume') : '0', 10) || 0;
-            if (!mmAuth) {
-                try {
-                    const g = JSON.parse(localStorage.getItem('mm_progress_' + id) || 'null');
-                    if (g && g.p > 5) resumeAt = g.p;
-                } catch (e) {}
-            }
-
-            let lastSave = 0;
-            videoPlayer.onloadedmetadata = () => {
-                if (resumeAt > 5 && resumeAt < (videoPlayer.duration - 15)) {
-                    videoPlayer.currentTime = resumeAt;
-                }
-            };
-            videoPlayer.ontimeupdate = () => {
-                if (!currentEpisodeId) return;
-                const now = Date.now();
-                if (videoPlayer.duration && videoPlayer.duration - videoPlayer.currentTime <= 8) {
-                    playbackSave(videoPlayer.duration, videoPlayer.duration);
-                    markEpisodeComplete(currentEpisodeId);
-                    return;
-                }
-                if (now - lastSave < 5000) return;
-                lastSave = now;
-                playbackSave(videoPlayer.currentTime, videoPlayer.duration);
-            };
-            videoPlayer.onended = () => {
-                if (!currentEpisodeId) return;
-                playbackSave(videoPlayer.duration, videoPlayer.duration);
-                markEpisodeComplete(currentEpisodeId);
-                const next = nextEpisodeId(currentEpisodeId);
-                if (next) {
-                    Swal.fire({
-                        title: 'Play Next Episode?',
-                        text: episodeTitle(next),
-                        icon: 'info',
-                        background: '#161c26',
-                        color: '#ffffff',
-                        showCancelButton: true,
-                        confirmButtonColor: '#e50914',
-                        confirmButtonText: '<i class="fas fa-play"></i> Play',
-                        cancelButtonText: 'Close'
-                    }).then(res => {
-                        if (res.isConfirmed) streamNow(next);
-                    });
-                }
-            };
         }
 
         // ============ DOWNLOAD EPISODE ============
@@ -1302,22 +1163,6 @@
                 }
             });
         }
-
-        // ============ CLOSE VIDEO ============
-        function closeVideo() {
-            const video = document.getElementById('videoPlayer');
-            video.pause();
-            video.onloadedmetadata = null;
-            video.ontimeupdate = null;
-            video.onended = null;
-            video.removeAttribute('src');
-            currentEpisodeId = null;
-            document.getElementById('videoModal').style.display = 'none';
-        }
-
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') closeVideo();
-        });
 
         // ============ INTERACTIONS ============
         function csrfToken() {

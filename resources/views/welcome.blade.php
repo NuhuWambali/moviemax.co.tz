@@ -1415,23 +1415,11 @@
                 </div>
                 <p id="modalDescription"></p>
                 <div class="modal-buttons">
-                    <button class="modal-btn-watch" id="watchBtn"><i class="fas fa-play"></i> Watch Now</button>
                     <button class="modal-btn-download" id="downloadBtn"><i class="fas fa-download"></i> Download</button>
                 </div>
             </div>
             <button class="modal-close" onclick="closeModal()">&times;</button>
         </div>
-    </div>
-</div>
-
-<!-- Video Player Modal -->
-<div id="videoModal" class="video-modal">
-    <button class="close-video" onclick="closeVideo()">&times;</button>
-    <div class="video-container">
-        <video id="videoPlayer" controls autoplay>
-            <source id="videoSource" src="" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
     </div>
 </div>
 
@@ -1537,17 +1525,12 @@
         document.body.style.overflow = 'hidden';
     }
     function updateButtons(filePath) {
-        const watchBtn = document.getElementById('watchBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         if (!filePath) return;
         const file = filePath.toLowerCase();
         if (file.endsWith('.avi')) {
-            watchBtn.style.display = 'none';
-            downloadBtn.style.display = 'inline-flex';
             downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download (AVI)';
         } else {
-            watchBtn.style.display = 'inline-flex';
-            downloadBtn.style.display = 'inline-flex';
             downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
         }
     }
@@ -1555,29 +1538,6 @@
         document.getElementById('movieModal').style.display = 'none';
         document.body.style.overflow = 'auto';
     }
-    function closeVideo() {
-        const video = document.getElementById('videoPlayer');
-        video.pause();
-        video.src = '';
-        document.getElementById('videoModal').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-
-    // Watch
-    document.getElementById('watchBtn').addEventListener('click', function() {
-        if (currentMovie && currentMovie.id) {
-            closeModal();
-            const videoModal = document.getElementById('videoModal');
-            const videoSource = document.getElementById('videoSource');
-            const videoPlayer = document.getElementById('videoPlayer');
-            videoSource.src = '/download/stream/' + currentMovie.id;
-            videoPlayer.load();
-            videoModal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        } else {
-            alert('Stream not available for this movie yet.');
-        }
-    });
 
     // Download
     document.getElementById('downloadBtn').addEventListener('click', function() {
@@ -1635,7 +1595,7 @@
 
     // Escape key
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') { closeModal(); closeVideo(); closeTrailerModal(); }
+        if (e.key === 'Escape') { closeModal(); closeTrailerModal(); }
     });
 
     // Trailer modal

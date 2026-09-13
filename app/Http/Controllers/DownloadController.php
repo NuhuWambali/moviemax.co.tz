@@ -29,20 +29,26 @@ class DownloadController extends Controller
             }
 
             // Fallback: stream the remote file through the server as a download
-            return response()->streamDownload(
-                function () use ($videoUrl) {
-                    $stream = @fopen($videoUrl, 'r');
-                    if ($stream) {
-                        while (!feof($stream)) {
-                            echo fread($stream, 1024 * 1024);
-                            flush();
+            if (!$this->isWebPageLink($videoUrl)) {
+                return response()->streamDownload(
+                    function () use ($videoUrl) {
+                        $stream = @fopen($videoUrl, 'r');
+                        if ($stream) {
+                            while (!feof($stream)) {
+                                echo fread($stream, 1024 * 1024);
+                                flush();
+                            }
+                            fclose($stream);
                         }
-                        fclose($stream);
-                    }
-                },
-                $movie->title . '.mp4',
-                ['Content-Type' => 'video/mp4']
-            );
+                    },
+                    $movie->title . '.mp4',
+                    ['Content-Type' => 'video/mp4']
+                );
+            }
+
+            // Web-page links (Google Drive, Mega, etc.) can't be proxied —
+            // send the visitor to the host so the browser handles the download.
+            return redirect()->away($videoUrl);
         }
         
         // Find the file
@@ -115,7 +121,8 @@ class DownloadController extends Controller
     
     /**
      * Turn an external video URL into one that forces a browser download.
-     * Cloudinary supports the fl_attachment flag for this.
+     * Cloudinary supports the fl_attachment flag and Google Drive supports
+     * the uc?export=download endpoint for this.
      */
     private function forceDownloadUrl(string $url): ?string
     {
@@ -127,7 +134,26 @@ class DownloadController extends Controller
             }
         }
 
+        // Google Drive share links -> direct download endpoint
+        if (preg_match('#^https?://(?:drive|docs)\.google\.com/file/d/([^/?#]+)#i', $url, $m)) {
+            return 'https://drive.google.com/uc?export=download&id=' . $m[1];
+        }
+        if (preg_match('#^https?://drive\.google\.com/(?:open|uc)\?.*?id=([A-Za-z0-9_-]+)#i', $url, $m)) {
+            return 'https://drive.google.com/uc?export=download&id=' . $m[1];
+        }
+
         return null;
+    }
+
+    /**
+     * Heuristic: does this URL point to a web page (which a proxy can't
+     * stream as a file) rather than a direct downloadable media file?
+     * Drive/Mega share pages must be opened in the browser instead.
+     */
+    private function isWebPageLink(string $url): bool
+    {
+        return preg_match('#^https?://(?:www\.)?(?:drive|docs)\.google\.com/#i', $url) === 1
+            || preg_match('#^https?://(?:www\.)?(?:mega\.nz|mb\.nz|mega\.io|mega\.co\.nz)/#i', $url) === 1;
     }
 
     /**

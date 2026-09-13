@@ -921,9 +921,6 @@
                 <p class="movie-description">{{ $movie->description }}</p>
 
                 <div class="action-buttons">
-                    <button class="btn-watch" onclick="streamMovie()">
-                        <i class="fas fa-play"></i> Watch Now
-                    </button>
                     <button class="btn-download" onclick="showDownloadOptions()">
                         <i class="fas fa-download"></i> Download
                     </button>
@@ -1105,28 +1102,6 @@
         </div>
     </div>
 
-    <div id="streamModal" class="trailer-modal">
-        <button class="trailer-close" onclick="closeStreamModal()" aria-label="Close player">
-            <i class="fas fa-times"></i>
-        </button>
-        <div class="trailer-wrapper" onclick="if(event.target===this)closeStreamModal()">
-            <div class="trailer-container">
-                <div class="mm-player-top">
-                    <span class="mm-player-title">{{ $movie->title }}</span>
-                    <div class="mm-quality-wrap" id="mmQualityWrap" style="display:none;">
-                        <button class="mm-quality-btn" id="mmQualityBtn" type="button" onclick="toggleQualityMenu(event)">
-                            <i class="fas fa-cog"></i> <span id="mmQualityLabel">Auto</span>
-                        </button>
-                        <div class="mm-quality-menu" id="mmQualityMenu"></div>
-                    </div>
-                </div>
-                <video id="streamVideo" controls autoplay playsinline preload="metadata"></video>
-                <iframe id="streamFrame" src="" title="{{ $movie->title }}" frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="display:none; width:100%; height:100%;"></iframe>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Scroll reveal
         const revealEls = document.querySelectorAll('.reveal');
@@ -1173,201 +1148,6 @@
                     @endguest
                 }
             });
-        }
-
-        const movieFile = {!! json_encode($movie->video_url) !!};
-        const movieHls = {!! json_encode($movie->hls_url) !!};
-        const moviePoster = {!! json_encode($movie->poster_url) !!};
-        const movieTrackId = {{ $movie->id }};
-        const mmMovieMeta = {
-            id: {{ $movie->id }},
-            slug: {!! json_encode($movie->slug) !!},
-            title: {!! json_encode($movie->title) !!},
-            poster: moviePoster,
-            year: {!! json_encode($movie->release_year) !!},
-            duration: {!! json_encode($movie->duration_label) !!},
-            posterPath: {!! json_encode($movie->poster_path) !!}
-        };
-        const mmAuth = @json(auth()->check());
-        const serverResume = {{ $resume ? (int) $resume->progress_seconds : 0 }};
-
-        function saveRecentLocal(progress, duration) {
-            if (mmAuth) return;
-            try {
-                const d = duration || 0;
-                if (d <= 0) return;
-                let recent = JSON.parse(localStorage.getItem('mm_recent') || '[]');
-                if (!Array.isArray(recent)) recent = [];
-                const idx = recent.findIndex(i => i && i.id === mmMovieMeta.id);
-                const entry = Object.assign({}, mmMovieMeta, { p: Math.round(progress || 0), d: Math.round(d), ts: Date.now() });
-                if (idx > -1) recent[idx] = entry; else recent.push(entry);
-                if (recent.length > 20) recent = recent.slice(-20);
-                localStorage.setItem('mm_recent', JSON.stringify(recent));
-            } catch (e) {}
-        }
-
-        function playbackSave(progress, duration) {
-            const dur = Math.round(duration || 0);
-            const data = { watchable_type: 'App\\Models\\Movie', watchable_id: movieTrackId, progress: Math.round(progress || 0), duration: dur };
-            saveRecentLocal(progress, duration);
-            try {
-                localStorage.setItem('mm_progress_' + movieTrackId, JSON.stringify({ p: Math.round(progress || 0), d: dur }));
-            } catch (e) {}
-            if (mmAuth) {
-                fetch('/watch/progress', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
-                    body: JSON.stringify(data)
-                }).catch(() => {});
-            }
-        }
-
-        let mmHls = null;
-
-        function destroyHls() {
-            if (mmHls) {
-                try { mmHls.destroy(); } catch (e) {}
-                mmHls = null;
-            }
-            document.getElementById('mmQualityWrap').style.display = 'none';
-        }
-
-        function toggleQualityMenu(event) {
-            event.stopPropagation();
-            const menu = document.getElementById('mmQualityMenu');
-            menu.classList.toggle('open');
-        }
-
-        document.addEventListener('click', function (e) {
-            const menu = document.getElementById('mmQualityMenu');
-            if (menu && !e.target.closest('.mm-quality-wrap')) {
-                menu.classList.remove('open');
-            }
-        });
-
-        function setQuality(index) {
-            if (!mmHls) return;
-            mmHls.currentLevel = index;
-            const label = document.getElementById('mmQualityLabel');
-            if (index === -1) {
-                label.textContent = 'Auto';
-            } else if (mmHls.levels[index]) {
-                label.textContent = mmHls.levels[index].height + 'p';
-            }
-            document.querySelectorAll('#mmQualityMenu button').forEach(b => b.classList.remove('active'));
-            document.getElementById('q-' + index).classList.add('active');
-            document.getElementById('mmQualityMenu').classList.remove('open');
-        }
-
-        function buildQualityMenu(levels) {
-            const wrap = document.getElementById('mmQualityWrap');
-            const menu = document.getElementById('mmQualityMenu');
-            const label = document.getElementById('mmQualityLabel');
-            if (!levels || levels.length === 0) {
-                wrap.style.display = 'none';
-                return;
-            }
-            menu.innerHTML = '<button id="q--1" class="active" onclick="setQuality(-1)"><i class="fas fa-magic"></i> Auto</button>' +
-                levels.map((l, i) => '<button id="q-' + i + '" onclick="setQuality(' + i + ')">' + (l.height ? l.height + 'p' : ('Level ' + (i + 1))) + '</button>').join('');
-            wrap.style.display = '';
-            label.textContent = 'Auto';
-        }
-
-        function streamMovie(quality) {
-            Swal.close();
-            const video = document.getElementById('streamVideo');
-            const frame = document.getElementById('streamFrame');
-            const isExternal = /^https?:\/\//i.test(movieFile);
-
-            destroyHls();
-
-            // Mega.nz links are not direct video files; use Mega's embed player instead.
-            const mega = isExternal ? megaEmbedUrl(movieFile) : null;
-            if (mega) {
-                video.removeAttribute('src');
-                frame.src = mega;
-                frame.style.display = 'block';
-                video.style.display = 'none';
-                document.getElementById('streamModal').classList.add('active');
-                document.body.style.overflow = 'hidden';
-                mmViewTracker.trackYouTube(frame, 'movie', {{ $movie->id }});
-                return;
-            }
-            frame.style.display = 'none';
-            video.style.display = 'block';
-
-            let resumeAt = serverResume;
-            if (!mmAuth) {
-                try {
-                    const g = JSON.parse(localStorage.getItem('mm_progress_' + movieTrackId) || 'null');
-                    if (g && g.p > 5) resumeAt = g.p;
-                } catch (e) {}
-            }
-
-            let lastSave = 0;
-            video.onloadedmetadata = () => {
-                if (resumeAt > 5 && resumeAt < (video.duration - 15)) {
-                    video.currentTime = resumeAt;
-                }
-            };
-            video.ontimeupdate = () => {
-                const now = Date.now();
-                if (video.duration && video.duration - video.currentTime <= 8) {
-                    playbackSave(video.duration, video.duration);
-                    return;
-                }
-                if (now - lastSave < 5000) return;
-                lastSave = now;
-                playbackSave(video.currentTime, video.duration);
-            };
-            video.onended = () => playbackSave(video.duration, video.duration);
-            if (moviePoster) video.poster = moviePoster;
-
-            document.getElementById('streamModal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-
-            const useHls = movieHls && (window.Hls ? Hls.isSupported() : video.canPlayType('application/vnd.apple.mpegurl'));
-
-            if (useHls) {
-                if (window.Hls) {
-                    mmHls = new Hls();
-                    mmHls.loadSource(movieHls);
-                    mmHls.attachMedia(video);
-                    mmHls.on(Hls.Events.MANIFEST_PARSED, function (e, data) {
-                        buildQualityMenu(data.levels);
-                        video.play().catch(() => {});
-                    });
-                    mmHls.on(Hls.Events.ERROR, function (e, data) {
-                        if (!data.fatal) return;
-                        if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-                            mmHls.recoverMediaError();
-                        }
-                    });
-                } else {
-                    video.src = movieHls;
-                    video.play().catch(() => {});
-                }
-            } else {
-                video.src = isExternal ? movieFile : '{{ route('stream.movie', $movie->id) }}';
-                video.play().catch(() => {});
-            }
-
-            mmViewTracker.trackVideo(video, 'movie', {{ $movie->id }});
-        }
-
-        function closeStreamModal() {
-            const video = document.getElementById('streamVideo');
-            const frame = document.getElementById('streamFrame');
-            destroyHls();
-            video.pause();
-            video.onloadedmetadata = null;
-            video.ontimeupdate = null;
-            video.onended = null;
-            video.removeAttribute('src');
-            video.load();
-            frame.removeAttribute('src');
-            document.getElementById('streamModal').classList.remove('active');
-            document.body.style.overflow = 'auto';
         }
 
         function watchTrailer(url) {
@@ -1419,14 +1199,6 @@
         function csrfToken() {
             const m = document.querySelector('meta[name="csrf-token"]');
             return m ? m.content : '';
-        }
-        function megaEmbedUrl(url) {
-            if (!url) return null;
-            const m = url.match(/https?:\/\/(?:www\.)?mega\.nz\/file\/([A-Za-z0-9_\-]+)#([A-Za-z0-9_\-!]+)/);
-            if (m) return 'https://mega.nz/embed/' + m[1] + '#' + m[2];
-            const old = url.match(/https?:\/\/(?:www\.)?mega\.nz\/#!(?:file\/)?([A-Za-z0-9_\-]+)!([A-Za-z0-9_\-!]+)/);
-            if (old) return 'https://mega.nz/embed#!' + old[1] + '!' + old[2];
-            return null;
         }
         async function jsonPost(url, payload) {
             const res = await fetch(url, {

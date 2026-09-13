@@ -453,21 +453,11 @@
                     </div>
                     <p id="modalDescription"></p>
                     <div class="modal-buttons">
-                        <button class="modal-btn-watch" id="watchBtn"><i class="fas fa-play"></i> Watch Now</button>
                         <button class="modal-btn-download" id="downloadBtn"><i class="fas fa-download"></i> Download</button>
                     </div>
                 </div>
                 <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
-        </div>
-    </div>
-
-    <div id="videoModal" class="video-modal">
-        <button class="close-video" onclick="closeVideo()">&times;</button>
-        <div class="video-container">
-            <video id="videoPlayer" controls autoplay>
-                <source id="videoSource" src="" type="video/mp4">
-            </video>
         </div>
     </div>
 
@@ -497,25 +487,6 @@
             document.body.style.overflow = 'hidden';
         }
         function closeModal() { document.getElementById('movieModal').style.display = 'none'; document.body.style.overflow = 'auto'; }
-        function closeVideo() {
-            const v = document.getElementById('videoPlayer');
-            v.pause(); v.src = '';
-            document.getElementById('videoModal').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-        document.getElementById('watchBtn').addEventListener('click', function() {
-            if (currentMovie && currentMovie.id) {
-                closeModal();
-                const vs = document.getElementById('videoSource');
-                const vp = document.getElementById('videoPlayer');
-                vs.src = '/download/stream/' + currentMovie.id;
-                vp.load();
-                document.getElementById('videoModal').style.display = 'block';
-                document.body.style.overflow = 'hidden';
-            } else {
-                Swal.fire({ title: 'Not Available', text: 'Stream not available.', icon: 'info', background: '#161c26', color: '#ffffff' });
-            }
-        });
         document.getElementById('downloadBtn').addEventListener('click', function() {
             if (currentMovie && currentMovie.id) {
                 Swal.fire({
@@ -620,7 +591,7 @@
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(updateFilters, 500);
         });
-        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closeVideo(); } });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); } });
         displayActiveFilters();
     </script>
 </body>
