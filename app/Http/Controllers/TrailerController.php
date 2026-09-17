@@ -14,17 +14,51 @@ class TrailerController extends Controller
 {
     public function home(Request $request)
     {
+        $recentTrailers = Trailer::where('is_active', true)->latest()->limit(12)->get();
+
         $trendingTrailers = Trailer::where('is_active', true)
                                    ->orderBy('views', 'desc')
                                    ->limit(12)
                                    ->get();
 
-        $recentTrailers = Trailer::where('is_active', true)
-                                 ->latest()
-                                 ->limit(12)
-                                 ->get();
+        $comingSoon = Trailer::where('is_active', true)
+                             ->whereNotNull('release_date')
+                             ->where('release_date', '>=', now()->toDateString())
+                             ->orderBy('release_date')
+                             ->limit(12)
+                             ->get();
 
-        $featuredTrailer = $trendingTrailers->first() ?? $recentTrailers->first();
+        $popularThisWeek = Trailer::where('is_active', true)
+            ->whereHas('viewsLog', fn ($q) => $q->where('viewed_at', '>=', now()->subDays(7)))
+            ->withCount(['viewsLog' => fn ($q) => $q->where('viewed_at', '>=', now()->subDays(7))])
+            ->orderByDesc('views_log_count')
+            ->limit(12)
+            ->get();
+
+        if ($popularThisWeek->isEmpty()) {
+            $popularThisWeek = $trendingTrailers;
+        }
+
+        $international = Trailer::where('is_active', true)
+            ->where(function ($q) {
+                $q->where(function ($q2) {
+                    $q2->whereNotNull('country')->whereNotIn('country', ['', 'United States']);
+                })->orWhere(function ($q2) {
+                    $q2->whereNotNull('language')->whereNotIn('language', ['', 'English']);
+                });
+            })
+            ->latest()->limit(12)->get();
+
+        $genres = Trailer::where('is_active', true)
+            ->whereNotNull('genre')->where('genre', '!=', '')
+            ->selectRaw('genre, count(*) as total')
+            ->groupBy('genre')->orderBy('total', 'desc')->limit(12)
+            ->get();
+
+        $featuredTrailer = Trailer::where('is_active', true)->where('trailer_of_the_day', true)->first()
+            ?? Trailer::where('is_active', true)->where('featured', true)->orderBy('views', 'desc')->first()
+            ?? $trendingTrailers->first()
+            ?? $recentTrailers->first();
 
         // Hero slideshow (managed in admin)
         $heroSlides = HeroSlide::where('is_active', true)->orderBy('sort_order')->get();
@@ -39,7 +73,20 @@ class TrailerController extends Controller
                 ->pluck('favoritable')->filter();
         }
 
-        return view('welcome', compact('trendingTrailers', 'recentTrailers', 'featuredTrailer', 'heroSlides', 'favTrailers'));
+        $favoritedIds = $favTrailers->pluck('id')->flip();
+
+        return view('welcome', compact(
+            'recentTrailers',
+            'trendingTrailers',
+            'comingSoon',
+            'popularThisWeek',
+            'international',
+            'genres',
+            'featuredTrailer',
+            'heroSlides',
+            'favTrailers',
+            'favoritedIds'
+        ));
     }
 
     public function index(Request $request)

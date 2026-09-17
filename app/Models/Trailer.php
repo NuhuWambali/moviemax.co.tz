@@ -91,6 +91,11 @@ class Trailer extends Model
         return $this->hasMany(TrailerWatch::class);
     }
 
+    public function viewsLog(): HasMany
+    {
+        return $this->hasMany(TrailerView::class);
+    }
+
     public function getYouTubeIdAttribute(): ?string
     {
         if (!$this->trailer_url) return null;

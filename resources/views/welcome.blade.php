@@ -5,9 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>MovieMax – Watch Free Movie Trailers Online in HD</title>
-    @include('partials.seo', ['seoTitle' => 'MovieMax – Watch Free Movie Trailers Online in HD', 'seoDescription' => 'MovieMax lets you watch the latest movie trailers online in HD. Discover new release trailers, trending teasers and the most anticipated films all in one place.', 'seoKeywords' => 'MovieMax, movie trailers, watch trailers online, new trailers, film trailers, trailer, HD trailers, upcoming movies'])
-    @if($heroSlides->first()->image_path ?? null)
-        <link rel="preload" as="image" href="{{ $heroSlides->first()->image_path }}" fetchpriority="high">
+    @include('partials.seo', ['seoTitle' => 'MovieMax – Watch Free Movie Trailers Online in HD', 'seoDescription' => 'MovieMax lets you watch the latest movie trailers online in HD. Discover new release trailers, trending teasers and the most anticipated films all in one place.'])
+    @php
+        $heroSlidesCollection = ($heroSlides ?? collect())->toBase();
+        $slides = $heroSlidesCollection->count() > 0 ? $heroSlidesCollection : collect([null]);
+        $slidesTrailers = collect();
+        if ($heroSlidesCollection->count() > 0) {
+            $slidesTrailers = \App\Models\Trailer::whereIn('id', $heroSlidesCollection->pluck('link_id')->filter()->unique()->all())->get()->keyBy('id');
+        }
+        $slideCount = $slides->count();
+    @endphp
+    @if(!empty($heroSlidesCollection->first()->image_path ?? null))
+        <link rel="preload" as="image" href="{{ $heroSlidesCollection->first()->image_path }}" fetchpriority="high">
     @endif
     <style>
         :root {
@@ -16,17 +25,13 @@
             --bg-card: #161c26;
             --accent-red: #e50914;
             --accent-red-dark: #b30610;
-            --accent-purple: #ffd700;
-            --accent-cyan: #ffd700;
+            --gold: #ffd24a;
             --text-primary: #f2f4f8;
             --text-secondary: #c3c9d1;
             --text-muted: #8a93a0;
             --glass-bg: rgba(10, 13, 18, 0.75);
-            --glass-border: rgba(255,255,255,0.11);
-            --glow-red: 0 0 30px rgba(229, 9, 20, 0.18);
-            --glow-purple: 0 0 30px rgba(255, 215, 0, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.11);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: var(--bg-deep);
@@ -34,1359 +39,658 @@
             color: var(--text-primary);
             overflow-x: hidden;
         }
-
-        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: var(--bg-surface); }
         ::-webkit-scrollbar-thumb { background: var(--accent-red); border-radius: 10px; }
 
-        /* ============ ANIMATIONS ============ */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translate(-50%, -40%); }
-            to { opacity: 1; transform: translate(-50%, -50%); }
-        }
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        @keyframes glowPulse {
-            0%, 100% { text-shadow: 0 0 10px rgba(229, 9, 20, 0.4), 0 0 20px rgba(229, 9, 20, 0.2); }
-            50% { text-shadow: 0 0 20px rgba(229, 9, 20, 0.6), 0 0 40px rgba(229, 9, 20, 0.3); }
-        }
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        @keyframes borderGlow {
-            0%, 100% { border-color: rgba(229, 9, 20, 0.2); }
-            50% { border-color: rgba(229, 9, 20, 0.4); }
-        }
-        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .reveal.visible { opacity: 1; transform: translateY(0); }
-
-        /* ============ NAVBAR ============ */
-        .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            background: rgba(10, 13, 18, 0.85);
-            z-index: 1000;
-            transition: all 0.4s ease;
-            border-bottom: 1px solid var(--glass-border);
-        }
-        .navbar.scrolled {
-            background: rgba(10, 13, 18, 0.97);
-            padding: 0.7rem 5%;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
-        }
-        .logo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 2rem;
-            letter-spacing: 3px;
-            background: var(--accent-red);
-            background-size: 200% 200%;
-            animation: gradientShift 4s ease infinite;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-decoration: none;
-            z-index: 1001;
-        }
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            font-size: 0.88rem;
+        /* ================= HERO ================= */
+        .mm-hero {
             position: relative;
-            padding: 0.2rem 0;
-        }
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--accent-red);
-            transition: width 0.3s ease;
-            border-radius: 2px;
-        }
-        .nav-links a:hover::after,
-        .nav-links a.active::after { width: 100%; }
-        .nav-links a:hover,
-        .nav-links a.active { color: var(--text-primary); }
-
-        .menu-btn {
-            display: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: white;
-            z-index: 1001;
-            transition: 0.3s;
-        }
-        .menu-btn:hover { color: var(--accent-red); }
-
-        .mobile-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(5px);
-            z-index: 999;
-        }
-        .mobile-overlay.active { display: block; }
-
-        @media (max-width: 768px) {
-            .menu-btn { display: block; }
-            .nav-links {
-                position: fixed;
-                top: 0;
-                right: -100%;
-                width: 75%;
-                height: 100vh;
-                background: rgba(10, 13, 18, 0.98);
-                backdrop-filter: blur(30px);
-                -webkit-backdrop-filter: blur(30px);
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                gap: 2.5rem;
-                transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                z-index: 1000;
-                border-left: 1px solid rgba(229, 9, 20, 0.2);
-            }
-            .nav-links.active { right: 0; }
-            .nav-links a { font-size: 1.1rem; }
-        }
-
-        /* ============ HERO SLIDESHOW ============ */
-        .hero {
-            height: min(88vh, 760px);
-            min-height: 560px;
-            width: 100%;
-            position: relative;
+            min-height: 82vh;
+            display: flex;
+            align-items: flex-end;
             overflow: hidden;
-            margin-bottom: 0;
+            background: #05070a;
         }
-        .hero-slide {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 1s ease, visibility 1s ease;
-            pointer-events: none;
-        }
-        .hero-slide.active {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-        }
-        .hero-bg {
+        .hero-media {
             position: absolute;
             inset: 0;
             background-size: cover;
-            background-position: center center;
-            transform: scale(1.08);
+            background-position: center 20%;
+            transform: scale(1.02);
+            transition: transform 7s ease;
         }
-        .hero-slide.active .hero-bg { animation: heroZoom 9s ease forwards; }
-        @keyframes heroZoom {
-            from { transform: scale(1.12); }
-            to { transform: scale(1); }
-        }
-        .hero-overlay {
-            position: absolute;
-            inset: 0;
-            background:
-                linear-gradient(180deg, rgba(9, 11, 15, 0.6) 0%, rgba(9, 11, 15, 0.3) 30%, rgba(9, 11, 15, 0.7) 70%, var(--bg-deep) 100%),
-                linear-gradient(90deg, rgba(9, 11, 15, 0.9) 0%, rgba(9, 11, 15, 0.45) 50%, rgba(9, 11, 15, 0.15) 100%),
-                radial-gradient(ellipse at 20% 50%, rgba(229, 9, 20, 0.12) 0%, transparent 60%);
-        }
+        .hero-media.zoom { transform: scale(1.12); }
+        .hero-fall { position: absolute; inset: 0; background: radial-gradient(1200px 600px at 70% 20%, rgba(229,9,20,0.22), transparent 60%), linear-gradient(160deg, rgba(5,7,10,0.35) 0%, transparent 55%); }
+        .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-deep) 2%, rgba(5,7,10,0.86) 30%, rgba(5,7,10,0.35) 60%, rgba(5,7,10,0.55) 100%); }
         .hero-content {
-            position: absolute;
-            z-index: 2;
-            max-width: 700px;
-            left: 8%;
-            top: 50%;
-            transform: translateY(-50%);
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 0 5% 6vh;
+            transform: translateY(14px);
+            animation: heroIn 0.9s cubic-bezier(.18,.89,.32,1.18) forwards;
         }
-        .hero-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: rgba(10, 13, 18, 0.55);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            color: #fff;
-            font-size: 1.1rem;
-            cursor: pointer;
-            z-index: 6;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        .hero-arrow:hover {
-            background: rgba(229, 9, 20, 0.35);
-            border-color: rgba(229, 9, 20, 0.5);
-        }
-        .hero-arrow.prev { left: 2%; }
-        .hero-arrow.next { right: 2%; }
-        .hero-dots {
-            position: absolute;
-            bottom: 30px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            z-index: 6;
-        }
-        .hero-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50px;
-            background: rgba(255, 255, 255, 0.35);
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .hero-dot:hover { background: rgba(255, 255, 255, 0.6); }
-        .hero-dot.active {
-            background: var(--accent-red);
-            width: 28px;
-            box-shadow: 0 0 12px rgba(229, 9, 20, 0.5);
-        }
+        @keyframes heroIn { to { transform: translateY(0); opacity: 1; } }
         .hero-badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(8px);
-            padding: 0.4rem 1.2rem;
-            border-radius: 50px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: #ffe8c2;
-            margin-bottom: 1.5rem;
-        }
-        .hero h1 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 5rem;
+            gap: 8px;
+            font-size: 0.66rem;
+            font-weight: 800;
             letter-spacing: 2px;
-            line-height: 1;
+            text-transform: uppercase;
+            color: var(--gold);
+            background: rgba(255, 210, 74, 0.12);
+            border: 1px solid rgba(255, 210, 74, 0.4);
+            padding: 0.42rem 0.95rem;
+            border-radius: 40px;
             margin-bottom: 1rem;
-            background: #ffffff;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .hero p {
-            font-size: 1.05rem;
-            color: var(--text-secondary);
-            margin-bottom: 2.5rem;
-            line-height: 1.7;
-            max-width: 550px;
-        }
-        .btn-group {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .btn-primary, .btn-secondary {
-            padding: 0.85rem 2rem;
-            border-radius: 14px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            border: none;
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-primary {
-            background: var(--accent-red);
-            color: white;
-            box-shadow: 0 4px 20px rgba(229, 9, 20, 0.35);
-        }
-        .btn-primary:hover {
-            transform: translateY(-3px) scale(1.03);
-            box-shadow: 0 8px 30px rgba(229, 9, 20, 0.45);
-        }
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-            transition: left 0.6s ease;
-        }
-        .btn-primary:hover::before { left: 100%; }
-        .btn-secondary {
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #ffffff;
-        }
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.16);
-            border-color: rgba(255,255,255,0.3);
-            transform: translateY(-3px);
-        }
-
-        @media (min-width: 1440px) { .hero h1 { font-size: 6rem; } }
-        @media (max-width: 768px) {
-            .hero { height: 82vh; min-height: 480px; }
-            .hero-content { left: 6%; }
-            .hero h1 { font-size: 2.4rem; }
-            .hero p { font-size: 0.95rem; }
-            .hero-arrow { width: 42px; height: 42px; }
-        }
-
-        /* ============ SECTIONS ============ */
-        .section { padding: 3rem 5%; }
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.8rem;
-        }
-        .section-header h2 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-            position: relative;
-            padding-left: 1rem;
-        }
-        .section-header h2::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 4px;
-            height: 70%;
-            background: var(--accent-red);
-            border-radius: 4px;
-        }
-        .section-link {
-            color: var(--accent-red);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.85rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            transition: all 0.3s ease;
-        }
-        .section-link i { transition: transform 0.3s ease; }
-        .section-link:hover { gap: 0.7rem; color: var(--accent-red-dark); }
-        .section-link:hover i { transform: translateX(3px); }
-
-        /* ============ GENRE FILTER ============ */
-        .genre-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.6rem;
-            padding: 1.5rem 5%;
-            justify-content: center;
-        }
-        .genre-btn {
-            background: var(--bg-card);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
-            padding: 0.45rem 1.2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            border: 1px solid var(--glass-border);
-        }
-        .genre-btn:hover {
-            background: rgba(229, 9, 20, 0.08);
-            color: var(--accent-red);
-            border-color: rgba(229, 9, 20, 0.3);
-            transform: translateY(-2px);
-        }
-        .genre-btn.active {
-            background: var(--accent-red);
-            color: white;
-            border-color: transparent;
-            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
-        }
-
-        /* ============ MOVIE CARDS ============ */
-        .movie-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1.5rem;
-        }
-        .movie-card {
-            border-radius: 16px;
-            overflow: hidden;
-            background: var(--bg-card);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            text-decoration: none;
-            display: block;
-            position: relative;
-        }
-        .movie-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px -15px rgba(229, 9, 20, 0.2), 0 0 60px -20px rgba(229, 9, 20, 0.15);
-        }
-        .card-img-wrap {
-            position: relative;
-            overflow: hidden;
-            aspect-ratio: 2 / 3;
-        }
-        .card-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-        }
-        .movie-card:hover .card-img { transform: scale(1.08); }
-        .card-img-wrap::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60%;
-            background: linear-gradient(to top, var(--bg-card) 0%, transparent 100%);
-            pointer-events: none;
-        }
-        .card-overlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            background: rgba(9, 11, 15, 0.5);
-            z-index: 1;
-        }
-        .movie-card:hover .card-overlay { opacity: 1; }
-        .continue-bar {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.12);
-            z-index: 2;
-        }
-        .continue-bar span {
-            display: block;
-            height: 100%;
-            background: var(--accent-red);
-            border-radius: 0 2px 2px 0;
-        }
-        .continue-pill {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 3;
-            padding: 0.3rem 0.65rem;
-            border-radius: 30px;
-            background: rgba(229, 9, 20, 0.9);
-            color: #fff;
-            font-size: 0.7rem;
-            font-weight: 600;
             backdrop-filter: blur(6px);
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
         }
-        .card-overlay i {
-            width: 50px;
-            height: 50px;
-            background: var(--accent-red);
-            border-radius: 50%;
+        .hero-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(2.8rem, 8vw, 5.6rem);
+            line-height: 0.98;
+            letter-spacing: 3px;
+            max-width: 900px;
+        }
+        .hero-meta {
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            color: white;
-            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4);
-            transform: scale(0.8);
-            transition: transform 0.3s ease;
-        }
-        .movie-card:hover .card-overlay i { transform: scale(1); }
-        .card-info { padding: 0.9rem 1rem 1rem; }
-        .card-info h4 {
-            font-size: 0.88rem;
-            font-weight: 600;
-            margin-bottom: 0.4rem;
-            color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .meta {
-            display: flex;
-            gap: 0.6rem;
-            font-size: 0.7rem;
-            color: var(--text-muted);
             flex-wrap: wrap;
-            align-items: center;
+            gap: 0.7rem;
+            margin-top: 1rem;
         }
-        .meta span { display: flex; align-items: center; gap: 0.25rem; }
-        .card-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: var(--accent-red);
-            padding: 0.2rem 0.6rem;
-            border-radius: 8px;
-            font-size: 0.65rem;
+        .hero-chip {
+            font-size: 0.72rem;
             font-weight: 700;
-            color: white;
-            z-index: 3;
-            letter-spacing: 0.5px;
-        }
-
-        /* ============ FAVOURITES ============ */
-        .fav-heart {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 5;
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            border: none;
-            background: rgba(10, 13, 18, 0.8);
-            color: #d1d5db;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-        }
-        .fav-heart:hover { transform: scale(1.12); color: var(--accent-red); }
-        .fav-heart.active { color: white; background: var(--accent-red); }
-        .fav-count-label {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-        /* ============ TRAILER SECTION ============ */
-        .trailer-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 1.5rem;
-        }
-        .trailer-card {
-            border-radius: 16px;
-            overflow: hidden;
-            background: var(--bg-card);
+            padding: 0.3rem 0.85rem;
+            border-radius: 30px;
             border: 1px solid var(--glass-border);
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-        }
-        .trailer-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 40px -15px rgba(229, 9, 20, 0.25), 0 0 60px -20px rgba(229, 9, 20, 0.2);
-        }
-        .trailer-thumb {
-            position: relative;
-            overflow: hidden;
-            aspect-ratio: 2 / 3;
-        }
-        .trailer-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s ease;
-        }
-        .trailer-card:hover .trailer-thumb img { transform: scale(1.08); }
-        .trailer-thumb::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(9, 11, 15, 0.05) 0%, rgba(9, 11, 15, 0.55) 100%);
-            pointer-events: none;
-            z-index: 1;
-        }
-        .trailer-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: var(--accent-cyan);
-            padding: 0.25rem 0.7rem;
-            border-radius: 8px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: #000;
-            z-index: 3;
-            letter-spacing: 0.5px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
             display: inline-flex;
             align-items: center;
-            gap: 0.35rem;
+            gap: 6px;
         }
-        .trailer-play {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background: rgba(229, 9, 20, 0.92);
-            border: 2px solid rgba(255,255,255,0.28);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.3rem;
-            z-index: 3;
-            box-shadow: 0 8px 30px rgba(229, 9, 20, 0.5);
-            transition: all 0.35s ease;
-            animation: playPulse 2s ease-in-out infinite;
-        }
-        .trailer-card:hover .trailer-play {
-            transform: translate(-50%, -50%) scale(1.12);
-            background: var(--accent-red);
-        }
-        @keyframes playPulse {
-            0%, 100% { box-shadow: 0 8px 30px rgba(229, 9, 20, 0.4), 0 0 0 0 rgba(229, 9, 20, 0.35); }
-            50% { box-shadow: 0 8px 30px rgba(229, 9, 20, 0.6), 0 0 0 14px rgba(229, 9, 20, 0); }
-        }
-        .trailer-info { padding: 0.9rem 1rem 1rem; }
-        .trailer-info h4 {
-            font-size: 0.88rem;
-            font-weight: 600;
-            margin-bottom: 0.4rem;
-            color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .trailer-download {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 0.8rem;
-            padding: 0.55rem 0.8rem;
-            border-radius: 10px;
-            background: var(--accent-red);
-            border: none;
-            color: #ffffff;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-        .trailer-download:hover {
-            background: var(--accent-red-dark);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(229, 9, 20, 0.45);
-        }
-        .trailer-download-off {
-            background: rgba(255,255,255,0.05);
-            border-color: rgba(255,255,255,0.1);
-            color: var(--text-muted);
-            cursor: default;
-        }
-        .trailer-download-off:hover {
-            background: rgba(255,255,255,0.05);
-            color: var(--text-muted);
-            transform: none;
-            box-shadow: none;
-        }
-        @media (max-width: 1100px) {
-            .trailer-grid { grid-template-columns: repeat(4, 1fr); }
-        }
-
-        @media (max-width: 768px) {
-            .trailer-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        @media (max-width: 600px) {
-            .trailer-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.8rem;
-            }
-            .trailer-info { padding: 0.6rem 0.7rem 0.8rem; }
-            .trailer-info h4 { font-size: 0.8rem; }
-            .trailer-download { font-size: 0.68rem; }
-        }
-
-        @media (max-width: 1100px) {
-            .movie-grid { grid-template-columns: repeat(4, 1fr); }
-        }
-
-        @media (max-width: 768px) {
-            .movie-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        @media (max-width: 600px) {
-            .movie-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.8rem;
-            }
-            .card-info { padding: 0.6rem 0.7rem 0.8rem; }
-            .card-info h4 { font-size: 0.8rem; }
-        }
-
-        
-
-        /* ============ MODAL ============ */
-        .movie-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 2000;
-            animation: fadeIn 0.3s ease;
-        }
-        .modal-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(12px);
-        }
-        .modal-container {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%; max-width: 800px;
-            background: #161c26;
-            backdrop-filter: blur(30px);
-            border-radius: 24px;
-            overflow: hidden;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.3), 0 0 80px -20px rgba(229, 9, 20, 0.2);
-            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .modal-header {
-            display: flex;
-            padding: 24px;
-            gap: 24px;
-            position: relative;
-        }
-        .modal-poster { flex: 0 0 160px; }
-        .modal-poster img {
-            width: 100%;
-            border-radius: 16px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
-        }
-        .modal-info { flex: 1; }
-        .modal-info h2 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            background: var(--text-primary);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        .modal-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 14px;
-            font-size: 0.8rem;
+        .hero-chip.gold { color: var(--gold); border-color: rgba(255, 210, 74, 0.45); background: rgba(255, 210, 74, 0.1); }
+        .hero-desc {
             color: var(--text-secondary);
-        }
-        .modal-meta i { color: var(--accent-red); margin-right: 4px; }
-        .modal-info p {
-            color: var(--text-secondary);
-            font-size: 0.88rem;
-            line-height: 1.6;
-            margin-bottom: 20px;
+            font-size: 0.95rem;
+            line-height: 1.65;
+            max-width: 600px;
+            margin-top: 1.1rem;
             display: -webkit-box;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        .modal-buttons { display: flex; gap: 12px; }
-        .modal-btn-watch, .modal-btn-download {
-            padding: 10px 22px;
-            border-radius: 12px;
-            font-weight: 700;
+        .hero-actions { display: flex; align-items: center; gap: 0.8rem; margin-top: 1.5rem; flex-wrap: wrap; }
+        .hero-watch {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.85rem 1.7rem;
+            border-radius: 40px;
+            background: var(--accent-red);
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 12px 34px rgba(229, 9, 20, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .hero-watch:hover { transform: translateY(-2px); filter: brightness(1.12); box-shadow: 0 16px 42px rgba(229, 9, 20, 0.55); }
+        .hero-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.85rem 1.5rem;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            font-family: inherit;
             font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .hero-btn:hover { border-color: rgba(229, 9, 20, 0.6); background: rgba(229, 9, 20, 0.14); }
+        .hero-btn .fav-on { display: none; }
+        .hero-btn.saved .fav-on { display: inline; }
+        .hero-btn.saved .fav-off, .hero-btn.saved .fav-label { display: none; }
+        .hero-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 5;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 1px solid var(--glass-border);
+            background: rgba(10, 13, 18, 0.55);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+        }
+        .hero-nav:hover { background: var(--accent-red); border-color: transparent; }
+        .hero-nav.prev { left: 1.4rem; }
+        .hero-nav.next { right: 1.4rem; }
+        .hero-dots { position: absolute; bottom: 1.6rem; left: 50%; transform: translateX(-50%); z-index: 5; display: flex; gap: 0.5rem; }
+        .hero-dot {
+            width: 26px; height: 4px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.25);
             cursor: pointer;
             transition: all 0.3s ease;
-            border: none;
+            padding: 0;
+        }
+        .hero-dot.active { background: var(--accent-red); width: 42px; }
+        @keyframes heroFade { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ================= SECTIONS / CAROUSELS ================= */
+        .mm-section { max-width: 1500px; margin: 0 auto; padding: 2.2rem 3% 0.4rem; }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 1.15rem;
+        }
+        .section-header .icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.2), rgba(229, 9, 20, 0.05));
+            border: 1px solid rgba(229, 9, 20, 0.35);
+            color: var(--gold);
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .section-header h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.65rem;
+            letter-spacing: 2px;
+            color: var(--text-primary);
+        }
+        .section-header a.view-all {
+            margin-left: auto;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: color 0.25s;
+            white-space: nowrap;
+        }
+        .section-header a.view-all:hover { color: var(--gold); }
+
+        .carousel { position: relative; }
+        .carousel-track {
+            display: flex;
+            gap: 1.1rem;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding: 0.15rem 0.2rem 0.6rem;
+            scrollbar-width: none;
+        }
+        .carousel-track::-webkit-scrollbar { display: none; }
+        .carousel-item {
+            flex: 0 0 auto;
+            width: 250px;
+            scroll-snap-align: start;
+        }
+        .carousel-btn {
+            position: absolute;
+            top: 42%;
+            transform: translateY(-50%);
+            z-index: 4;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--glass-border);
+            background: rgba(10, 13, 18, 0.7);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+        }
+        .carousel-btn:hover { background: var(--accent-red); border-color: transparent; }
+        .carousel-btn.prev { left: -14px; }
+        .carousel-btn.next { right: -14px; }
+
+        /* Genre chips */
+        .genre-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; padding: 0.2rem 0 0.6rem; }
+        .genre-chip {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-        }
-        .modal-btn-watch {
-            background: var(--accent-red);
-            color: white;
-            box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
-        }
-        .modal-btn-watch:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4);
-        }
-        .modal-btn-download {
-            background: rgba(255,255,255,0.08);
+            padding: 0.6rem 1.15rem;
+            border-radius: 40px;
             border: 1px solid var(--glass-border);
-            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.045);
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.25s ease;
         }
-        .modal-btn-download:hover {
-            background: rgba(229, 9, 20, 0.1);
-            border-color: rgba(229, 9, 20, 0.3);
+        .genre-chip:hover {
+            border-color: rgba(229, 9, 20, 0.55);
+            background: rgba(229, 9, 20, 0.12);
+            color: #fff;
             transform: translateY(-2px);
         }
+        .genre-chip span { color: var(--gold); font-size: 0.68rem; }
+
+        /* Trailer modal */
+        .trailer-modal { display: none; position: fixed; inset: 0; z-index: 4000; align-items: center; justify-content: center; padding: 1rem; }
+        .trailer-modal.open { display: flex; }
+        .modal-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(6px); animation: heroFade 0.25s ease; }
+        .modal-box {
+            position: relative;
+            width: min(980px, 100%);
+            background: #000;
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            overflow: hidden;
+            animation: heroFade 0.3s ease;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7);
+        }
+        .modal-box iframe { width: 100%; aspect-ratio: 16/9; display: block; border: 0; }
+        .modal-box video { width: 100%; aspect-ratio: 16/9; display: block; border: 0; background: #000; }
         .modal-close {
             position: absolute;
-            top: 16px; right: 20px;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid var(--glass-border);
-            color: var(--text-secondary);
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            top: 12px;
+            right: 12px;
+            z-index: 2;
             width: 38px;
             height: 38px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-close:hover {
-            background: rgba(229, 9, 20, 0.2);
-            color: var(--accent-red);
-            border-color: rgba(229, 9, 20, 0.3);
-        }
-
-        /* ============ VIDEO PLAYER ============ */
-        .video-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 3000;
-            background: #000;
-        }
-        .video-container {
-            position: relative;
-            width: 100%; height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .video-container video { width: 100%; height: 100%; object-fit: contain; }
-        .close-video {
-            position: absolute;
-            top: 20px; right: 30px;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.1);
-            font-size: 1.8rem;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0, 0, 0, 0.65);
+            color: #fff;
+            font-size: 1rem;
             cursor: pointer;
-            z-index: 3001;
-            width: 48px; height: 48px;
-            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
-        .close-video:hover {
-            background: var(--accent-red);
-            border-color: var(--accent-red);
-        }
+        .modal-close:hover { background: var(--accent-red); }
 
-        /* ============ TRAILER MODAL ============ */
-        .trailer-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 4000;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0, 0, 0, 0.92);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-        .trailer-modal.active { display: flex; }
-        .trailer-wrapper {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: default;
-        }
-        .trailer-container {
-            width: min(92vw, 1200px);
-            aspect-ratio: 16 / 9;
-            position: relative;
+        /* Empty row */
+        .row-empty {
+            padding: 2.6rem 1.5rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            border: 1px dashed var(--glass-border);
             border-radius: 16px;
-            overflow: hidden;
-            background: #000;
-            box-shadow: 0 0 60px rgba(229, 9, 20, 0.18), 0 30px 80px rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: default;
+            background: rgba(255, 255, 255, 0.02);
         }
-        .trailer-container iframe {
-            width: 100%;
-            height: 100%;
-            border: 0;
-            display: block;
-        }
-        .trailer-container video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background: #000;
-            display: block;
-        }
-        .trailer-close {
-            position: absolute;
-            top: 20px;
-            right: 24px;
-            z-index: 4002;
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            font-size: 1.4rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        .trailer-close:hover {
-            background: var(--accent-red);
-            border-color: var(--accent-red);
-            transform: rotate(90deg);
-        }
-        @media (max-width: 600px) {
-            .trailer-close { top: 12px; right: 14px; width: 40px; height: 40px; }
-            .trailer-container { width: 95vw; }
-        }
+        .row-empty i { font-size: 1.8rem; display: block; margin-bottom: 0.7rem; color: var(--accent-red); opacity: 0.6; }
 
-        @media (max-width: 600px) {
-            .modal-header { flex-direction: column; text-align: center; padding: 20px; }
-            .modal-poster { flex: 0 0 auto; max-width: 120px; margin: 0 auto; }
-            .modal-buttons { justify-content: center; }
-            .modal-close { position: relative; top: auto; right: auto; margin: 0 auto; }
+        @media (max-width: 900px) {
+            .mm-hero { min-height: 68vh; }
+            .hero-nav { display: none; }
+            .carousel-item { width: 195px; }
+            .carousel-btn { display: none; }
+        }
+        @media (max-width: 560px) {
+            .mm-hero { min-height: 64vh; }
+            .hero-actions { gap: 0.6rem; }
+            .hero-watch, .hero-btn { padding: 0.72rem 1.15rem; font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
-@include('partials.loader')    @include('partials.navbar')
+@include('partials.loader')@include('partials.navbar')
 
-@php
-    $heroSlides = $heroSlides ?? collect();
-    $slideTrailers = collect();
-    if ($heroSlides->isNotEmpty()) {
-        $slideIds = $heroSlides->filter(fn ($s) => $s->link_type === 'trailer' && $s->link_id)
-                               ->pluck('link_id')->unique();
-        if ($slideIds->isNotEmpty()) {
-            $slideTrailers = \App\Models\Trailer::whereIn('id', $slideIds)->get()->keyBy('id');
-        }
-    }
-    if ($heroSlides->isEmpty()) {
-        $slides = [];
-        if ($featuredTrailer) {
-            $slides[] = (object) [
-                'title' => $featuredTrailer->title,
-                'tagline' => $featuredTrailer->description ?? '',
-                'image_path' => $featuredTrailer->thumb_url ?? '/images/heroes/hero-3.png',
-                'trailer_url' => $featuredTrailer->trailer_url ?? null,
-                'link_type' => 'trailer',
-                'link_id' => $featuredTrailer->id,
-            ];
-        }
-        $slides[] = (object) [
-            'title' => 'MOVIEMAX',
-            'tagline' => 'Watch the latest movie trailers and teasers in stunning HD. Your entertainment, your way.',
-            'image_path' => '/images/heroes/hero-3.png',
-            'trailer_url' => null,
-            'link_type' => null,
-            'link_id' => null,
-        ];
-        $heroSlides = collect($slides);
-    }
-@endphp
-
-@if($heroSlides->isNotEmpty())
-<div class="hero" id="heroSlider">
-    @foreach($heroSlides as $i => $slide)
+<!-- ==================== HERO ==================== -->
+<div class="mm-hero" id="mmHero">
+    @foreach($slides as $i => $slide)
         @php
-            $slideSlug = ($slide->link_type === 'trailer' && isset($slideTrailers[$slide->link_id]))
-                ? $slideTrailers[$slide->link_id]->slug
-                : null;
-            $slideFrameSrc = $slide->trailer_url
-                ? (function ($url) {
-                    if (preg_match('/(?:youtube\.com\/(?:watch\?.*v=|embed\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/', (string) $url, $m)) {
-                        return 'https://www.youtube-nocookie.com/embed/' . $m[1];
-                    }
-                    return null;
-                })($slide->trailer_url)
-                : null;
+            $isFallback = $slide === null;
+            $linkedTrailer = $isFallback ? $featuredTrailer : ($slideT = $slidesTrailers->get($slide->link_id) ?? null);
+            $bgImage = $isFallback
+                ? ($featuredTrailer->thumb_url ?? '/images/heroes/hero-3.png')
+                : ($slide->image_path ?? ($linkedTrailer->thumb_url ?? '/images/heroes/hero-3.png'));
+            $title = $isFallback ? ($featuredTrailer->title ?? 'Discover Trailers') : $slide->title;
+            $tagline = $isFallback ? ($featuredTrailer->description ?? 'The best place to discover, watch and save movie trailers.') : $slide->tagline;
+            $trailerForActions = $isFallback ? $featuredTrailer : $linkedTrailer;
         @endphp
-    <div class="hero-slide {{ $i === 0 ? 'active' : '' }}" data-idx="{{ $i }}">
-        <div class="hero-bg" style="background-image: url('{{ $slide->image_path ?? '/images/heroes/hero-3.png' }}')"></div>
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <div class="hero-badge">
-                <i class="fas fa-bolt"></i>
-                FEATURED ON MOVIEMAX
-            </div>
-            <h1>{{ $slide->title }}</h1>
-            <p>{{ $slide->tagline }}</p>
-            <div class="btn-group">
-                @if($slide->trailer_url)
-                    <button type="button" class="btn-primary" onclick="openTrailerModal('{{ addslashes($slide->trailer_url) }}', 'trailer', {{ $slide->link_id ?? 0 }})">
-                        <i class="fas fa-video"></i> Watch Trailer
-                    </button>
+        <div class="hero-slide" data-idx="{{ $i }}" style="{{ $i === 0 ? '' : 'display:none;' }}">
+            <div class="hero-media" style="background-image:url('{{ $bgImage }}')"></div>
+            <div class="hero-fall"></div>
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <span class="hero-badge"><i class="fas fa-bolt"></i> {{ $isFallback ? ($featuredTrailer && $featuredTrailer->trailer_of_the_day ? 'Trailer of the Day' : 'Featured on MovieMax') : 'Featured on MovieMax' }}</span>
+                <h1 class="hero-title">{{ $title }}</h1>
+                <div class="hero-meta">
+                    @if($trailerForActions)
+                        @if($trailerForActions->type_display)
+                            <span class="hero-chip gold">{{ $trailerForActions->type_display }}</span>
+                        @endif
+                        @if($trailerForActions->year_label)
+                            <span class="hero-chip"><i class="fas fa-calendar-alt"></i> {{ $trailerForActions->year_label }}</span>
+                        @endif
+                        @if($trailerForActions->genre)
+                            <span class="hero-chip"><i class="fas fa-tag"></i> {{ $trailerForActions->genre }}</span>
+                        @endif
+                        @if($trailerForActions->duration_label)
+                            <span class="hero-chip"><i class="fas fa-clock"></i> {{ $trailerForActions->duration_label }}</span>
+                        @endif
+                        @if($trailerForActions->language)
+                            <span class="hero-chip"><i class="fas fa-globe"></i> {{ $trailerForActions->language }}</span>
+                        @endif
+                    @endif
+                </div>
+                @if($tagline)
+                    <p class="hero-desc">{{ $tagline }}</p>
                 @endif
-                @if($slideSlug)
-                    <a href="{{ route('trailers.show', $slideSlug) }}" class="btn-secondary"><i class="fas fa-play"></i> More Info</a>
-                @else
-                    <a href="{{ route('trailers') }}" class="btn-secondary"><i class="fas fa-compass"></i> Explore Trailers</a>
-                @endif
+                <div class="hero-actions">
+                    @if($trailerForActions)
+                        @if($trailerForActions->youtube_id || ($trailerForActions->source_type === 'file' && $trailerForActions->file_path))
+                            <button type="button" class="hero-watch" onclick="openTrailerModal('{{ addslashes($trailerForActions->trailer_url ?? $trailerForActions->file_path) }}')">
+                                <i class="fas fa-play"></i> Watch Trailer
+                            </button>
+                        @else
+                            <a href="{{ route('trailers.show', $trailerForActions->slug) }}" class="hero-watch"><i class="fas fa-play"></i> Watch Trailer</a>
+                        @endif
+                        <button type="button" class="hero-btn hero-fav-btn" onclick="mmToggleFav(event, {{ $trailerForActions->id }}, this)">
+                            <i class="fas fa-heart fav-on"></i><i class="fas fa-heart fav-off"></i> <span class="fav-label">My List</span>
+                        </button>
+                        <button type="button" class="hero-btn" onclick="mmShare(this, '{{ route('trailers.show', $trailerForActions->slug) }}', '{{ addslashes($trailerForActions->title) }}')">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                        @if($slideSlug = ($isFallback ? $featuredTrailer->slug : ($linkedTrailer ? $linkedTrailer->slug : null)))
+                            <a href="{{ route('trailers.show', $slideSlug) }}" class="hero-btn"><i class="fas fa-arrow-right"></i> More Info</a>
+                        @endif
+                    @else
+                        <a href="{{ route('trailers') }}" class="hero-watch"><i class="fas fa-compass"></i> Explore Trailers</a>
+                    @endif
+                </div>
             </div>
         </div>
-    </div>
     @endforeach
 
-    @if($heroSlides->count() > 1)
-    <button class="hero-arrow prev" onclick="prevSlide()" aria-label="Previous slide"><i class="fas fa-chevron-left"></i></button>
-    <button class="hero-arrow next" onclick="nextSlide()" aria-label="Next slide"><i class="fas fa-chevron-right"></i></button>
-    <div class="hero-dots">
-        @foreach($heroSlides as $i => $slide)
-            <button class="hero-dot {{ $i === 0 ? 'active' : '' }}" data-dot="{{ $i }}" onclick="goToSlide({{ $i }})" aria-label="Go to slide {{ $i + 1 }}"></button>
-        @endforeach
-    </div>
+    @if($slideCount > 1)
+        <button class="hero-nav prev" onclick="heroPrev()" aria-label="Previous"><i class="fas fa-chevron-left"></i></button>
+        <button class="hero-nav next" onclick="heroNext()" aria-label="Next"><i class="fas fa-chevron-right"></i></button>
+        <div class="hero-dots">
+            @foreach($slides as $i => $slide)
+                <button class="hero-dot {{ $i === 0 ? 'active' : '' }}" data-dot="{{ $i }}" onclick="heroGo({{ $i }})" aria-label="Go to slide {{ $i + 1 }}"></button>
+            @endforeach
+        </div>
     @endif
 </div>
-@endif
 
-@if($favTrailers->count() > 0)
-<!-- My Favorites -->
-<div class="section reveal" id="my-favorites">
-    <div class="section-header">
-        <h2><i class="fas fa-heart" style="color: var(--accent-red); margin-right: 0.5rem; font-size: 1.2rem;"></i> My Favorite Trailers</h2>
-        <a href="{{ route('favorites') }}" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
-    </div>
-    <div class="trailer-grid">
-        @foreach($favTrailers as $trailer)
-            <div class="trailer-card" data-slug="{{ $trailer->slug }}" data-title="{{ $trailer->title }}" onclick="location.href='{{ route('trailers.show', $trailer->slug) }}'">
-                <div class="trailer-thumb">
-                    <span class="trailer-badge"><i class="fas fa-video"></i> FAVORITE</span>
-                    <img src="{{ $trailer->thumb_url }}" alt="{{ $trailer->title }}" loading="lazy">
-                    <div class="trailer-play"><i class="fas fa-play"></i></div>
-                    <button class="fav-heart active" type="button" data-type="trailer" data-id="{{ $trailer->id }}" onclick="toggleFavorite(event,'trailer',{{ $trailer->id }},this)" title="Remove from favorites"><i class="fas fa-heart"></i></button>
-                </div>
-                <div class="trailer-info">
-                    <h4>{{ $trailer->title }}</h4>
-                    <div class="meta">
-                        <span><i class="fas fa-calendar-alt"></i> {{ $trailer->created_at?->format('M Y') ?? 'N/A' }}</span>
-                        <span><i class="fas fa-eye"></i> {{ number_format($trailer->views) }} views</span>
-                    </div>
-                    <a href="{{ route('trailers.show', $trailer->slug) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $trailer->title }}">
-                        <i class="fas fa-video"></i> Watch Trailer
-                    </a>
-                </div>
+@php
+    $isFav = fn ($t) => isset($favoritedIds) && $favoritedIds->has($t->id);
+@endphp
+
+<!-- ==================== MY FAVORITES ==================== -->
+@auth
+    @if($favTrailers->count() > 0)
+        <section class="mm-section reveal">
+            <div class="section-header">
+                <span class="icon"><i class="fas fa-heart"></i></span>
+                <h2>My Favorite Trailers</h2>
+                <a href="{{ route('favorites') }}" class="view-all">View all <i class="fas fa-arrow-right"></i></a>
             </div>
-        @endforeach
-    </div>
-</div>
+            <div class="carousel" data-carousel>
+                <button class="carousel-btn prev" data-carousel-prev><i class="fas fa-chevron-left"></i></button>
+                <div class="carousel-track">
+                    @foreach($favTrailers as $trailer)
+                        <div class="carousel-item">
+                            @include('partials.trailer-card', ['trailer' => $trailer, 'badge' => 'My List', 'favorited' => true])
+                        </div>
+                    @endforeach
+                </div>
+                <button class="carousel-btn next" data-carousel-next><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </section>
+    @endif
+@endauth
+
+<!-- ==================== JUST DROPPED ==================== -->
+@if($recentTrailers->count() > 0)
+    <section class="mm-section reveal">
+        <div class="section-header">
+            <span class="icon"><i class="fas fa-rocket"></i></span>
+            <h2>Just Dropped</h2>
+            <a href="{{ route('latest') }}" class="view-all">View all <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="carousel" data-carousel>
+            <button class="carousel-btn prev" data-carousel-prev><i class="fas fa-chevron-left"></i></button>
+            <div class="carousel-track">
+                @foreach($recentTrailers as $trailer)
+                    <div class="carousel-item">
+                        @include('partials.trailer-card', ['trailer' => $trailer, 'badge' => 'New Release', 'favorited' => $isFav($trailer)])
+                    </div>
+                @endforeach
+            </div>
+            <button class="carousel-btn next" data-carousel-next><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
 @endif
 
-<!-- Trending Trailers -->
-<div class="section reveal">
-    <div class="section-header">
-        <h2><i class="fas fa-fire" style="color: var(--accent-red); margin-right: 0.5rem; font-size: 1.2rem;"></i> Trending Trailers</h2>
-        <a href="{{ route('trailers') }}" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
-    </div>
-    @if($trendingTrailers->count() > 0)
-        <div class="trailer-grid">
-            @foreach($trendingTrailers as $trailer)
-                <div class="trailer-card" data-slug="{{ $trailer->slug }}" data-title="{{ $trailer->title }}" onclick="location.href='{{ route('trailers.show', $trailer->slug) }}'">
-                    <div class="trailer-thumb">
-                        <span class="trailer-badge"><i class="fas fa-fire"></i> TRENDING</span>
-                        <img src="{{ $trailer->thumb_url }}" alt="{{ $trailer->title }}" loading="lazy">
-                        <div class="trailer-play"><i class="fas fa-play"></i></div>
-                        <button class="fav-heart" type="button" data-type="trailer" data-id="{{ $trailer->id }}" onclick="toggleFavorite(event,'trailer',{{ $trailer->id }},this)" title="Add to favorites"><i class="fas fa-heart"></i></button>
-                    </div>
-                    <div class="trailer-info">
-                        <h4>{{ $trailer->title }}</h4>
-                        <div class="meta">
-                            <span><i class="fas fa-calendar-alt"></i> {{ $trailer->created_at?->format('M Y') ?? 'N/A' }}</span>
-                            <span><i class="fas fa-eye"></i> {{ number_format($trailer->views) }} views</span>
-                        </div>
-                        <a href="{{ route('trailers.show', $trailer->slug) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $trailer->title }}">
-                            <i class="fas fa-eye"></i> Watch Trailer
-                        </a>
-                    </div>
-                </div>
-            @endforeach
+<!-- ==================== TRENDING ==================== -->
+@if($trendingTrailers->count() > 0)
+    <section class="mm-section reveal">
+        <div class="section-header">
+            <span class="icon"><i class="fas fa-fire"></i></span>
+            <h2>Trending Trailers</h2>
+            <a href="{{ route('trending') }}" class="view-all">View all <i class="fas fa-arrow-right"></i></a>
         </div>
-    @else
-        <div style="text-align:center; padding:3rem; color: var(--text-muted);">No trailers available yet.</div>
-    @endif
-</div>
+        <div class="carousel" data-carousel>
+            <button class="carousel-btn prev" data-carousel-prev><i class="fas fa-chevron-left"></i></button>
+            <div class="carousel-track">
+                @foreach($trendingTrailers as $trailer)
+                    <div class="carousel-item">
+                        @include('partials.trailer-card', ['trailer' => $trailer, 'badge' => 'Trending', 'favorited' => $isFav($trailer)])
+                    </div>
+                @endforeach
+            </div>
+            <button class="carousel-btn next" data-carousel-next><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+@endif
 
-<!-- Latest Trailers -->
-<div class="section reveal">
-    <div class="section-header">
-        <h2><i class="fas fa-clock" style="color: var(--accent-cyan); margin-right: 0.5rem; font-size: 1.2rem;"></i> Latest Trailers</h2>
-        <a href="{{ route('trailers') }}" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
-    </div>
-    @if($recentTrailers->count() > 0)
-        <div class="trailer-grid">
-            @foreach($recentTrailers as $trailer)
-                <div class="trailer-card" data-slug="{{ $trailer->slug }}" data-title="{{ $trailer->title }}" onclick="location.href='{{ route('trailers.show', $trailer->slug) }}'">
-                    <div class="trailer-thumb">
-                        <span class="trailer-badge"><i class="fas fa-video"></i> NEW RELEASE</span>
-                        <img src="{{ $trailer->thumb_url }}" alt="{{ $trailer->title }}" loading="lazy">
-                        <div class="trailer-play"><i class="fas fa-play"></i></div>
-                        <button class="fav-heart" type="button" data-type="trailer" data-id="{{ $trailer->id }}" onclick="toggleFavorite(event,'trailer',{{ $trailer->id }},this)" title="Add to favorites"><i class="fas fa-heart"></i></button>
+<!-- ==================== COMING SOON ==================== -->
+@if($comingSoon->count() > 0)
+    <section class="mm-section reveal">
+        <div class="section-header">
+            <span class="icon"><i class="fas fa-calendar-plus"></i></span>
+            <h2>Coming Soon</h2>
+        </div>
+        <div class="carousel" data-carousel>
+            <button class="carousel-btn prev" data-carousel-prev><i class="fas fa-chevron-left"></i></button>
+            <div class="carousel-track">
+                @foreach($comingSoon as $trailer)
+                    <div class="carousel-item">
+                        @include('partials.trailer-card', [
+                            'trailer'   => $trailer,
+                            'badge'     => 'Coming Soon · ' . ($trailer->release_date ? $trailer->release_date->format('M j') : ''),
+                            'favorited' => $isFav($trailer),
+                        ])
                     </div>
-                    <div class="trailer-info">
-                        <h4>{{ $trailer->title }}</h4>
-                        <div class="meta">
-                            <span><i class="fas fa-calendar-alt"></i> {{ $trailer->created_at?->format('M Y') ?? 'N/A' }}</span>
-                            <span><i class="fas fa-eye"></i> {{ number_format($trailer->views) }} views</span>
-                        </div>
-                        <a href="{{ route('trailers.show', $trailer->slug) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $trailer->title }}">
-                            <i class="fas fa-video"></i> Watch Trailer
-                        </a>
+                @endforeach
+            </div>
+            <button class="carousel-btn next" data-carousel-next><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+@endif
+
+<!-- ==================== POPULAR THIS WEEK ==================== -->
+@if($popularThisWeek->count() > 0)
+    <section class="mm-section reveal">
+        <div class="section-header">
+            <span class="icon"><i class="fas fa-chart-line"></i></span>
+            <h2>Popular This Week</h2>
+        </div>
+        <div class="carousel" data-carousel>
+            <button class="carousel-btn prev" data-carousel-prev><i class="fas fa-chevron-left"></i></button>
+            <div class="carousel-track">
+                @foreach($popularThisWeek as $trailer)
+                    <div class="carousel-item">
+                        @include('partials.trailer-card', ['trailer' => $trailer, 'badge' => 'Hot This Week', 'favorited' => $isFav($trailer)])
                     </div>
-                </div>
+                @endforeach
+            </div>
+            <button class="carousel-btn next" data-carousel-next><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+@endif
+
+<!-- ==================== BROWSE BY GENRE ==================== -->
+@if($genres->count() > 0)
+    <section class="mm-section reveal">
+        <div class="section-header">
+            <span class="icon"><i class="fas fa-tags"></i></span>
+            <h2>Browse by Genre</h2>
+            <a href="{{ route('genres') }}" class="view-all">All genres <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="genre-chips">
+            @foreach($genres as $g)
+                <a href="{{ route('genre.show', \Illuminate\Support\Str::slug($g->genre)) }}" class="genre-chip">
+                    <i class="fas fa-film" style="font-size:0.75rem; color:var(--gold);"></i> {{ $g->genre }} <span>{{ $g->total }}</span>
+                </a>
             @endforeach
         </div>
-    @else
-        <div style="text-align:center; padding:3rem; color: var(--text-muted);">No recent trailers yet.</div>
-    @endif
+    </section>
+@endif
+
+<!-- ==================== INTERNATIONAL ==================== -->
+@if($international->count() > 0)
+    <section class="mm-section reveal">
+        <div class="section-header">
+            <span class="icon"><i class="fas fa-globe-africa"></i></span>
+            <h2>International</h2>
+            <a href="{{ route('trailers') }}" class="view-all">View all <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div class="carousel" data-carousel>
+            <button class="carousel-btn prev" data-carousel-prev><i class="fas fa-chevron-left"></i></button>
+            <div class="carousel-track">
+                @foreach($international as $trailer)
+                    <div class="carousel-item">
+                        @include('partials.trailer-card', [
+                            'trailer'   => $trailer,
+                            'badge'     => $trailer->country ?: $trailer->language,
+                            'favorited' => $isFav($trailer),
+                        ])
+                    </div>
+                @endforeach
+            </div>
+            <button class="carousel-btn next" data-carousel-next><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+@endif
+
+@if($slideCount <= 1 && $featuredTrailer === null && $recentTrailers->count() === 0)
+    <div class="mm-section" style="padding-bottom: 3rem;">
+        <div class="row-empty"><i class="fas fa-video-slash"></i> No trailers available yet. Check back soon!</div>
+    </div>
+@endif
+
+<!-- ==================== TRAILER MODAL ==================== -->
+<div class="trailer-modal" id="trailerModal">
+    <div class="modal-backdrop" onclick="closeTrailerModal()"></div>
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeTrailerModal()" aria-label="Close"><i class="fas fa-times"></i></button>
+        <div id="modalPlayer"></div>
+    </div>
 </div>
 
 @include('partials.footer')
 
-<!-- Trailer Modal -->
-<div id="trailerModal" class="trailer-modal">
-    <button class="trailer-close" onclick="closeTrailerModal()" aria-label="Close trailer">
-        <i class="fas fa-times"></i>
-    </button>
-    <div class="trailer-wrapper" onclick="closeTrailerModal()">
-        <div class="trailer-container">
-            <iframe id="trailerFrame" src="" title="Movie Trailer"
-                    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="display:none;"></iframe>
-            <video id="trailerVideo" controls playsinline style="display:none;"></video>
-        </div>
-    </div>
-</div>
-
 <script>
-    // Mobile Menu
-    function toggleMenu() {
-        const navLinks = document.getElementById('navLinks');
-        const overlay = document.getElementById('mobileOverlay');
-        navLinks.classList.toggle('active');
-        overlay.classList.toggle('active');
-        const menuBtn = document.querySelector('.menu-btn i');
-        if (navLinks.classList.contains('active')) {
-            menuBtn.classList.remove('fa-bars');
-            menuBtn.classList.add('fa-times');
-        } else {
-            menuBtn.classList.remove('fa-times');
-            menuBtn.classList.add('fa-bars');
-        }
-    }
-    document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', () => {
-            document.getElementById('navLinks').classList.remove('active');
-            document.getElementById('mobileOverlay').classList.remove('active');
-            const menuBtn = document.querySelector('.menu-btn i');
-            menuBtn.classList.remove('fa-times');
-            menuBtn.classList.add('fa-bars');
+    // ---------- HERO SLIDESHOW ----------
+    const heroSlidesEl = document.querySelectorAll('.mm-hero .hero-slide');
+    let heroIdx = 0;
+    const heroTimer = heroSlidesEl.length > 1 ? setInterval(() => heroGo(heroIdx + 1), 8000) : null;
+    function heroShow(i, direction) {
+        heroSlidesEl.forEach((s, k) => {
+            const isActive = k === i;
+            s.style.display = isActive ? '' : 'none';
+            const media = s.querySelector('.hero-media');
+            if (media) media.classList.toggle('zoom', isActive);
+            s.querySelector('.hero-content').style.animation = 'none';
+            if (isActive) { void s.querySelector('.hero-content').offsetWidth; s.querySelector('.hero-content').style.animation = 'heroIn 0.9s cubic-bezier(.18,.89,.32,1.18) forwards'; }
         });
+        document.querySelectorAll('.hero-dot').forEach((d, k) => d.classList.toggle('active', k === i));
+    }
+    function heroGo(i) {
+        if (!heroSlidesEl.length) return;
+        heroIdx = ((i % heroSlidesEl.length) + heroSlidesEl.length) % heroSlidesEl.length;
+        heroShow(heroIdx);
+    }
+    window.heroPrev = () => heroGo(heroIdx - 1);
+    window.heroNext = () => heroGo(heroIdx + 1);
+
+    // ---------- CAROUSEL SCROLL ----------
+    document.querySelectorAll('[data-carousel]').forEach(c => {
+        const track = c.querySelector('.carousel-track');
+        const prev = c.querySelector('[data-carousel-prev]');
+        const next = c.querySelector('[data-carousel-next]');
+        const step = () => {
+            const item = c.querySelector('.carousel-item');
+            return item ? item.getBoundingClientRect().width + parseFloat(getComputedStyle(track).gap || 16) : 260;
+        };
+        prev.addEventListener('click', () => track.scrollBy({ left: -step() * 2, behavior: 'smooth' }));
+        next.addEventListener('click', () => track.scrollBy({ left: step() * 2, behavior: 'smooth' }));
     });
 
-    // Navbar scroll
-    window.addEventListener('scroll', () => {
-        const nav = document.getElementById('navbar');
-        if (window.scrollY > 50) nav.classList.add('scrolled');
-        else nav.classList.remove('scrolled');
-    });
-
-    // Scroll reveal
-    const revealEls = document.querySelectorAll('.reveal');
-    const revealObs = new IntersectionObserver((entries) => {
-        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); } });
-    }, { threshold: 0.1 });
-    revealEls.forEach(el => revealObs.observe(el));
-
-    // Hero slider
-    let heroSlides = document.querySelectorAll('#heroSlider .hero-slide');
-    let heroDots = document.querySelectorAll('#heroSlider .hero-dot');
-    let heroIndex = 0;
-    let heroTimer = null;
-    function showSlide(i) {
-        if (!heroSlides.length) return;
-        heroIndex = (i + heroSlides.length) % heroSlides.length;
-        heroSlides.forEach((s, idx) => s.classList.toggle('active', idx === heroIndex));
-        if (heroDots.length) heroDots.forEach((d, idx) => d.classList.toggle('active', idx === heroIndex));
-        resetHeroTimer();
-    }
-    function nextSlide() { showSlide(heroIndex + 1); }
-    function prevSlide() { showSlide(heroIndex - 1); }
-    function goToSlide(i) { showSlide(i); }
-    function resetHeroTimer() {
-        if (heroTimer) clearInterval(heroTimer);
-        if (heroSlides.length > 1) heroTimer = setInterval(() => showSlide(heroIndex + 1), 6500);
-    }
-    resetHeroTimer();
-
-    // Trailer modal
-    function extractYouTubeId(url) {
-        if (!url) return null;
-        const m = url.match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    // ---------- TRAILER MODAL ----------
+    function extractYoutubeId(url) {
+        const m = /(?:youtube\.com\/(?:watch\?.*v=|embed\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/.exec(url || '');
         return m ? m[1] : null;
     }
-    function openTrailerModal(url, type, id) {
-        const frame = document.getElementById('trailerFrame');
-        const video = document.getElementById('trailerVideo');
-        frame.style.display = 'none';
-        frame.src = '';
-        video.style.display = 'none';
-        video.pause();
-        video.removeAttribute('src');
-        video.load();
-        const ytId = extractYouTubeId(url);
-        const trackable = !! (type && id);
-        const viewType = type || 'trailer';
-        const viewId = id || 0;
-        if (ytId) {
-            frame.src = 'https://www.youtube-nocookie.com/embed/' + ytId + '?autoplay=1&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1';
-            frame.style.display = '';
-            if (trackable && window.mmViewTracker) {
-                try { window.mmViewTracker.trackYouTube(frame, viewType, viewId); } catch (e) {}
-            }
-        } else if (url) {
-            video.src = url;
-            video.style.display = '';
-            video.play().catch(() => {});
-            if (trackable && window.mmViewTracker) {
-                try { window.mmViewTracker.trackVideo(video, viewType, viewId); } catch (e) {}
-            }
+    window.openTrailerModal = function (url) {
+        const player = document.getElementById('modalPlayer');
+        const id = extractYoutubeId(url);
+        if (id) {
+            player.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1" title="Trailer" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
         } else {
-            return;
+            player.innerHTML = '<video src="' + (url || '') + '" controls autoplay></video>';
         }
-        document.getElementById('trailerModal').classList.add('active');
+        document.getElementById('trailerModal').classList.add('open');
         document.body.style.overflow = 'hidden';
-    }
-    function closeTrailerModal() {
-        const frame = document.getElementById('trailerFrame');
-        frame.src = '';
-        frame.style.display = 'none';
-        const video = document.getElementById('trailerVideo');
-        video.pause();
-        video.removeAttribute('src');
-        video.style.display = 'none';
-        document.getElementById('trailerModal').classList.remove('active');
-        document.body.style.overflow = 'auto';
-    }
-
-    // Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') { closeTrailerModal(); }
+    };
+    window.closeTrailerModal = function () {
+        const player = document.getElementById('modalPlayer');
+        player.innerHTML = '';
+        document.getElementById('trailerModal').classList.remove('open');
+        document.body.style.overflow = '';
+    };
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { closeTrailerModal(); closeSheet && closeSheet(); }
     });
-
-    // Guest identity + favourites
-    function csrfToken() {
-        const m = document.querySelector('meta[name="csrf-token"]');
-        return m ? m.content : '';
-    }
-    function handleLoginRequired(data) {
-        if (data && data.error === 'login_required') {
-            if (window.__loginPromptShown) return true;
-            window.__loginPromptShown = true;
-            Swal.fire({
-                title: 'Login Required',
-                text: data.message || 'Please login or create an account to continue.',
-                icon: 'warning',
-                background: '#161c26',
-                color: '#fff',
-                confirmButtonColor: '#e50914',
-                confirmButtonText: '<i class="fas fa-sign-in-alt"></i> Login Now',
-                showCancelButton: true,
-                cancelButtonText: 'Cancel',
-                cancelButtonColor: '#6b7280'
-            }).then((r) => {
-                window.__loginPromptShown = false;
-                if (r.isConfirmed) window.location.href = '/login?redirect=' + encodeURIComponent(window.location.href);
-            });
-            return true;
-        }
-        return false;
-    }
-    async function toggleFavorite(e, type, id, btn) {
-        e.stopPropagation();
-        e.preventDefault();
-        try {
-            const res = await fetch('/interactions/favorite-toggle', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken(), 'Accept': 'application/json' },
-                body: JSON.stringify({ type: type, id: id })
-            });
-            const data = await res.json();
-            if (handleLoginRequired(data)) return;
-            if (data.favorited) {
-                btn.classList.add('active');
-                btn.title = 'Remove from favorites';
-            } else {
-                btn.classList.remove('active');
-                btn.title = 'Add to favorites';
-            }
-        } catch (err) {}
-    }
 </script>
-@include('partials.view-tracker')
 </body>
 </html>
