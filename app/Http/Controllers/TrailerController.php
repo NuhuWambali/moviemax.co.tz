@@ -97,17 +97,41 @@ class TrailerController extends Controller
             $query->where('title', 'like', '%' . $request->search . '%');
         }
 
+        if ($request->trailer_type) {
+            $query->where('trailer_type', 'like', '%' . $request->trailer_type . '%');
+        }
+
+        if ($request->genre) {
+            $query->where('genre', 'like', '%' . $request->genre . '%');
+        }
+
+        if ($request->year) {
+            $query->where('year', $request->year);
+        }
+
+        if ($request->language) {
+            $query->where('language', 'like', '%' . $request->language . '%');
+        }
+
         $sort = $request->get('sort') ?? $request->route('sort') ?? 'latest';
 
         switch ($sort) {
             case 'trending':
-                $query->orderBy('views', 'desc');
-                break;
             case 'popular':
                 $query->orderBy('views', 'desc');
                 break;
             case 'featured':
                 $query->where('featured', true)->latest();
+                break;
+            case 'most_liked':
+                $query->withCount(['reactions as likes_count' => fn ($r) => $r->where('reaction', 'like')])
+                    ->orderByDesc('likes_count');
+                break;
+            case 'most_saved':
+                $query->withCount('favorites as saves_count')->orderByDesc('saves_count');
+                break;
+            case 'a_z':
+                $query->orderBy('title');
                 break;
             default:
                 $query->latest();
@@ -115,9 +139,30 @@ class TrailerController extends Controller
 
         $trailers = $query->paginate(12)->withQueryString();
         $trendingTrailers = Trailer::where('is_active', true)->orderBy('views', 'desc')->take(6)->get();
-        $activeSort = $request->get('sort', 'latest');
 
-        return view('trailers', compact('trailers', 'trendingTrailers', 'activeSort'));
+        $distinct = Trailer::where('is_active', true)
+            ->get(['trailer_type', 'genre', 'year', 'language'])
+            ->filter(fn ($t) => $t->trailer_type || $t->genre || $t->year || $t->language);
+
+        $collectValues = function (string $attr, bool $desc = false) use ($distinct) {
+            $values = $distinct->pluck($attr)
+                ->filter()
+                ->unique()
+                ->reject(fn ($v) => mb_strtolower((string) $v) === 'unknown');
+            return $desc
+                ? $values->sortDesc()
+                : $values->sortBy(fn ($v) => mb_strtolower((string) $v));
+        };
+
+        $trailerTypes = $collectValues('trailer_type')->values();
+        $genres = $collectValues('genre')->values();
+        $years = $collectValues('year', true)->values();
+        $languages = $collectValues('language')->values();
+
+        $activeSort = $request->get('sort', 'latest');
+        $filters = $request->only(['search', 'trailer_type', 'genre', 'year', 'language']);
+
+        return view('trailers', compact('trailers', 'trendingTrailers', 'activeSort', 'trailerTypes', 'genres', 'years', 'languages', 'filters'));
     }
 
     public function genres()
@@ -220,26 +265,50 @@ class TrailerController extends Controller
     public function apiSearch(Request $request)
     {
         $q = trim((string) $request->query('q', ''));
-        if (mb_strlen($q) < 2) {
-            return response()->json([]);
+        $limit = min(40, max(1, (int) $request->query('limit', 10)));
+
+        $results = collect();
+
+        if (mb_strlen($q) >= 2) {
+            $like = '%' . $q . '%';
+
+            $results = Trailer::query()
+                ->where('is_active', true)
+                ->where(function ($query) use ($like) {
+                    $query->where('title', 'like', $like)
+                        ->orWhere('description', 'like', $like)
+                        ->orWhere('genre', 'like', $like)
+                        ->orWhere('language', 'like', $like)
+                        ->orWhere('country', 'like', $like);
+                })
+                ->orderBy('views', 'desc')
+                ->limit($limit)
+                ->get()
+                ->map->toDiscoveryCard();
         }
 
-        $like = '%' . $q . '%';
-
-        $results = Trailer::where('is_active', true)
-            ->where('title', 'like', $like)
-            ->orderBy('views', 'desc')
-            ->limit(10)
-            ->get()
-            ->map(fn ($t) => [
-                'type'   => 'trailer',
-                'title'  => $t->title,
-                'year'   => $t->created_at?->year,
-                'poster' => $t->thumb_url,
-                'url'    => route('trailers.show', $t->slug),
-            ]);
-
         return response()->json($results);
+    }
+
+    public function apiFilters()
+    {
+        $rows = Trailer::where('is_active', true)
+            ->get(['trailer_type', 'genre', 'year', 'language'])
+            ->filter(fn ($t) => $t->trailer_type || $t->genre || $t->year || $t->language);
+
+        $collect = fn ($attr) => $rows->pluck($attr)
+            ->filter()
+            ->unique()
+            ->reject(fn ($v) => mb_strtolower((string) $v) === 'unknown')
+            ->sortBy(fn ($v) => mb_strtolower((string) $v))
+            ->values();
+
+        return response()->json([
+            'trailer_types' => $collect('trailer_type'),
+            'genres'        => $collect('genre'),
+            'years'         => $rows->pluck('year')->filter()->unique()->sortDesc()->values(),
+            'languages'     => $collect('language'),
+        ]);
     }
 
     public function sitemap()

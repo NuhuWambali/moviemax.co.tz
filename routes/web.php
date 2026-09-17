@@ -30,6 +30,7 @@ Route::get('/trailers/{slug}', [TrailerController::class, 'show'])->name('traile
 
 Route::get('/sitemap.xml', [TrailerController::class, 'sitemap'])->name('sitemap');
 Route::get('/api/search', [TrailerController::class, 'apiSearch'])->name('api.search');
+    Route::get('/api/filters', [TrailerController::class, 'apiFilters'])->name('api.filters');
 
 // View counting (fires from player JS after ~5s of playback) - session guarded
 Route::post('/view-track', [ViewController::class, 'track'])->name('view.track');

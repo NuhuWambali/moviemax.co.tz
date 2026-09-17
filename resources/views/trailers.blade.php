@@ -135,6 +135,81 @@
             box-shadow: 0 8px 24px rgba(229, 9, 20, 0.35);
         }
 
+        .filter-bar {
+            max-width: 1500px;
+            margin: 1rem auto 0;
+            padding: 0 3%;
+            display: flex;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 0.35rem; }
+        .filter-group label {
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        .filter-select {
+            appearance: none;
+            min-width: 150px;
+            padding: 0.55rem 2.2rem 0.55rem 0.95rem;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.05) url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22%3E%3Cpath d=%22M0 0l5 6 5-6z%22 fill=%22%238a93a0%22/%3E%3C/svg%3E') no-repeat right 14px center;
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+        .filter-select:focus { border-color: rgba(229, 9, 20, 0.6); box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.12); }
+        .filter-select option { background: #11161d; color: var(--text-primary); }
+        .filter-actions { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+        .filter-apply, .filter-clear {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.55rem 1.3rem;
+            border-radius: 40px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+        .filter-apply { background: var(--accent-red); border-color: transparent; color: #fff; }
+        .filter-apply:hover { filter: brightness(1.12); }
+        .filter-clear:hover { border-color: rgba(229, 9, 20, 0.5); }
+
+        .active-filter {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 0.3rem 3%;
+        }
+        .active-filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 0.4rem 0.9rem;
+            border-radius: 30px;
+            background: rgba(229, 9, 20, 0.14);
+            border: 1px solid rgba(229, 9, 20, 0.4);
+            color: #fff;
+            font-size: 0.76rem;
+            font-weight: 600;
+            margin: 0.3rem 0.4rem 0 0;
+        }
+        .active-filter-chip a { color: var(--gold); text-decoration: none; }
+
         .discover-container {
             max-width: 1500px;
             margin: 0 auto;
@@ -287,13 +362,16 @@
 </div>
 
 @php
-    $qParams = array_filter(request()->only(['search']), fn ($v) => !empty($v));
+    $qParams = array_filter(request()->only(['search', 'trailer_type', 'genre', 'year', 'language']), fn ($v) => $v !== '' && $v !== null);
     $tabs = [
-        ['label' => 'Latest',   'href' => route('latest', $qParams), 'key' => 'latest'],
-        ['label' => 'Trending', 'href' => route('trending', $qParams), 'key' => 'trending'],
-        ['label' => 'Popular',  'href' => route('trailers', $qParams + ['sort' => 'popular']), 'key' => 'popular'],
-        ['label' => 'Featured', 'href' => route('trailers', $qParams + ['sort' => 'featured']), 'key' => 'featured'],
+        ['label' => 'Latest',     'href' => route('latest', $qParams), 'key' => 'latest'],
+        ['label' => 'Trending',   'href' => route('trending', $qParams), 'key' => 'trending'],
+        ['label' => 'Most Liked', 'href' => route('trailers', $qParams + ['sort' => 'most_liked']), 'key' => 'most_liked'],
+        ['label' => 'Most Saved', 'href' => route('trailers', $qParams + ['sort' => 'most_saved']), 'key' => 'most_saved'],
+        ['label' => 'Featured',   'href' => route('trailers', $qParams + ['sort' => 'featured']), 'key' => 'featured'],
+        ['label' => 'A–Z',        'href' => route('trailers', $qParams + ['sort' => 'a_z']), 'key' => 'a_z'],
     ];
+    $activeFilterCount = count(array_filter(array_diff_key($qParams, ['search' => '']), fn ($v) => $v !== ''));
 @endphp
 
 <div class="sort-tabs">
@@ -301,6 +379,83 @@
         <a href="{{ $tab['href'] }}" class="sort-tab {{ $activeSort === $tab['key'] ? 'active' : '' }}">{{ $tab['label'] }}</a>
     @endforeach
 </div>
+
+<div class="filter-bar">
+    <div class="filter-group">
+        <label for="fType">Trailer Type</label>
+        <select class="filter-select" id="fType" name="trailer_type">
+            <option value="">All types</option>
+            @foreach($trailerTypes as $type)
+                <option value="{{ $type }}" {{ request('trailer_type') === $type ? 'selected' : '' }}>{{ $type }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="fGenre">Genre</label>
+        <select class="filter-select" id="fGenre" name="genre">
+            <option value="">All genres</option>
+            @foreach($genres as $genre)
+                <option value="{{ $genre }}" {{ request('genre') === $genre ? 'selected' : '' }}>{{ $genre }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="fYear">Year</label>
+        <select class="filter-select" id="fYear" name="year">
+            <option value="">Any year</option>
+            @foreach($years as $year)
+                <option value="{{ $year }}" {{ (string) request('year') === (string) $year ? 'selected' : '' }}>{{ $year }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="fLang">Language</label>
+        <select class="filter-select" id="fLang" name="language">
+            <option value="">Any language</option>
+            @foreach($languages as $lang)
+                <option value="{{ $lang }}" {{ request('language') === $lang ? 'selected' : '' }}>{{ $lang }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="filter-actions">
+        @if($activeFilterCount > 0)
+            <a href="{{ route('trailers', array_merge(array_filter(['search' => request('search')], fn ($v) => !empty($v)), ['sort' => $activeSort])) }}" class="filter-clear"><i class="fas fa-times"></i> Clear</a>
+        @endif
+        <button type="button" class="filter-apply" onclick="applyFilters()"><i class="fas fa-filter"></i> Apply</button>
+    </div>
+</div>
+
+@if($activeFilterCount > 0)
+    <div class="active-filter">
+        @php
+            $chipLabels = [
+                'trailer_type' => 'Type',
+                'genre'        => 'Genre',
+                'year'         => 'Year',
+                'language'     => 'Language',
+            ];
+            $baseChips = array_filter(['search' => request('search')], fn ($v) => !empty($v));
+        @endphp
+        @foreach($chipLabels as $key => $label)
+            @if($val = request($key))
+                <span class="active-filter-chip"><i class="fas fa-filter"></i> {{ $label }}: {{ $val }}
+                    <a href="{{ route('trailers', $baseChips + array_diff_key($qParams, [$key => '']) + ['sort' => $activeSort]) }}"><i class="fas fa-times-circle"></i></a>
+                </span>
+            @endif
+        @endforeach
+    </div>
+@endif
+
+<script>
+    function applyFilters() {
+        const params = new URLSearchParams(window.location.search);
+        ['trailer_type', 'genre', 'year', 'language'].forEach(k => {
+            const v = document.getElementById('f' + k.charAt(0).toUpperCase() + k.slice(1)).value;
+            if (v) params.set(k, v); else params.delete(k);
+        });
+        window.location.href = '{{ route("trailers") }}?' + params.toString();
+    }
+</script>
 
 <div class="discover-container">
     <div class="discover-main">

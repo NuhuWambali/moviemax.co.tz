@@ -158,4 +158,23 @@ class Trailer extends Model
     {
         return $this->trailer_type ?: 'Official Trailer';
     }
+
+    public function toDiscoveryCard(): array
+    {
+        return [
+            'type'         => 'trailer',
+            'id'           => $this->id,
+            'slug'         => $this->slug,
+            'title'        => $this->title,
+            'trailer_type' => $this->type_display,
+            'genre'        => $this->genre,
+            'year'         => $this->year_label,
+            'duration'     => $this->duration_label,
+            'language'     => $this->language,
+            'country'      => $this->country,
+            'views'        => $this->views,
+            'poster'       => $this->thumb_url,
+            'url'          => route('trailers.show', $this->slug),
+        ];
+    }
 }

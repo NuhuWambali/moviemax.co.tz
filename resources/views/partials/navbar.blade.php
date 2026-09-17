@@ -677,8 +677,9 @@
                             <div class="search-item-info">
                                 <div class="search-item-title">${i.title}</div>
                                 <div class="search-item-meta">
-                                    <span class="search-type ${i.type}">${typeLabels[i.type]}</span>
+                                    <span class="search-type ${i.type}">${i.trailer_type ? i.trailer_type.toUpperCase() : typeLabels[i.type]}</span>
                                     ${i.year ? '<span>' + i.year + '</span>' : ''}
+                                    ${i.genre ? '<span>' + i.genre + '</span>' : ''}
                                 </div>
                             </div>
                         </a>`).join('');
@@ -736,7 +737,7 @@
                                 <img src="${i.poster || '/images/posters/dummy-poster.png'}" alt="" onerror="this.src='/images/posters/dummy-poster.png'">
                                 <span>
                                     <h4>${i.title}</h4>
-                                    <small>${i.year || ''}</small>
+                                    <small>${[i.year, i.genre, i.trailer_type].filter(Boolean).join(' · ')}</small>
                                 </span>
                             </a>`).join('');
                     } catch (e) { clearSheet(); }
