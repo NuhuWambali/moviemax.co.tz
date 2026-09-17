@@ -116,6 +116,16 @@ class TrailerController extends Controller
             'trailer_url'    => 'nullable|url',
             'source_type'    => 'nullable|in:youtube,file',
             'is_active'      => 'nullable|boolean',
+            'trailer_type'   => 'nullable|string|max:60',
+            'genre'          => 'nullable|string|max:60',
+            'language'       => 'nullable|string|max:60',
+            'country'        => 'nullable|string|max:60',
+            'duration'       => 'nullable|integer|min:1|max:600',
+            'release_date'   => 'nullable|date',
+            'year'           => 'nullable|integer|min:1900|max:' . (date('Y') + 3),
+            'featured'               => 'nullable|boolean',
+            'trending'               => 'nullable|boolean',
+            'trailer_of_the_day'     => 'nullable|boolean',
         ];
 
         $validated = $request->validate($rules);
@@ -125,6 +135,16 @@ class TrailerController extends Controller
             'description' => $request->description,
             'trailer_url' => $request->trailer_url,
             'is_active'   => $request->boolean('is_active'),
+            'trailer_type'   => $request->trailer_type ?: 'Official Trailer',
+            'genre'          => $request->genre,
+            'language'       => $request->language,
+            'country'        => $request->country,
+            'duration'       => $request->filled('duration') ? (int) $request->duration : null,
+            'release_date'   => $request->release_date,
+            'year'           => $request->filled('year') ? (int) $request->year : null,
+            'featured'           => $request->boolean('featured'),
+            'trending'           => $request->boolean('trending'),
+            'trailer_of_the_day' => $request->boolean('trailer_of_the_day'),
         ];
 
         if ($request->thumbnail_url) {

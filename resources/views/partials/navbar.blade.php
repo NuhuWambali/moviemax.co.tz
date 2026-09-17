@@ -401,6 +401,106 @@
         .nav-links a { font-size: 1.1rem; }
         .nav-user { flex-direction: column; gap: 1.2rem; margin-left: 0; }
     }
+
+    /* ---------- Mobile bottom navigation ---------- */
+    .mobile-tabbar {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1500;
+        background: rgba(10, 13, 18, 0.96);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--glass-border);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    .mobile-tabbar .tabs {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+    .mobile-tabbar a, .mobile-tabbar button {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        padding: 0.55rem 0 0.6rem;
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.55);
+        font-family: inherit;
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        text-decoration: none;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .mobile-tabbar a i, .mobile-tabbar button i { font-size: 1.15rem; }
+    .mobile-tabbar a.active, .mobile-tabbar button.active, .mobile-tabbar a:hover { color: var(--accent-red); }
+    .mobile-tabbar .tab-cart { font-size: 0.65rem; }
+
+    /* ---------- Mobile search sheet ---------- */
+    .search-sheet {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1600;
+        background: #0f141b;
+        border-top: 1px solid var(--glass-border);
+        border-radius: 22px 22px 0 0;
+        padding: 1.2rem 1rem calc(1rem + env(safe-area-inset-bottom));
+        transform: translateY(115%);
+        transition: transform 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.1);
+        box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.6);
+    }
+    .search-sheet.open { transform: translateY(0); }
+    .search-sheet .grabber {
+        width: 44px;
+        height: 4px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.18);
+        margin: 0 auto 1rem;
+    }
+    .search-sheet input {
+        width: 100%;
+        padding: 0.85rem 1.1rem 0.85rem 2.7rem;
+        border-radius: 40px;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid var(--glass-border);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.92rem;
+        outline: none;
+    }
+    .search-sheet input:focus { border-color: rgba(229, 9, 20, 0.6); box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15); }
+    .search-sheet .field { position: relative; }
+    .search-sheet .field > i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    .search-sheet .results { margin-top: 0.6rem; max-height: 46vh; overflow-y: auto; }
+    .search-sheet .result-item {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0.6rem 0.5rem;
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--text-primary);
+    }
+    .search-sheet .result-item:hover { background: rgba(255, 255, 255, 0.05); }
+    .search-sheet .result-item img { width: 52px; height: 32px; border-radius: 7px; object-fit: cover; }
+    .search-sheet .result-item h4 { font-size: 0.85rem; font-weight: 600; }
+    .search-sheet .result-item small { color: var(--text-muted); font-size: 0.7rem; }
+    .search-sheet .no-results { text-align: center; padding: 1.4rem; color: var(--text-muted); font-size: 0.85rem; }
+
+    @media (max-width: 900px) {
+        .mobile-tabbar { display: block; }
+        body:not(.admin-body) { padding-bottom: 70px; }
+    }
 </style>
 
 <div class="mobile-overlay" id="mobileOverlay" onclick="toggleMenu()"></div>
@@ -413,7 +513,7 @@
             {{ setting('site_name', 'MOVIEMAX') }}
         @endif
     </a>
-    <div class="nav-search">
+    <div class="nav-search" id="navSearch">
         <i class="fas fa-search"></i>
         <input type="text" id="navSearchInput" placeholder="Search trailers..." autocomplete="off">
         <div class="search-results" id="searchResults"></div>
@@ -421,11 +521,17 @@
     <div class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
     <div class="nav-links" id="navLinks">
         <a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Home</a>
-        <a href="{{ route('trailers') }}" class="{{ request()->is('trailers') || request()->is('trailers/*') ? 'active' : '' }}">Trailers</a>
-        <a href="{{ route('about') }}" class="{{ request()->is('about') ? 'active' : '' }}">About</a>
+        <a href="{{ route('trailers') }}" class="{{ request()->is('trailers') || request()->is('trailers/*') ? 'active' : '' }}">Discover</a>
+        <a href="{{ route('latest') }}" class="{{ request()->is('latest*') ? 'active' : '' }}">Latest</a>
+        <a href="{{ route('trending') }}" class="{{ request()->is('trending*') ? 'active' : '' }}">Trending</a>
+        <a href="{{ route('genres') }}" class="{{ request()->is('genres') || request()->is('genre/*') ? 'active' : '' }}">Genres</a>
 
         @auth
         <div class="nav-user">
+            <a href="{{ route('favorites') }}" class="nav-profile">
+                <i class="fas fa-heart"></i>
+                Watchlist
+            </a>
             <a href="{{ route('profile') }}" class="nav-profile @if(auth()->user()->isSystemUser()){{ request()->is('admin/*') ? 'active' : '' }}@endif">
                 <i class="fas fa-user-circle"></i>
                 {{ explode(' ', auth()->user()->name)[0] }}
@@ -446,6 +552,28 @@
     $waDisplay = setting('whatsapp_number', '+255688349680');
     $coffeeUrl = setting('buy_me_coffee_url', '');
 @endphp
+
+{{-- Mobile bottom navigation --}}
+<nav class="mobile-tabbar" aria-label="Mobile navigation">
+    <div class="tabs">
+        <a href="/" class="{{ request()->is('/') ? 'active' : '' }}"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="{{ route('trailers') }}" class="{{ request()->is('trailers*') || request()->is('latest*') || request()->is('trending*') ? 'active' : '' }}"><i class="fas fa-compass"></i><span>Discover</span></a>
+        <button type="button" id="mobileSearchBtn" aria-label="Search"><i class="fas fa-search"></i><span>Search</span></button>
+        <a href="{{ route('favorites') }}" class="{{ request()->is('favorites') ? 'active' : '' }}"><i class="fas fa-heart"></i><span>Watchlist</span></a>
+        <a href="{{ auth()->check() ? route('profile') : route('login') }}" class="{{ auth()->check() && request()->is('profile') ? 'active' : '' }}"><i class="fas fa-user"></i><span>{{ auth()->check() ? 'Profile' : 'Login' }}</span></a>
+    </div>
+</nav>
+
+{{-- Mobile search sheet --}}
+<div class="search-sheet" id="searchSheet" role="dialog" aria-label="Search">
+    <div class="grabber"></div>
+    <div class="field">
+        <i class="fas fa-search"></i>
+        <input type="text" id="sheetSearchInput" placeholder="Search trailers..." autocomplete="off">
+    </div>
+    <div class="results" id="sheetSearchResults"></div>
+</div>
+
 <div class="support-fab" id="supportFab">
     <div class="support-menu" id="supportMenu">
         @if($coffeeUrl)
@@ -569,7 +697,60 @@
         });
 
         document.addEventListener('click', ev => {
-            if (!document.getElementById('navSearch').contains(ev.target)) closeResults();
+            const navBox = document.getElementById('navSearch');
+            if (navBox && !navBox.contains(ev.target)) closeResults();
         });
+    }
+
+    // ============ MOBILE SEARCH SHEET ============
+    const sheetBtn = document.getElementById('mobileSearchBtn');
+    const sheet = document.getElementById('searchSheet');
+    const sheetInput = document.getElementById('sheetSearchInput');
+    const sheetResults = document.getElementById('sheetSearchResults');
+    if (sheetBtn && sheet) {
+        const typeLabel = { trailer: 'TRAILER' };
+        let sheetDebounce = null;
+
+        const openSheet = () => { sheet.classList.add('open'); setTimeout(() => sheetInput && sheetInput.focus(), 120); };
+        const closeSheet = () => { sheet.classList.remove('open'); };
+        const clearSheet = () => { if (sheetResults) sheetResults.innerHTML = ''; };
+
+        sheetBtn.addEventListener('click', openSheet);
+        document.querySelector('.mobile-overlay')?.addEventListener('click', closeSheet);
+
+        if (sheetInput) {
+            sheetInput.addEventListener('input', () => {
+                clearTimeout(sheetDebounce);
+                const q = sheetInput.value.trim();
+                if (q.length < 2) { clearSheet(); return; }
+                sheetDebounce = setTimeout(async () => {
+                    try {
+                        const res = await fetch('/api/search?q=' + encodeURIComponent(q), { headers: { 'Accept': 'application/json' } });
+                        const items = await res.json();
+                        if (!items.length) {
+                            sheetResults.innerHTML = '<div class="no-results">No results found</div>';
+                            return;
+                        }
+                        sheetResults.innerHTML = items.map(i => `
+                            <a href="${i.url}" class="result-item" onclick="closeSheet()">
+                                <img src="${i.poster || '/images/posters/dummy-poster.png'}" alt="" onerror="this.src='/images/posters/dummy-poster.png'">
+                                <span>
+                                    <h4>${i.title}</h4>
+                                    <small>${i.year || ''}</small>
+                                </span>
+                            </a>`).join('');
+                    } catch (e) { clearSheet(); }
+                }, 220);
+            });
+            sheetInput.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const q = sheetInput.value.trim();
+                    window.location.href = '/trailers?search=' + encodeURIComponent(q);
+                }
+                if (e.key === 'Escape') { closeSheet(); }
+            });
+        }
+        window.closeSheet = closeSheet;
     }
 </script>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Trailer;
+use App\Models\TrailerView;
 use Illuminate\Http\Request;
 
 class ViewController extends Controller
@@ -31,6 +32,11 @@ class ViewController extends Controller
 
         $trailer->increment('views');
         $request->session()->put($sessionKey, true);
+
+        TrailerView::create([
+            'trailer_id' => $trailer->id,
+            'viewed_at'  => now(),
+        ]);
 
         return response()->json(['ok' => true]);
     }

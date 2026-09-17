@@ -29,6 +29,8 @@
             <textarea name="description" class="form-control" placeholder="Short description shown on the trailer page">{{ old('description') }}</textarea>
         </div>
 
+        @include('admin.trailers._metadata', ['trailer' => null])
+
         <div class="form-group">
             <label>Source Type</label>
             <select name="source_type" id="sourceType" class="form-control" onchange="toggleSource()">

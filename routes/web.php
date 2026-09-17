@@ -22,6 +22,10 @@ use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 
 Route::get('/', [TrailerController::class, 'home'])->name('home');
 Route::get('/trailers', [TrailerController::class, 'index'])->name('trailers');
+Route::get('/latest', [TrailerController::class, 'index'])->name('latest')->defaults('sort', 'latest');
+Route::get('/trending', [TrailerController::class, 'index'])->name('trending')->defaults('sort', 'trending');
+Route::get('/genres', [TrailerController::class, 'genres'])->name('genres');
+Route::get('/genre/{genre}', [TrailerController::class, 'genre'])->name('genre.show');
 Route::get('/trailers/{slug}', [TrailerController::class, 'show'])->name('trailers.show');
 
 Route::get('/sitemap.xml', [TrailerController::class, 'sitemap'])->name('sitemap');

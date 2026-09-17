@@ -21,11 +21,27 @@ class Trailer extends Model
         'views',
         'is_active',
         'created_by',
+        'trailer_type',
+        'duration',
+        'release_date',
+        'year',
+        'genre',
+        'language',
+        'country',
+        'featured',
+        'trending',
+        'trailer_of_the_day',
     ];
 
     protected $casts = [
         'views' => 'integer',
         'is_active' => 'boolean',
+        'duration' => 'integer',
+        'release_date' => 'date',
+        'year' => 'integer',
+        'featured' => 'boolean',
+        'trending' => 'boolean',
+        'trailer_of_the_day' => 'boolean',
     ];
 
     protected static function booted(): void
@@ -98,5 +114,43 @@ class Trailer extends Model
         return str_starts_with($this->thumbnail, '/') || str_starts_with($this->thumbnail, 'http')
             ? $this->thumbnail
             : '/storage/' . $this->thumbnail;
+    }
+
+    public function getEmbedUrlAttribute(): ?string
+    {
+        if ($this->source_type === 'file' && $this->file_path) {
+            return null;
+        }
+        return $this->youtube_id ? 'https://www.youtube-nocookie.com/embed/' . $this->youtube_id : null;
+    }
+
+    public function getDurationLabelAttribute(): ?string
+    {
+        if (!$this->duration || $this->duration < 1) return null;
+        $m = intdiv($this->duration, 60);
+        $s = $this->duration % 60;
+        return $m > 0 ? sprintf('%dm %02ds', $m, $s) : sprintf('%ds', $s);
+    }
+
+    public function getYearLabelAttribute(): ?int
+    {
+        return $this->year
+            ?? ($this->release_date?->year)
+            ?? $this->created_at?->year;
+    }
+
+    public function getIsUpcomingAttribute(): bool
+    {
+        return (bool) $this->release_date?->isFuture();
+    }
+
+    public function getGenreSlugAttribute(): ?string
+    {
+        return $this->genre ? Str::slug($this->genre) : null;
+    }
+
+    public function getTypeDisplayAttribute(): string
+    {
+        return $this->trailer_type ?: 'Official Trailer';
     }
 }

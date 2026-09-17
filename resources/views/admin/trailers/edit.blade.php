@@ -35,6 +35,8 @@
             <textarea name="description" class="form-control">{{ old('description', $trailer->description) }}</textarea>
         </div>
 
+        @include('admin.trailers._metadata', ['trailer' => $trailer])
+
         <div class="form-group">
             <label>Source Type</label>
             <select name="source_type" id="sourceType" class="form-control" onchange="toggleSource()">

@@ -44,16 +44,78 @@ class TrailerController extends Controller
 
     public function index(Request $request)
     {
-        $query = Trailer::where('is_active', true)->latest();
+        $query = Trailer::where('is_active', true);
 
         if ($request->search) {
             $query->where('title', 'like', '%' . $request->search . '%');
         }
 
-        $trailers = $query->paginate(12);
-        $trendingTrailers = Trailer::where('is_active', true)->orderBy('views', 'desc')->take(6)->get();
+        $sort = $request->get('sort') ?? $request->route('sort') ?? 'latest';
 
-        return view('trailers', compact('trailers', 'trendingTrailers'));
+        switch ($sort) {
+            case 'trending':
+                $query->orderBy('views', 'desc');
+                break;
+            case 'popular':
+                $query->orderBy('views', 'desc');
+                break;
+            case 'featured':
+                $query->where('featured', true)->latest();
+                break;
+            default:
+                $query->latest();
+        }
+
+        $trailers = $query->paginate(12)->withQueryString();
+        $trendingTrailers = Trailer::where('is_active', true)->orderBy('views', 'desc')->take(6)->get();
+        $activeSort = $request->get('sort', 'latest');
+
+        return view('trailers', compact('trailers', 'trendingTrailers', 'activeSort'));
+    }
+
+    public function genres()
+    {
+        $genres = Trailer::where('is_active', true)
+            ->whereNotNull('genre')
+            ->where('genre', '!=', '')
+            ->selectRaw('genre, count(*) as total')
+            ->groupBy('genre')
+            ->orderBy('total', 'desc')
+            ->get();
+
+        $total = Trailer::where('is_active', true)->count();
+
+        return view('genres', compact('genres', 'total'));
+    }
+
+    public function genre($genre)
+    {
+        $slug = strtolower(trim($genre));
+
+        $match = Trailer::where('is_active', true)->get('genre')
+            ->pluck('genre')->unique()->filter()
+            ->first(fn ($g) => strtolower($g) === $slug || str_slug($g) === $slug);
+
+        $query = Trailer::where('is_active', true);
+
+        if ($match) {
+            $query->where('genre', $match);
+            $label = $match;
+        } else {
+            $query->whereRaw('LOWER(genre) = ?', [$slug]);
+            $label = ucwords(str_replace('-', ' ', $slug));
+        }
+
+        $featured = (clone $query)->orderBy('views', 'desc')->first();
+        $trailers = $query->latest()->paginate(15)->withQueryString();
+        $trending = Trailer::where('is_active', true)->orderBy('views', 'desc')->take(6)->get();
+
+        if ($featured) {
+            $trailersCollection = $trailers->getCollection()->reject(fn ($t) => $t->id === $featured->id);
+            $trailers->setCollection($trailersCollection);
+        }
+
+        return view('genre', compact('genre', 'trailers', 'featured', 'trending', 'label'));
     }
 
     public function show(Request $request, $slug)
