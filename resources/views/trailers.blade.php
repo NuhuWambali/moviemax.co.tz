@@ -490,7 +490,7 @@
         </div>
 
         <div class="pagination-wrap">
-            {{ $trailers->links() }}
+            {{ $trailers->links('partials.pagination') }}
         </div>
     @else
         <div class="empty-state">

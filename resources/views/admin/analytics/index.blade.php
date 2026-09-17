@@ -383,7 +383,7 @@
             </a>
         </div>
         {{-- Pagination --}}
-        {!! $allVisitors->links() !!} 
+        {!! $allVisitors->links('partials.pagination') !!} 
         {{-- Visitor table --}}
         <div class="info-list" style="max-height: 600px; overflow-x: auto;">
             <table class="visitor-table all-visitors-table" style="width: 100%; min-width: 100%; border-collapse: collapse;">
@@ -435,7 +435,7 @@
             @endif
         </div>
         {{-- Pagination --}}
-        {!! $allVisitors->links() !!}
+        {!! $allVisitors->links('partials.pagination') !!}
     </div>
 </div>
 

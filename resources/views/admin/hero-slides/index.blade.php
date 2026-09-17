@@ -120,7 +120,7 @@
     </div>
 
     <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
-        {{ $slides->links() }}
+        {{ $slides->links('partials.pagination') }}
     </div>
 @endsection
 

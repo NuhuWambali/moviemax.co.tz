@@ -95,7 +95,7 @@
     </div>
 
     <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
-        {{ $trailers->links() }}
+        {{ $trailers->links('partials.pagination') }}
     </div>
 @endsection
 

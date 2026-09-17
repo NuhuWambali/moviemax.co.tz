@@ -91,7 +91,7 @@
     </div>
 
     <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
-        {{ $users->links() }}
+        {{ $users->links('partials.pagination') }}
     </div>
 @endsection
 
