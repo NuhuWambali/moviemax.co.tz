@@ -58,20 +58,42 @@
         .player-box video { width: 100%; aspect-ratio: 16/9; display: block; background: #000; }
 
         .trailer-title-block { padding: 1.6rem 0 0.6rem; }
-        .trailer-title-block h1 {
+        .title-row { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+        .title-row h1 {
             font-family: 'Bebas Neue', sans-serif;
             font-size: clamp(1.8rem, 4vw, 2.6rem);
             letter-spacing: 2px;
-            margin-bottom: 0.6rem;
         }
-        .trailer-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.2rem;
-            color: var(--text-muted);
-            font-size: 0.8rem;
+        .chip-flag {
+            font-size: 0.66rem;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 0.4rem 0.9rem;
+            border-radius: 30px;
+            color: var(--gold);
+            background: rgba(255, 210, 74, 0.12);
+            border: 1px solid rgba(255, 210, 74, 0.4);
         }
-        .trailer-meta span { display: inline-flex; align-items: center; gap: 6px; }
+        .chip-row { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            padding: 0.38rem 0.9rem;
+            border-radius: 30px;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .meta-chip i { color: var(--text-muted); font-size: 0.7rem; }
+        .meta-chip.gold { color: var(--gold); border-color: rgba(255, 210, 74, 0.4); background: rgba(255, 210, 74, 0.08); }
+        .meta-chip.gold i { color: var(--gold); }
+        .meta-chip[href]:hover { border-color: rgba(229, 9, 20, 0.55); color: #fff; background: rgba(229, 9, 20, 0.12); }
         .trailer-desc { color: var(--text-secondary); font-size: 0.93rem; line-height: 1.7; max-width: 760px; margin-top: 1rem; }
 
         .engagement {
@@ -120,6 +142,7 @@
         }
         .fav-heart:hover { color: #fbbf24; border-color: rgba(229, 9, 20, 0.5); }
         .fav-heart.active { background: rgba(229, 9, 20, 0.12); border-color: rgba(229, 9, 20, 0.55); color: #fbbf24; }
+        .interaction-btn.share:hover { border-color: rgba(255, 210, 74, 0.5); color: #ffd24a; }
 
         /* Comments */
         .comments-section { margin-top: 1.5rem; }
@@ -242,8 +265,24 @@
             transition: all 0.3s ease;
         }
         .more-card:hover { transform: translateY(-4px); border-color: rgba(229, 9, 20, 0.5); }
-        .more-card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
-        .more-card h4 { font-size: 0.82rem; padding: 0.7rem 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .more-thumb { position: relative; }
+        .more-thumb img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
+        .more-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 0.58rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 0.28rem 0.6rem;
+            border-radius: 20px;
+            background: rgba(229, 9, 20, 0.85);
+            color: #fff;
+            backdrop-filter: blur(4px);
+        }
+        .more-card h4 { font-size: 0.82rem; padding: 0.7rem 0.8rem 0.15rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .more-sub { font-size: 0.72rem; color: var(--text-muted); padding: 0 0.8rem 0.75rem; }
 
         </style>
 </head>
@@ -272,12 +311,36 @@
     </div>
 
     <div class="trailer-title-block">
-        <h1>{{ $trailer->title }}</h1>
-        <div class="trailer-meta">
-            <span><i class="fas fa-eye"></i> <span class="mm-meta-views">{{ number_format($trailer->views) }}</span> views</span>
-            <span><i class="fas fa-thumbs-up" style="color: var(--accent-cyan);"></i> <span class="mm-meta-likes">{{ $interaction['likes'] }}</span> likes</span>
-            <span><i class="fas fa-thumbs-down"></i> <span class="mm-meta-dislikes">{{ $interaction['dislikes'] }}</span> dislikes</span>
-            <span><i class="fas fa-clock"></i> {{ $trailer->created_at->diffForHumans() }}</span>
+        <div class="title-row">
+            <h1>{{ $trailer->title }}</h1>
+            @if($trailer->is_upcoming)
+                <span class="chip-flag">Coming Soon</span>
+            @endif
+        </div>
+        <div class="chip-row">
+            @if($trailer->type_display)
+                <span class="meta-chip gold"><i class="fas fa-clapperboard"></i> {{ $trailer->type_display }}</span>
+            @endif
+            @if($trailer->genre)
+                <a href="{{ route('genre.show', $trailer->genre_slug) }}" class="meta-chip"><i class="fas fa-tag"></i> {{ $trailer->genre }}</a>
+            @endif
+            @if($trailer->year_label)
+                <span class="meta-chip"><i class="fas fa-calendar-alt"></i> {{ $trailer->year_label }}</span>
+            @endif
+            @if($trailer->duration_label)
+                <span class="meta-chip"><i class="fas fa-clock"></i> {{ $trailer->duration_label }}</span>
+            @endif
+            @if($trailer->language)
+                <span class="meta-chip"><i class="fas fa-globe"></i> {{ $trailer->language }}</span>
+            @endif
+            @if($trailer->country)
+                <span class="meta-chip"><i class="fas fa-flag"></i> {{ $trailer->country }}</span>
+            @endif
+            @if($trailer->release_date)
+                <span class="meta-chip"><i class="fas fa-signal"></i> {{ $trailer->release_date->format('M j, Y') }}</span>
+            @endif
+            <span class="meta-chip"><i class="fas fa-eye"></i> <span class="mm-meta-views">{{ number_format($trailer->views) }}</span> views</span>
+            <span class="meta-chip"><i class="fas fa-heart"></i> <span class="mm-meta-likes">{{ $interaction['likes'] }}</span> likes</span>
         </div>
         @if($trailer->description)
             <p class="trailer-desc">{{ $trailer->description }}</p>
@@ -292,7 +355,10 @@
             <i class="fas fa-thumbs-down"></i><span class="count">{{ $interaction['dislikes'] }}</span>
         </button>
         <button type="button" class="fav-heart {{ $interaction['favorited'] ? 'active' : '' }}" onclick="toggleFavorite(event, this)">
-            <i class="fas fa-heart"></i> <span class="fav-count">{{ $favCount }}</span> <span>Favorite</span>
+            <i class="fas fa-heart"></i> <span class="fav-count">{{ $favCount }}</span> <span>My List</span>
+        </button>
+        <button type="button" class="interaction-btn share" onclick="shareTrailer(event, this)">
+            <i class="fas fa-share-alt"></i> Share
         </button>
     </div>
 
@@ -330,8 +396,16 @@
             <div class="more-grid">
                 @foreach($moreTrailers as $t)
                     <a href="{{ route('trailers.show', $t->slug) }}" class="more-card">
-                        <img src="{{ $t->thumb_url }}" alt="{{ $t->title }}" fetchpriority="high">
+                        <div class="more-thumb">
+                            <img src="{{ $t->thumb_url }}" alt="{{ $t->title }}" fetchpriority="high" loading="lazy">
+                            @if($t->is_upcoming)
+                                <span class="more-badge">Coming Soon</span>
+                            @elseif($t->trailer_type)
+                                <span class="more-badge">{{ $t->type_display }}</span>
+                            @endif
+                        </div>
                         <h4>{{ $t->title }}</h4>
+                        <div class="more-sub">{{ $t->year_label ? $t->year_label : '' }}{{ $t->genre ? ' · ' . $t->genre : '' }}</div>
                     </a>
                 @endforeach
             </div>
@@ -408,6 +482,29 @@
         const c = btn.querySelector('.fav-count');
         if (c && typeof data.count === 'number') c.textContent = data.count.toLocaleString();
     }
+
+    if (typeof window.mmToast !== 'function') {
+        window.mmToast = function (msg, icon) {
+            const el = document.createElement('div');
+            el.style.cssText = 'position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:9999;background:#161c26;color:#fff;border:1px solid rgba(255,255,255,.15);padding:0.8rem 1.4rem;border-radius:40px;font-size:0.85rem;font-weight:600;box-shadow:0 14px 40px rgba(0,0,0,.5);transition:opacity .3s;';
+            el.innerHTML = (icon ? '<i class="fas ' + icon + '" style="margin-right:8px;color:#ffd24a;"></i>' : '') + msg;
+            document.body.appendChild(el);
+            setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 320); }, 2400);
+        };
+    }
+    window.shareTrailer = function (e, btn) {
+        const url = window.location.href;
+        const title = document.title.replace(' - MovieMax', '');
+        if (navigator.share) {
+            navigator.share({ title: title, url: url }).catch(() => {});
+            return;
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(() => window.mmToast('Link copied to clipboard', 'fa-check-circle'));
+        } else {
+            window.mmToast(url, 'fa-link');
+        }
+    };
 
     function toggleReplyForm(id) {
         const el = document.getElementById('reply-form-' + id);

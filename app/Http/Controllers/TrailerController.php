@@ -257,7 +257,16 @@ class TrailerController extends Controller
 
         $moreTrailers = Trailer::where('is_active', true)
             ->where('id', '!=', $trailer->id)
-            ->latest()->take(8)->get();
+            ->when($trailer->genre, function ($query) use ($trailer) {
+                $query->orderByRaw('CASE WHEN genre LIKE ? THEN 0 ELSE 1 END', ['%' . $trailer->genre . '%']);
+            })
+            ->when($trailer->year, function ($query) use ($trailer) {
+                $query->orderByRaw('CASE WHEN year = ? THEN 0 ELSE 1 END', [$trailer->year]);
+            })
+            ->orderBy('views', 'desc')
+            ->latest()
+            ->take(8)
+            ->get();
 
         return view('trailers.show', compact('trailer', 'interaction', 'favCount', 'comments', 'moreTrailers'));
     }
