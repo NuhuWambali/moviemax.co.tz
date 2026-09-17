@@ -24,6 +24,14 @@
             <h3><i class="fas fa-heart"></i> Favorites</h3>
             <div class="value">{{ number_format_short($stats['favorites']) }}</div>
         </div>
+        <div class="stat-card">
+            <h3><i class="fas fa-bolt"></i> Views Today</h3>
+            <div class="value">{{ number_format_short($stats['views_today']) }}</div>
+        </div>
+        <div class="stat-card">
+            <h3><i class="fas fa-calendar-week"></i> Views This Week</h3>
+            <div class="value">{{ number_format_short($stats['views_week']) }}</div>
+        </div>
     </div>
 
     <div class="charts-grid">
@@ -37,6 +45,12 @@
             <h3><i class="fas fa-chart-pie"></i> Trailer Activity</h3>
             <div class="chart-container">
                 <canvas id="contentChart"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <h3><i class="fas fa-chart-area"></i> Daily Trailer Views (Last 14 Days)</h3>
+            <div class="chart-container">
+                <canvas id="dailyChart"></canvas>
             </div>
         </div>
     </div>
@@ -162,6 +176,31 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { position: 'bottom', labels: { color: '#a6b3cc', padding: 20 } } }
+        }
+    });
+
+    const ctx3 = document.getElementById('dailyChart').getContext('2d');
+    new Chart(ctx3, {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($last14DaysLabels ?? []) !!},
+            datasets: [{
+                label: 'Trailer Views',
+                data: {!! json_encode($last14Days ?? array_fill(0, 14, 0)) !!},
+                backgroundColor: 'rgba(227, 28, 37, 0.75)',
+                borderColor: '#e31c25',
+                borderWidth: 1,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#7d8aa6' } },
+                x: { grid: { display: false }, ticks: { color: '#7d8aa6' } }
+            }
         }
     });
 </script>

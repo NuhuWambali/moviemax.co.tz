@@ -27,8 +27,10 @@
                     <th>Title</th>
                     <th>Source</th>
                     <th>Views</th>
+                    <th>Today</th>
                     <th>Likes</th>
                     <th>Comments</th>
+                    <th>Flags</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -60,8 +62,28 @@
                         @endif
                     </td>
                     <td>{{ number_format($trailer->views) }}</td>
+                    <td>
+                        @if(($todayViews[$trailer->id] ?? 0) > 0)
+                            <span class="badge badge-blue">{{ (int) $todayViews[$trailer->id] }}</span>
+                        @else
+                            <span style="color: var(--text-muted);">0</span>
+                        @endif
+                    </td>
                     <td>{{ $trailer->likesCount() }}</td>
                     <td>{{ $trailer->comments()->count() }}</td>
+                    <td>
+                        <div style="display:flex; gap:0.25rem; flex-wrap:wrap;">
+                            @if($trailer->featured)
+                                <span class="badge" style="background: rgba(255,210,74,.15); color: #ffd24a; border:1px solid rgba(255,210,74,.4);"><i class="fas fa-star"></i> Featured</span>
+                            @endif
+                            @if($trailer->trending)
+                                <span class="badge" style="background: rgba(229,9,20,.15); color: #ff6b74; border:1px solid rgba(229,9,20,.4);"><i class="fas fa-fire"></i> Trending</span>
+                            @endif
+                            @if($trailer->trailer_of_the_day)
+                                <span class="badge" style="background: rgba(255,210,74,.15); color: #ffd24a; border:1px solid rgba(255,210,74,.4);"><i class="fas fa-trophy"></i> TOTD</span>
+                            @endif
+                        </div>
+                    </td>
                     <td>
                         <span class="badge {{ $trailer->is_active ? 'badge-green' : 'badge-red' }}">
                             {{ $trailer->is_active ? 'Active' : 'Inactive' }}
@@ -84,7 +106,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="9" style="text-align:center; padding:3rem; color: var(--text-muted);">
+                    <td colspan="11" style="text-align:center; padding:3rem; color: var(--text-muted);">
                         <i class="fas fa-video" style="font-size:2.5rem; margin-bottom:1rem; display:block;"></i>
                         No trailers yet. <a href="{{ route('admin.trailers.create') }}" style="color: var(--accent);">Upload the first trailer.</a>
                     </td>

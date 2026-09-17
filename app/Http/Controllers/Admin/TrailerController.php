@@ -12,7 +12,13 @@ class TrailerController extends Controller
     public function index()
     {
         $trailers = Trailer::with('creator')->latest()->paginate(20);
-        return view('admin.trailers.index', compact('trailers'));
+
+        $todayViews = \App\Models\TrailerView::whereDate('viewed_at', now()->toDateString())
+            ->selectRaw('trailer_id, count(*) as c')
+            ->groupBy('trailer_id')
+            ->pluck('c', 'trailer_id');
+
+        return view('admin.trailers.index', compact('trailers', 'todayViews'));
     }
 
     public function create()

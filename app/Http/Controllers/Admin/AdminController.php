@@ -9,6 +9,7 @@ use App\Models\Favorite;
 use App\Models\Reaction;
 use App\Models\Trailer;
 use App\Models\TrailerWatch;
+use App\Models\TrailerView;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -24,6 +25,8 @@ class AdminController extends Controller
             'system_users' => User::whereIn('user_type', ['staff', 'admin'])->count(),
             'total_views' => Trailer::sum('views'),
             'favorites' => Favorite::where('favoritable_type', Trailer::class)->count(),
+            'views_today' => TrailerView::whereDate('viewed_at', now()->toDateString())->count(),
+            'views_week' => TrailerView::where('viewed_at', '>=', now()->startOfWeek())->count(),
         ];
 
         // Recent trailers
@@ -64,6 +67,15 @@ class AdminController extends Controller
             ->count();
         $stats['comments_this_week'] = $commentsThisWeek;
 
+        // Last 14 days of per-day trailer views
+        $last14Days = [];
+        $last14DaysLabels = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $day = now()->subDays($i)->toDateString();
+            $last14Days[] = TrailerView::whereDate('viewed_at', $day)->count();
+            $last14DaysLabels[] = now()->subDays($i)->format('M j');
+        }
+
         return view('admin.dashboard', compact(
             'stats',
             'recentTrailers',
@@ -72,7 +84,9 @@ class AdminController extends Controller
             'monthlyViews',
             'last12Months',
             'last12MonthsLabels',
-            'currentYear'
+            'currentYear',
+            'last14Days',
+            'last14DaysLabels'
         ));
     }
 
