@@ -44,29 +44,20 @@
             </div>
 
             <div class="form-group">
-                <label>Link to Content (optional)</label>
+                <label>Link to Trailer (optional)</label>
                 <select name="link_type" id="linkType" class="form-control" onchange="toggleLinkSelects()">
                     <option value="">— No link —</option>
-                    <option value="movie" {{ old('link_type') === 'movie' ? 'selected' : '' }}>Link to a Movie</option>
-                    <option value="series" {{ old('link_type') === 'series' ? 'selected' : '' }}>Link to a Series</option>
+                    <option value="trailer" {{ old('link_type') === 'trailer' ? 'selected' : '' }}>Link to a Trailer</option>
                 </select>
-                <div id="movieSelect" style="display: none; margin-top: 0.75rem;">
-                    <label>Select Movie</label>
-                    <select name="link_id" id="movieSelectElt" class="form-control">
-                        @foreach($movies as $movie)
-                            <option value="{{ $movie->id }}" {{ old('link_type') === 'movie' && (int) old('link_id') === $movie->id ? 'selected' : '' }}>{{ $movie->title }}</option>
+                <div id="trailerSelect" style="display: none; margin-top: 0.75rem;">
+                    <label>Select Trailer</label>
+                    <select name="link_id" id="trailerSelectElt" class="form-control">
+                        @foreach($trailers as $trailer)
+                            <option value="{{ $trailer->id }}" {{ old('link_type') === 'trailer' && (int) old('link_id') === $trailer->id ? 'selected' : '' }}>{{ $trailer->title }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div id="seriesSelect" style="display: none; margin-top: 0.75rem;">
-                    <label>Select Series</label>
-                    <select name="link_id" id="seriesSelectElt" class="form-control">
-                        @foreach($series as $item)
-                            <option value="{{ $item->id }}" {{ old('link_type') === 'series' && (int) old('link_id') === $item->id ? 'selected' : '' }}>{{ $item->title }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <small style="color: #888;">Shows a "Watch Now" button linking to this movie/series page.</small>
+                <small style="color: #888;">Shows a "More Info" button on the home hero linking to this trailer page.</small>
             </div>
 
             <div class="form-group">
@@ -109,8 +100,7 @@
     }
     function toggleLinkSelects() {
         const type = document.getElementById('linkType').value;
-        document.getElementById('movieSelect').style.display = type === 'movie' ? 'block' : 'none';
-        document.getElementById('seriesSelect').style.display = type === 'series' ? 'block' : 'none';
+        document.getElementById('trailerSelect').style.display = type === 'trailer' ? 'block' : 'none';
     }
     toggleLinkSelects();
 </script>

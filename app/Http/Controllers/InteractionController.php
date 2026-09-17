@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 
 class InteractionController extends Controller
 {
+    private const ALLOWED_TYPES = ['trailer'];
+
     public const VISITOR_COOKIE = 'mm_vkey';
 
     private function requireLogin(): \Illuminate\Http\JsonResponse
@@ -29,8 +31,6 @@ class InteractionController extends Controller
     private function resolveItem(string $type, int $id)
     {
         return match ($type) {
-            'movie'   => \App\Models\Movie::find($id),
-            'series'  => \App\Models\Series::find($id),
             'trailer' => Trailer::find($id),
             default   => null,
         };
@@ -39,9 +39,7 @@ class InteractionController extends Controller
     private function morphTypes(string $type): ?array
     {
         return match ($type) {
-            'movie'   => ['class' => \App\Models\Movie::class,   'for' => 'movie'],
-            'series'  => ['class' => \App\Models\Series::class,  'for' => 'series'],
-            'trailer' => ['class' => Trailer::class,             'for' => 'trailer'],
+            'trailer' => ['class' => Trailer::class, 'for' => 'trailer'],
             default   => null,
         };
     }
@@ -51,7 +49,7 @@ class InteractionController extends Controller
         if (!Auth::check()) return $this->requireLogin();
 
         $request->validate([
-            'type' => 'required|in:movie,series,trailer',
+            'type' => 'required|in:trailer',
             'id'   => 'required|integer',
         ]);
 
@@ -88,7 +86,7 @@ class InteractionController extends Controller
         if (!Auth::check()) return $this->requireLogin();
 
         $request->validate([
-            'type'     => 'required|in:movie,series,trailer',
+            'type'     => 'required|in:trailer',
             'id'       => 'required|integer',
             'reaction' => 'required|in:like,dislike',
         ]);
@@ -132,7 +130,7 @@ class InteractionController extends Controller
         if (!Auth::check()) return $this->requireLogin();
 
         $request->validate([
-            'type'      => 'required|in:movie,series,trailer',
+            'type'      => 'required|in:trailer',
             'id'        => 'required|integer',
             'body'      => 'required|string|max:2000',
             'parent_id' => 'nullable|integer',
@@ -193,7 +191,7 @@ class InteractionController extends Controller
     public function stats(Request $request)
     {
         $request->validate([
-            'type' => 'required|in:movie,series,trailer',
+            'type' => 'required|in:trailer',
             'id'   => 'required|integer|min:1',
         ]);
 
@@ -218,18 +216,10 @@ class InteractionController extends Controller
     {
         if (!Auth::check()) return redirect('/login');
 
-        $movies = Favorite::where('user_id', Auth::id())
-            ->where('favoritable_type', \App\Models\Movie::class)
-            ->with('favoritable')->get()->pluck('favoritable')->filter();
-
-        $series = Favorite::where('user_id', Auth::id())
-            ->where('favoritable_type', \App\Models\Series::class)
-            ->with('favoritable')->get()->pluck('favoritable')->filter();
-
         $trailers = Favorite::where('user_id', Auth::id())
             ->where('favoritable_type', Trailer::class)
-            ->with('favoritable')->get()->pluck('favoritable')->filter();
+            ->with('favoritable')->latest()->get()->pluck('favoritable')->filter();
 
-        return view('favorites', compact('movies', 'series', 'trailers'));
+        return view('favorites', compact('trailers'));
     }
 }

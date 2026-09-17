@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>About Us - MovieMax</title>
-    @include('partials.seo', ['seoTitle' => 'About Us - MovieMax', 'seoDescription' => 'Learn about MovieMax — your destination for watching, streaming and downloading free movies, TV series and trailers online.'])
+    @include('partials.seo', ['seoTitle' => 'About Us - MovieMax', 'seoDescription' => 'Learn about MovieMax — your destination for watching the latest movie trailers online in stunning HD.'])
     <style>
         :root {
             --bg-deep: #0a0d12;
@@ -397,17 +397,17 @@
     <div class="about-hero">
         <div class="badge"><i class="fas fa-star"></i> Made for movie lovers, by movie lovers</div>
         <h1>ABOUT <span>MOVIEMAX</span></h1>
-        <p class="sub">Your one-stop destination to watch, stream and download free movies, TV series and trailers online — in stunning HD, on any device, anytime.</p>
+        <p class="sub">Your one-stop destination to watch the latest movie trailers and teasers online — in stunning HD, on any device, anytime.</p>
         <div class="cta-row">
-            <a href="/movies" class="btn-cta solid"><i class="fas fa-film"></i> Browse Movies</a>
-            <a href="/trailers" class="btn-cta ghost"><i class="fas fa-video"></i> Watch Trailers</a>
+            <a href="/trailers" class="btn-cta solid"><i class="fas fa-video"></i> Browse Trailers</a>
+            <a href="/register" class="btn-cta ghost"><i class="fas fa-user-plus"></i> Join Free</a>
         </div>
     </div>
 
     <div class="stats-strip">
         <div class="stat-card">
-            <div class="num">{{ \App\Models\Movie::count() + \App\Models\Series::count() }}+</div>
-            <div class="lbl">Movies &amp; Series</div>
+            <div class="num">{{ \App\Models\Trailer::count() }}+</div>
+            <div class="lbl">Movie Trailers</div>
         </div>
         <div class="stat-card">
             <div class="num">{{ \App\Models\User::count() }}+</div>
@@ -429,7 +429,7 @@
             <div class="story-text">
                 <h2 class="section-title"><i class="fas fa-film"></i> Our Story</h2>
                 <p><strong>MovieMax</strong> was born from a simple belief: entertainment should be free, accessible and enjoyable for everyone. Born from the vision of <strong>Orange Software Company</strong>, we built a platform that puts the magic of cinema right at your fingertips.</p>
-                <p>We bring you the latest <strong>movies</strong>, timeless <strong>series</strong> and the hottest official <strong>trailers</strong> — all in stunning quality, ready to <strong>watch online</strong>, <strong>stream</strong> in HD, or <strong>download</strong> to enjoy offline.</p>
+                <p>We bring you the latest official <strong>trailers</strong> and <strong>teasers</strong> for the most anticipated movies — all in stunning quality, ready to <strong>watch online</strong> in HD.</p>
                 <p>Whether you're curled up on your couch or on the go with your phone, MovieMax makes sure your favorite content is always just one click away.</p>
             </div>
             <div class="story-img">
@@ -445,7 +445,7 @@
                 <div class="mvv-card">
                     <div class="ico"><i class="fas fa-bullseye"></i></div>
                     <h3>Our Mission</h3>
-                    <p>To make world-class entertainment free and easy for everyone by delivering a seamless streaming experience across every screen — with new movies, series and trailers added regularly.</p>
+                    <p>To make world-class movie trailers free and easy for everyone by delivering a seamless viewing experience across every screen — with new trailers added regularly.</p>
                 </div>
                 <div class="mvv-card">
                     <div class="ico"><i class="fas fa-eye"></i></div>
@@ -455,7 +455,7 @@
                 <div class="mvv-card">
                     <div class="ico"><i class="fas fa-gem"></i></div>
                     <h3>Our Values</h3>
-                    <p>Free access for all. Crystal-clear HD quality. Instant streaming and downloads. Honest, reliable service and support that always puts our members first.</p>
+                    <p>Free access for all. Crystal-clear HD quality. Instant streaming of the latest trailers. Honest, reliable service and support that always puts our members first.</p>
                 </div>
             </div>
         </div>
@@ -467,15 +467,15 @@
                 <div class="feature">
                     <div class="fico"><i class="fas fa-play-circle"></i></div>
                     <div>
-                        <h4>Stream Movies &amp; Series</h4>
-                        <p>Watch instantly in HD with our fast built-in player — no buffers, no complexity.</p>
+                        <h4>Instant Trailer Playback</h4>
+                        <p>Watch trailers instantly in HD with our fast built-in player — no buffers, no complexity.</p>
                     </div>
                 </div>
                 <div class="feature">
-                    <div class="fico"><i class="fas fa-download"></i></div>
+                    <div class="fico"><i class="fas fa-bolt"></i></div>
                     <div>
-                        <h4>Free Downloads</h4>
-                        <p>Download your favorite titles and enjoy them offline, on any device, anytime.</p>
+                        <h4>New Releases Weekly</h4>
+                        <p>Stay on top of the newest trailers and teasers, updated as soon as they drop.</p>
                     </div>
                 </div>
                 <div class="feature">
@@ -488,8 +488,8 @@
                 <div class="feature">
                     <div class="fico"><i class="fas fa-heart"></i></div>
                     <div>
-                        <h4>Favorites &amp; Progress</h4>
-                        <p>Save favorites, react to content and pick up right where you left off on any device.</p>
+                        <h4>Favorites &amp; Reactions</h4>
+                        <p>Save favorite trailers, react to content and never miss an upcoming release.</p>
                     </div>
                 </div>
             </div>

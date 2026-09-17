@@ -415,14 +415,12 @@
     </a>
     <div class="nav-search">
         <i class="fas fa-search"></i>
-        <input type="text" id="navSearchInput" placeholder="Search movies, series..." autocomplete="off">
+        <input type="text" id="navSearchInput" placeholder="Search trailers..." autocomplete="off">
         <div class="search-results" id="searchResults"></div>
     </div>
     <div class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
     <div class="nav-links" id="navLinks">
         <a href="/" class="{{ request()->is('/') ? 'active' : '' }}">Home</a>
-        <a href="{{ route('movies.index') }}" class="{{ request()->is('movies') || request()->is('movies/*') ? 'active' : '' }}">Movies</a>
-        <a href="{{ route('series.index') }}" class="{{ request()->is('series') || request()->is('series/*') ? 'active' : '' }}">TV Series</a>
         <a href="{{ route('trailers') }}" class="{{ request()->is('trailers') || request()->is('trailers/*') ? 'active' : '' }}">Trailers</a>
         <a href="{{ route('about') }}" class="{{ request()->is('about') ? 'active' : '' }}">About</a>
 
@@ -527,7 +525,7 @@
     const searchInput = document.getElementById('navSearchInput');
     const resultsBox = document.getElementById('searchResults');
     if (searchInput) {
-        const typeLabels = { movie: 'MOVIE', series: 'SERIES', trailer: 'TRAILER' };
+        const typeLabels = { trailer: 'TRAILER' };
         let debounce = null;
 
         const closeResults = () => resultsBox.classList.remove('open');
@@ -565,7 +563,7 @@
             if (e.key === 'Enter') {
                 e.preventDefault();
                 const q = searchInput.value.trim();
-                window.location.href = '/movies?search=' + encodeURIComponent(q);
+                window.location.href = '/trailers?search=' + encodeURIComponent(q);
             }
             if (e.key === 'Escape') { closeResults(); searchInput.blur(); }
         });

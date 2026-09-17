@@ -361,12 +361,6 @@
                 <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <i class="fas fa-chart-pie"></i><span>Dashboard</span>
                 </a>
-                <a href="{{ route('admin.movies.index') }}" class="nav-item {{ request()->routeIs('admin.movies.*') ? 'active' : '' }}">
-                    <i class="fas fa-film"></i><span>Movies</span>
-                </a>
-                <a href="{{ route('admin.series.index') }}" class="nav-item {{ request()->routeIs('admin.series.*') ? 'active' : '' }}">
-                    <i class="fas fa-tv"></i><span>TV Series</span>
-                </a>
                 <a href="{{ route('admin.trailers.index') }}" class="nav-item {{ request()->routeIs('admin.trailers.*') ? 'active' : '' }}">
                     <i class="fas fa-clapperboard"></i><span>Trailers</span>
                 </a>

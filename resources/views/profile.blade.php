@@ -266,7 +266,6 @@
     <button class="tab-btn active" data-tab="overview"><i class="fas fa-grip"></i> Overview</button>
     <button class="tab-btn" data-tab="favorites"><i class="fas fa-heart"></i> Favorites</button>
     <button class="tab-btn" data-tab="trailers"><i class="fas fa-video"></i> Watched Trailers</button>
-    <button class="tab-btn" data-tab="history"><i class="fas fa-history"></i> Watch History</button>
     <button class="tab-btn" data-tab="comments"><i class="fas fa-comments"></i> My Comments</button>
     <button class="tab-btn" data-tab="reactions"><i class="fas fa-thumbs-up"></i> My Reactions</button>
     <button class="tab-btn" data-tab="settings"><i class="fas fa-cog"></i> Settings</button>
@@ -285,30 +284,21 @@
     <div class="tab-pane active" id="tab-overview">
         <h2 class="section-title"><i class="fas fa-grip" style="color: var(--accent-cyan);"></i> Welcome back, {{ explode(' ', $user->name)[0] }}</h2>
 
-        @if($favoriteMovies->count() + $favoriteSeries->count() > 0)
-            <h2 class="section-title" style="margin-top:1.5rem; font-size:1rem;"><i class="fas fa-heart" style="color: var(--accent-red);"></i> Your Favorites</h2>
+        @if($favoriteTrailers->count() > 0)
+            <h2 class="section-title" style="margin-top:1.5rem; font-size:1rem;"><i class="fas fa-heart" style="color: var(--accent-red);"></i> Your Favorite Trailers</h2>
             <div class="item-grid">
-                @foreach($favoriteMovies->take(6) as $fm)
-                    <a href="{{ route('movies.show', $fm->slug) }}" class="item-card">
+                @foreach($favoriteTrailers->take(6) as $ft)
+                    <a href="{{ route('trailers.show', $ft->slug) }}" class="item-card trailer">
                         <div class="thumb-wrap">
-                            <span class="item-type">MOVIE</span>
-                            <img src="{{ $fm->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $fm->title }}">
+                            <span class="item-type">TRAILER</span>
+                            <img src="{{ $ft->thumb_url }}" alt="{{ $ft->title }}">
                         </div>
-                        <h4>{{ $fm->title }}</h4>
-                    </a>
-                @endforeach
-                @foreach($favoriteSeries->take(6) as $fs)
-                    <a href="{{ route('series.show', $fs->id) }}" class="item-card">
-                        <div class="thumb-wrap">
-                            <span class="item-type">SERIES</span>
-                            <img src="{{ $fs->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $fs->title }}">
-                        </div>
-                        <h4>{{ $fs->title }}</h4>
+                        <h4>{{ $ft->title }}</h4>
                     </a>
                 @endforeach
             </div>
         @else
-            <p class="empty-note">You haven't added any favorites yet. <a href="{{ route('movies.index') }}" style="color: var(--accent-cyan);">Browse movies</a> and save the ones you love.</p>
+            <p class="empty-note">You haven't added any favorites yet. <a href="{{ route('trailers') }}" style="color: var(--accent-cyan);">Browse trailers</a> and save the ones you love.</p>
         @endif
 
         @if($watchedTrailers->count() > 0)
@@ -325,49 +315,12 @@
                 @endforeach
             </div>
         @endif
-
-        @if($watchHistory->count() > 0)
-            <h2 class="section-title" style="margin-top:2rem; font-size:1rem;"><i class="fas fa-history" style="color: var(--accent-cyan);"></i> Recent Activity</h2>
-            <div class="history-list">
-                @foreach($watchHistory->take(5) as $entry)
-                    @php
-                        $item = $entry->watchable;
-                        $url = $item ? match($entry->watchable_type) {
-                            \App\Models\Movie::class => route('movies.show', $item->slug),
-                            \App\Models\Series::class => route('series.show', $item->id),
-                            default => null,
-                        } : null;
-                        $thumb = $item->poster_path ?? '/images/posters/dummy-poster.png';
-                    @endphp
-                    <div class="history-row">
-                        <img src="{{ $thumb }}" alt="">
-                        <div class="info">
-                            <h4>{{ $item->title ?? 'Deleted item' }}</h4>
-                            <small>{{ str_replace('App\Models\\', '', $entry->watchable_type) }} &middot; {{ $entry->watched_at->diffForHumans() }}</small>
-                        </div>
-                        @if($url)<a href="{{ $url }}">View <i class="fas fa-arrow-right"></i></a>@endif
-                    </div>
-                @endforeach
-            </div>
-        @endif
     </div>
 
     <div class="tab-pane" id="tab-favorites">
         <h2 class="section-title"><i class="fas fa-heart" style="color: var(--accent-red);"></i> Favorites</h2>
-        @if($favoriteMovies->count() + $favoriteSeries->count() + $favoriteTrailers->count() > 0)
+        @if($favoriteTrailers->count() > 0)
             <div class="item-grid">
-                @foreach($favoriteMovies as $fm)
-                    <a href="{{ route('movies.show', $fm->slug) }}" class="item-card">
-                        <div class="thumb-wrap"><span class="item-type">MOVIE</span><img src="{{ $fm->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $fm->title }}"></div>
-                        <h4>{{ $fm->title }}</h4>
-                    </a>
-                @endforeach
-                @foreach($favoriteSeries as $fs)
-                    <a href="{{ route('series.show', $fs->id) }}" class="item-card">
-                        <div class="thumb-wrap"><span class="item-type">SERIES</span><img src="{{ $fs->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $fs->title }}"></div>
-                        <h4>{{ $fs->title }}</h4>
-                    </a>
-                @endforeach
                 @foreach($favoriteTrailers as $ft)
                     <a href="{{ route('trailers.show', $ft->slug) }}" class="item-card trailer">
                         <div class="thumb-wrap"><span class="item-type">TRAILER</span><img src="{{ $ft->thumb_url }}" alt="{{ $ft->title }}"></div>
@@ -396,46 +349,12 @@
         @endif
     </div>
 
-    <div class="tab-pane" id="tab-history">
-        <h2 class="section-title"><i class="fas fa-history" style="color: var(--accent-cyan);"></i> Watch History</h2>
-        @if($watchHistory->count() > 0)
-            <div class="history-list">
-                @foreach($watchHistory as $entry)
-                    @php
-                        $item = $entry->watchable;
-                        $url = $item ? match($entry->watchable_type) {
-                            \App\Models\Movie::class => route('movies.show', $item->slug),
-                            \App\Models\Series::class => route('series.show', $item->id),
-                            default => null,
-                        } : null;
-                        $thumb = $item->poster_path ?? '/images/posters/dummy-poster.png';
-                    @endphp
-                    <div class="history-row">
-                        <img src="{{ $thumb }}" alt="">
-                        <div class="info">
-                            <h4>{{ $item->title ?? 'Deleted item' }}</h4>
-                            <small>{{ str_replace('App\Models\\', '', $entry->watchable_type) }} &middot; Watched {{ $entry->watched_at->diffForHumans() }}</small>
-                        </div>
-                        @if($url)<a href="{{ $url }}">View <i class="fas fa-arrow-right"></i></a>@endif
-                    </div>
-                @endforeach
-            </div>
-        @else
-            <p class="empty-note">Nothing in your watch history yet.</p>
-        @endif
-    </div>
-
     <div class="tab-pane" id="tab-comments">
         <h2 class="section-title"><i class="fas fa-comments" style="color: var(--accent-cyan);"></i> My Comments ({{ $myComments->count() }})</h2>
         @forelse($myComments as $comment)
             @php
                 $target = $comment->commentable;
-                $url = $target ? match($comment->commentable_type) {
-                    \App\Models\Movie::class => route('movies.show', $target->slug),
-                    \App\Models\Series::class => route('series.show', $target->id),
-                    \App\Models\Trailer::class => route('trailers.show', $target->slug),
-                    default => null,
-                } : null;
+                $url = $target ? route('trailers.show', $target->slug) : null;
             @endphp
             <div class="list-row">
                 <div class="avatar-circle">{{ mb_strtoupper(mb_substr($comment->author_name, 0, 1)) }}</div>
@@ -453,28 +372,16 @@
     <div class="tab-pane" id="tab-reactions">
         <h2 class="section-title" style="margin-bottom:1.5rem;"><i class="fas fa-thumbs-up" style="color: var(--accent-cyan);"></i> My Reactions</h2>
         @php
-            $reactUrl = function ($item) {
-                if (!$item) return null;
-                if ($item instanceof \App\Models\Movie) return route('movies.show', $item->slug);
-                if ($item instanceof \App\Models\Series) return route('series.show', $item->id);
-                if ($item instanceof \App\Models\Trailer) return route('trailers.show', $item->slug);
-                return null;
-            };
-            $reactThumb = function ($item) {
-                if (!$item) return '/images/posters/dummy-poster.png';
-                if ($item instanceof \App\Models\Trailer) return $item->thumb_url;
-                return $item->poster_path ?? '/images/posters/dummy-poster.png';
-            };
-            $reactClass = fn($item) => $item instanceof \App\Models\Trailer ? ' trailer' : '';
-            $reactType = fn($item) => $item instanceof \App\Models\Trailer ? 'TRAILER' : ($item instanceof \App\Models\Series ? 'SERIES' : 'MOVIE');
+            $reactUrl = fn ($item) => $item ? route('trailers.show', $item->slug) : null;
+            $reactThumb = fn ($item) => $item?->thumb_url ?? '/images/posters/dummy-poster.png';
         @endphp
         @if($myLikes->count() > 0)
             <h2 class="section-title" style="font-size:0.95rem;"><i class="fas fa-heart" style="color:#ffd700;"></i> Liked ({{ $myLikes->count() }})</h2>
             <div class="item-grid" style="margin-bottom:2rem;">
                 @foreach($myLikes as $item)
                     @if($url = $reactUrl($item))
-                    <a href="{{ $url }}" class="item-card{{ $reactClass($item) }}">
-                        <div class="thumb-wrap"><span class="item-type">{{ $reactType($item) }}</span><img src="{{ $reactThumb($item) }}" alt="{{ $item->title }}"></div>
+                    <a href="{{ $url }}" class="item-card trailer">
+                        <div class="thumb-wrap"><span class="item-type">TRAILER</span><img src="{{ $reactThumb($item) }}" alt="{{ $item->title }}"></div>
                         <h4>{{ $item->title }}</h4>
                     </a>
                     @endif
@@ -486,8 +393,8 @@
             <div class="item-grid">
                 @foreach($myDislikes as $item)
                     @if($url = $reactUrl($item))
-                    <a href="{{ $url }}" class="item-card{{ $reactClass($item) }}">
-                        <div class="thumb-wrap"><span class="item-type">{{ $reactType($item) }}</span><img src="{{ $reactThumb($item) }}" alt="{{ $item->title }}"></div>
+                    <a href="{{ $url }}" class="item-card trailer">
+                        <div class="thumb-wrap"><span class="item-type">TRAILER</span><img src="{{ $reactThumb($item) }}" alt="{{ $item->title }}"></div>
                         <h4>{{ $item->title }}</h4>
                     </a>
                     @endif
@@ -495,7 +402,7 @@
             </div>
         @endif
         @if($myLikes->count() === 0 && $myDislikes->count() === 0)
-            <p class="empty-note">No reactions yet. Like or dislike content to see it here.</p>
+            <p class="empty-note">No reactions yet. Like or dislike trailers to see them here.</p>
         @endif
     </div>
 

@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Favorites - MovieMax</title>
-    @include('partials.seo', ['seoTitle' => 'My Favorites - MovieMax', 'seoDescription' => 'Your saved movies, series and trailers on MovieMax.', 'seoNoindex' => true])
+    <title>My Favorites - MovieMax</title>
+    @include('partials.seo', ['seoTitle' => 'My Favorites - MovieMax', 'seoDescription' => 'Your saved movie trailers on MovieMax.', 'seoNoindex' => true])
     <style>
         :root {
             --bg-deep: #0a0d12;
@@ -286,68 +286,41 @@
 
     <header class="page-header">
         <h1>My Favorites</h1>
-        <p>Movies and series you've saved for later.</p>
+        <p>Trailers you've saved for later.</p>
     </header>
 
-    @if($movies->isEmpty() && $series->isEmpty())
+    @if($trailers->isEmpty())
         <div class="section">
             <div class="empty-state">
                 <i class="fas fa-heart"></i>
                 <h3>No favorites yet</h3>
-                <p>Tap the heart on any movie or series to save it here.</p>
-                <a href="/movies"><i class="fas fa-film"></i> Browse Movies</a>
+                <p>Tap the heart on any trailer to save it here.</p>
+                <a href="{{ route('trailers') }}"><i class="fas fa-video"></i> Browse Trailers</a>
             </div>
         </div>
     @else
-        @if($movies->isNotEmpty())
-            <section class="section">
-                <div class="section-header">
-                    <h2><i class="fas fa-film"></i> Favorite Movies ({{ $movies->count() }})</h2>
-                </div>
-                <div class="fav-grid">
-                    @foreach($movies as $movie)
-                        <div class="fav-card" onclick="location.href='{{ route('movies.show', $movie->slug) }}'">
-                            <div class="fav-thumb">
-                                <button class="fav-heart" type="button" data-type="movie" data-id="{{ $movie->id }}" onclick="toggleFavorite(event,'movie',{{ $movie->id }},this)" title="Remove from favorites"><i class="fas fa-heart"></i></button>
-                                <img src="{{ $movie->poster_path ?? '/images/posters/dummy-movie.png' }}" alt="{{ $movie->title }}">
-                            </div>
-                            <div class="fav-info">
-                                <h4>{{ $movie->title }}</h4>
-                                <div class="fav-meta">
-                                    <span><i class="fas fa-calendar-alt"></i> {{ $movie->release_year ?? 'N/A' }}</span>
-                                    <span><i class="fas fa-tag"></i> {{ $movie->genre ?? 'General' }}</span>
-                                </div>
+        <section class="section">
+            <div class="section-header">
+                <h2><i class="fas fa-video"></i> Favorite Trailers ({{ $trailers->count() }})</h2>
+            </div>
+            <div class="fav-grid">
+                @foreach($trailers as $trailer)
+                    <div class="fav-card" onclick="location.href='{{ route('trailers.show', $trailer->slug) }}'">
+                        <div class="fav-thumb">
+                            <button class="fav-heart" type="button" data-type="trailer" data-id="{{ $trailer->id }}" onclick="toggleFavorite(event,'trailer',{{ $trailer->id }},this)" title="Remove from favorites"><i class="fas fa-heart"></i></button>
+                            <img src="{{ $trailer->thumb_url }}" alt="{{ $trailer->title }}">
+                        </div>
+                        <div class="fav-info">
+                            <h4>{{ $trailer->title }}</h4>
+                            <div class="fav-meta">
+                                <span><i class="fas fa-calendar-alt"></i> {{ $trailer->created_at?->format('M Y') ?? 'N/A' }}</span>
+                                <span><i class="fas fa-eye"></i> {{ number_format($trailer->views) }} views</span>
                             </div>
                         </div>
-                    @endforeach
-                </div>
-            </section>
-        @endif
-
-        @if($series->isNotEmpty())
-            <section class="section">
-                <div class="section-header">
-                    <h2><i class="fas fa-tv"></i> Favorite Series ({{ $series->count() }})</h2>
-                </div>
-                <div class="fav-grid">
-                    @foreach($series as $item)
-                        <div class="fav-card" onclick="location.href='{{ route('series.show', $item->id) }}'">
-                            <div class="fav-thumb">
-                                <button class="fav-heart" type="button" data-type="series" data-id="{{ $item->id }}" onclick="toggleFavorite(event,'series',{{ $item->id }},this)" title="Remove from favorites"><i class="fas fa-heart"></i></button>
-                                <img src="{{ $item->poster_path ?? '/images/posters/dummy-series.png' }}" alt="{{ $item->title }}">
-                            </div>
-                            <div class="fav-info">
-                                <h4>{{ $item->title }}</h4>
-                                <div class="fav-meta">
-                                    <span><i class="fas fa-calendar-alt"></i> {{ $item->release_year ?? 'N/A' }}</span>
-                                    <span><i class="fas fa-layer-group"></i> {{ $item->seasons_count }} Seasons</span>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </section>
-        @endif
+                    </div>
+                @endforeach
+            </div>
+        </section>
     @endif
 
     @include('partials.footer')

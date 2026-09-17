@@ -77,10 +77,8 @@
                         @endif
                     </td>
                     <td>
-                        @if($slide->link_type === 'movie')
-                            <span style="font-size: 0.8rem; color: #aaa;">Movie #{{ $slide->link_id }}</span>
-                        @elseif($slide->link_type === 'series')
-                            <span style="font-size: 0.8rem; color: #aaa;">Series #{{ $slide->link_id }}</span>
+                        @if($slide->link_type === 'trailer')
+                            <span style="font-size: 0.8rem; color: #aaa;">Trailer #{{ $slide->link_id }}</span>
                         @else
                             <span style="color: #666; font-size: 0.8rem;">None</span>
                         @endif

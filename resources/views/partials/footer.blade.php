@@ -134,7 +134,7 @@
     <div class="mm-footer-inner">
         <div class="mm-footer-col">
             <div class="mm-footer-brand">{{ setting('site_name', 'MOVIEMAX') }}</div>
-            <p class="mm-footer-tag">Watch, stream &amp; download free movies, series and trailers online in HD quality — anytime, anywhere, on any device.</p>
+            <p class="mm-footer-tag">Watch the hottest movie trailers and teasers online in HD quality — anytime, anywhere, on any device.</p>
             <div class="mm-footer-social">
                 <a href="https://www.facebook.com" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
                 <a href="https://www.instagram.com" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
@@ -145,8 +145,6 @@
         <div class="mm-footer-col">
             <h4>Explore</h4>
             <a href="/"><i class="fas fa-home"></i> Home</a>
-            <a href="/movies"><i class="fas fa-film"></i> Movies</a>
-            <a href="/series"><i class="fas fa-tv"></i> TV Series</a>
             <a href="/trailers"><i class="fas fa-video"></i> Trailers</a>
         </div>
         <div class="mm-footer-col">

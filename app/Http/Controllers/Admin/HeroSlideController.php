@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\HeroSlide;
-use App\Models\Movie;
-use App\Models\Series;
+use App\Models\Trailer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -19,9 +18,8 @@ class HeroSlideController extends Controller
 
     public function create()
     {
-        $movies = Movie::where('type', 'movie')->orderBy('title')->get(['id', 'title']);
-        $series = Series::orderBy('title')->get(['id', 'title']);
-        return view('admin.hero-slides.create', compact('movies', 'series'));
+        $trailers = Trailer::orderBy('title')->get(['id', 'title', 'slug']);
+        return view('admin.hero-slides.create', compact('trailers'));
     }
 
     public function store(Request $request)
@@ -43,9 +41,8 @@ class HeroSlideController extends Controller
 
     public function edit(HeroSlide $heroSlide)
     {
-        $movies = Movie::where('type', 'movie')->orderBy('title')->get(['id', 'title']);
-        $series = Series::orderBy('title')->get(['id', 'title']);
-        return view('admin.hero-slides.edit', compact('heroSlide', 'movies', 'series'));
+        $trailers = Trailer::orderBy('title')->get(['id', 'title', 'slug']);
+        return view('admin.hero-slides.edit', compact('heroSlide', 'trailers'));
     }
 
     public function update(Request $request, HeroSlide $heroSlide)
@@ -91,7 +88,7 @@ class HeroSlideController extends Controller
             'image_url' => 'nullable|url',
             'hero_file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:8192',
             'trailer_url' => 'nullable|url',
-            'link_type' => 'nullable|in:movie,series',
+            'link_type' => 'nullable|in:trailer',
             'link_id' => 'nullable|integer|required_with:link_type',
             'sort_order' => 'nullable|integer',
             'is_active' => 'boolean',

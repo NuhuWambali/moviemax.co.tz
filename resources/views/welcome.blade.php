@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>MovieMax – Watch, Stream & Download Free Movies, Series & Trailers Online</title>
-    @include('partials.seo', ['seoTitle' => 'MovieMax – Watch, Stream & Download Free Movies, Series & Trailers Online', 'seoDescription' => 'MovieMax lets you watch, stream and download free movies, TV series and trailers online. Discover the latest movies, popular series, new releases and exciting trailers.', 'seoKeywords' => 'MovieMax, free movies, watch movies online, stream movies, download movies, free series, TV series, watch series online, download series, movie trailers, latest movies, new movies, HD movies'])
+    <title>MovieMax – Watch Free Movie Trailers Online in HD</title>
+    @include('partials.seo', ['seoTitle' => 'MovieMax – Watch Free Movie Trailers Online in HD', 'seoDescription' => 'MovieMax lets you watch the latest movie trailers online in HD. Discover new release trailers, trending teasers and the most anticipated films all in one place.', 'seoKeywords' => 'MovieMax, movie trailers, watch trailers online, new trailers, film trailers, trailer, HD trailers, upcoming movies'])
     @if($heroSlides->first()->image_path ?? null)
         <link rel="preload" as="image" href="{{ $heroSlides->first()->image_path }}" fetchpriority="high">
     @endif
@@ -1019,23 +1019,30 @@
 @include('partials.loader')    @include('partials.navbar')
 
 @php
-    $featuredItem = $featuredMovie ?? $featuredSeries ?? null;
     $heroSlides = $heroSlides ?? collect();
+    $slideTrailers = collect();
+    if ($heroSlides->isNotEmpty()) {
+        $slideIds = $heroSlides->filter(fn ($s) => $s->link_type === 'trailer' && $s->link_id)
+                               ->pluck('link_id')->unique();
+        if ($slideIds->isNotEmpty()) {
+            $slideTrailers = \App\Models\Trailer::whereIn('id', $slideIds)->get()->keyBy('id');
+        }
+    }
     if ($heroSlides->isEmpty()) {
         $slides = [];
-        if ($featuredItem) {
+        if ($featuredTrailer) {
             $slides[] = (object) [
-                'title' => $featuredItem->title,
-                'tagline' => $featuredItem->description ?? '',
-                'image_path' => $featuredItem->poster_path ?? '/images/heroes/hero-3.png',
-                'trailer_url' => $featuredItem->trailer_url ?? null,
-                'link_type' => $featuredMovie ? 'movie' : 'series',
-                'link_id' => $featuredItem->id,
+                'title' => $featuredTrailer->title,
+                'tagline' => $featuredTrailer->description ?? '',
+                'image_path' => $featuredTrailer->thumb_url ?? '/images/heroes/hero-3.png',
+                'trailer_url' => $featuredTrailer->trailer_url ?? null,
+                'link_type' => 'trailer',
+                'link_id' => $featuredTrailer->id,
             ];
         }
         $slides[] = (object) [
             'title' => 'MOVIEMAX',
-            'tagline' => 'Stream and download the latest movies and TV series in stunning quality. Your entertainment, your way.',
+            'tagline' => 'Watch the latest movie trailers and teasers in stunning HD. Your entertainment, your way.',
             'image_path' => '/images/heroes/hero-3.png',
             'trailer_url' => null,
             'link_type' => null,
@@ -1048,6 +1055,19 @@
 @if($heroSlides->isNotEmpty())
 <div class="hero" id="heroSlider">
     @foreach($heroSlides as $i => $slide)
+        @php
+            $slideSlug = ($slide->link_type === 'trailer' && isset($slideTrailers[$slide->link_id]))
+                ? $slideTrailers[$slide->link_id]->slug
+                : null;
+            $slideFrameSrc = $slide->trailer_url
+                ? (function ($url) {
+                    if (preg_match('/(?:youtube\.com\/(?:watch\?.*v=|embed\/|v\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/', (string) $url, $m)) {
+                        return 'https://www.youtube-nocookie.com/embed/' . $m[1];
+                    }
+                    return null;
+                })($slide->trailer_url)
+                : null;
+        @endphp
     <div class="hero-slide {{ $i === 0 ? 'active' : '' }}" data-idx="{{ $i }}">
         <div class="hero-bg" style="background-image: url('{{ $slide->image_path ?? '/images/heroes/hero-3.png' }}')"></div>
         <div class="hero-overlay"></div>
@@ -1060,16 +1080,14 @@
             <p>{{ $slide->tagline }}</p>
             <div class="btn-group">
                 @if($slide->trailer_url)
-                    <button type="button" class="btn-primary" onclick="openTrailerModal('{{ addslashes($slide->trailer_url) }}', '{{ $slide->link_type ?? 'trailer' }}', {{ $slide->link_id ?? 0 }})">
+                    <button type="button" class="btn-primary" onclick="openTrailerModal('{{ addslashes($slide->trailer_url) }}', 'trailer', {{ $slide->link_id ?? 0 }})">
                         <i class="fas fa-video"></i> Watch Trailer
                     </button>
                 @endif
-                @if($slide->link_type === 'movie')
-                    <a href="{{ route('movies.show', $slide->link_id) }}" class="btn-secondary"><i class="fas fa-play"></i> More Info</a>
-                @elseif($slide->link_type === 'series')
-                    <a href="{{ route('series.show', $slide->link_id) }}" class="btn-secondary"><i class="fas fa-play"></i> More Info</a>
+                @if($slideSlug)
+                    <a href="{{ route('trailers.show', $slideSlug) }}" class="btn-secondary"><i class="fas fa-play"></i> More Info</a>
                 @else
-                    <a href="/movies" class="btn-secondary"><i class="fas fa-compass"></i> Explore</a>
+                    <a href="{{ route('trailers') }}" class="btn-secondary"><i class="fas fa-compass"></i> Explore Trailers</a>
                 @endif
             </div>
         </div>
@@ -1088,85 +1106,31 @@
 </div>
 @endif
 
-<!-- Genre Filter -->
-<div class="genre-bar">
-    <button class="genre-btn active" data-genre="all">All</button>
-    @foreach(['Action', 'Horror', 'Romance', 'War', 'Sci-Fi', 'Comedy', 'Drama', 'Thriller'] as $g)
-        <button class="genre-btn" data-genre="{{ $g }}">{{ $g }}</button>
-    @endforeach
-</div>
-
-@if(Auth::check() || $continueWatching->count() > 0)
-<!-- Continue Watching -->
-<div class="section reveal" id="continue-watching" @if(Auth::guest() && $continueWatching->count() === 0) style="display:none" @endif>
-    <div class="section-header">
-        <h2><i class="fas fa-play-circle" style="color: var(--accent-red); margin-right: 0.5rem; font-size: 1.2rem;"></i> Continue Watching</h2>
-        <a href="{{ route('movies.index') }}" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
-    </div>
-    <div class="movie-grid" id="continue-grid">
-        @foreach($continueWatching as $entry)
-        @php $remaining = max(0, (int) ($entry->duration_seconds ?? 0) - (int) ($entry->progress_seconds ?? 0)); @endphp
-        <a class="movie-card" href="{{ route('movies.show', $entry->movie->slug) }}" title="{{ $entry->movie->title }}">
-            <div class="card-img-wrap">
-                <img class="card-img" src="{{ $entry->movie->poster_url ?? '/images/posters/dummy-poster.png' }}" alt="{{ $entry->movie->title }}" loading="lazy">
-                <div class="card-overlay"><i class="fas fa-play"></i></div>
-                @if($remaining > 0)
-                    <span class="continue-pill">{{ gmdate('i:s', $remaining) }} left</span>
-                @endif
-                <div class="continue-bar"><span style="width: {{ max(5, min(100, ($entry->ratio ?? 0) * 100)) }}%"></span></div>
-            </div>
-            <div class="card-info">
-                <h4>{{ $entry->movie->title }}</h4>
-                <div class="meta">
-                    <span><i class="fas fa-calendar-alt"></i> {{ $entry->movie->release_year ?? 'N/A' }}</span>
-                    <span><i class="fas fa-clock"></i> {{ $entry->movie->duration_label }}</span>
-                </div>
-            </div>
-        </a>
-        @endforeach
-    </div>
-</div>
-@endif
-
-@if($favMovies->count() > 0 || $favSeries->count() > 0)
+@if($favTrailers->count() > 0)
 <!-- My Favorites -->
 <div class="section reveal" id="my-favorites">
     <div class="section-header">
-        <h2><i class="fas fa-heart" style="color: var(--accent-red); margin-right: 0.5rem; font-size: 1.2rem;"></i> My Favorites</h2>
-        <a href="/favorites" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
+        <h2><i class="fas fa-heart" style="color: var(--accent-red); margin-right: 0.5rem; font-size: 1.2rem;"></i> My Favorite Trailers</h2>
+        <a href="{{ route('favorites') }}" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
     </div>
-    <div class="movie-grid">
-        @foreach($favMovies as $favMovie)
-            <div class="movie-card" data-slug="{{ $favMovie->slug }}" data-id="{{ $favMovie->id }}" data-title="{{ $favMovie->title }}" data-poster="{{ $favMovie->poster_path }}" data-year="{{ $favMovie->release_year }}" data-duration="{{ $favMovie->duration }}" data-genre="{{ $favMovie->genre }}" data-description="{{ $favMovie->description }}" data-file="{{ $favMovie->file_path }}">
-                <div class="card-img-wrap">
-                    <span class="card-badge">FAVORITE</span>
-                    <img class="card-img" src="{{ $favMovie->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $favMovie->title }}" loading="lazy">
-                    <div class="card-overlay"><i class="fas fa-eye"></i></div>
-                    <button class="fav-heart active" type="button" data-type="movie" data-id="{{ $favMovie->id }}" onclick="toggleFavorite(event,'movie',{{ $favMovie->id }},this)" title="Remove from favorites"><i class="fas fa-heart"></i></button>
+    <div class="trailer-grid">
+        @foreach($favTrailers as $trailer)
+            <div class="trailer-card" data-slug="{{ $trailer->slug }}" data-title="{{ $trailer->title }}" onclick="location.href='{{ route('trailers.show', $trailer->slug) }}'">
+                <div class="trailer-thumb">
+                    <span class="trailer-badge"><i class="fas fa-video"></i> FAVORITE</span>
+                    <img src="{{ $trailer->thumb_url }}" alt="{{ $trailer->title }}" loading="lazy">
+                    <div class="trailer-play"><i class="fas fa-play"></i></div>
+                    <button class="fav-heart active" type="button" data-type="trailer" data-id="{{ $trailer->id }}" onclick="toggleFavorite(event,'trailer',{{ $trailer->id }},this)" title="Remove from favorites"><i class="fas fa-heart"></i></button>
                 </div>
-                <div class="card-info">
-                    <h4>{{ $favMovie->title }}</h4>
+                <div class="trailer-info">
+                    <h4>{{ $trailer->title }}</h4>
                     <div class="meta">
-                        <span><i class="fas fa-calendar-alt"></i> {{ $favMovie->release_year ?? 'N/A' }}</span>
-                        <span><i class="fas fa-film"></i> {{ $favMovie->genre ?? 'General' }}</span>
+                        <span><i class="fas fa-calendar-alt"></i> {{ $trailer->created_at?->format('M Y') ?? 'N/A' }}</span>
+                        <span><i class="fas fa-eye"></i> {{ number_format($trailer->views) }} views</span>
                     </div>
-                </div>
-            </div>
-        @endforeach
-        @foreach($favSeries as $favSer)
-            <div class="movie-card" data-genre="{{ $favSer->genre ?? 'General' }}" onclick="location.href='{{ route('series.show', $favSer->id) }}'">
-                <div class="card-img-wrap">
-                    <span class="card-badge">FAVORITE</span>
-                    <img class="card-img" src="{{ $favSer->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $favSer->title }}" loading="lazy">
-                    <div class="card-overlay"><i class="fas fa-eye"></i></div>
-                    <button class="fav-heart active" type="button" data-type="series" data-id="{{ $favSer->id }}" onclick="toggleFavorite(event,'series',{{ $favSer->id }},this)" title="Remove from favorites"><i class="fas fa-heart"></i></button>
-                </div>
-                <div class="card-info">
-                    <h4>{{ $favSer->title }}</h4>
-                    <div class="meta">
-                        <span><i class="fas fa-calendar-alt"></i> {{ $favSer->release_year ?? 'N/A' }}</span>
-                        <span><i class="fas fa-layer-group"></i> {{ $favSer->seasons_count }} Season{{ $favSer->seasons_count > 1 ? 's' : '' }}</span>
-                    </div>
+                    <a href="{{ route('trailers.show', $trailer->slug) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $trailer->title }}">
+                        <i class="fas fa-video"></i> Watch Trailer
+                    </a>
                 </div>
             </div>
         @endforeach
@@ -1174,254 +1138,75 @@
 </div>
 @endif
 
-<!-- Trending Movies -->
+<!-- Trending Trailers -->
 <div class="section reveal">
     <div class="section-header">
-        <h2><i class="fas fa-fire" style="color: var(--accent-red); margin-right: 0.5rem; font-size: 1.2rem;"></i> Trending Movies</h2>
-        <a href="/movies?sort=trending" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
+        <h2><i class="fas fa-fire" style="color: var(--accent-red); margin-right: 0.5rem; font-size: 1.2rem;"></i> Trending Trailers</h2>
+        <a href="{{ route('trailers') }}" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
     </div>
-    @if($trendingMovies->count() > 0)
-        <div class="movie-grid">
-            @foreach($trendingMovies as $movie)
-                <div class="movie-card" data-slug="{{ $movie->slug }}" data-id="{{ $movie->id }}" data-title="{{ $movie->title }}" data-poster="{{ $movie->poster_path }}" data-year="{{ $movie->release_year }}" data-duration="{{ $movie->duration }}" data-genre="{{ $movie->genre }}" data-description="{{ $movie->description }}" data-file="{{ $movie->file_path }}">
-                    <div class="card-img-wrap">
-                        <span class="card-badge">TRENDING</span>
-                        <img class="card-img" src="{{ $movie->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $movie->title }}" loading="lazy">
-                        <div class="card-overlay"><i class="fas fa-play"></i></div>
-                        <button class="fav-heart" type="button" data-type="movie" data-id="{{ $movie->id }}" onclick="toggleFavorite(event,'movie',{{ $movie->id }},this)" title="Add to favorites"><i class="fas fa-heart"></i></button>
-                    </div>
-                    <div class="card-info">
-                        <h4>{{ $movie->title }}</h4>
-                        <div class="meta">
-                            <span><i class="fas fa-calendar-alt"></i> {{ $movie->release_year ?? 'N/A' }}</span>
-                            <span><i class="fas fa-clock"></i> {{ $movie->duration_label }}</span>
-                            <span><i class="fas fa-eye"></i> {{ number_format($movie->views ?? 0) }}</span>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    @else
-        <div style="text-align:center; padding:3rem; color: var(--text-muted);">No movies available yet.</div>
-    @endif
-</div>
-
-<!-- Official Trailers -->
-<div class="section reveal">
-    <div class="section-header">
-        <h2><i class="fas fa-video" style="color: var(--accent-cyan); margin-right: 0.5rem; font-size: 1.2rem;"></i> Official Trailers</h2>
-        <a href="/trailers" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
-    </div>
-    @if($trailerMovies->count() > 0)
+    @if($trendingTrailers->count() > 0)
         <div class="trailer-grid">
-            @foreach($trailerMovies as $trailerMovie)
-                <div class="trailer-card" onclick="openTrailerModal('{{ addslashes($trailerMovie->trailer_url) }}', 'movie', {{ $trailerMovie->id }})">
+            @foreach($trendingTrailers as $trailer)
+                <div class="trailer-card" data-slug="{{ $trailer->slug }}" data-title="{{ $trailer->title }}" onclick="location.href='{{ route('trailers.show', $trailer->slug) }}'">
                     <div class="trailer-thumb">
-                        <span class="trailer-badge"><i class="fas fa-video"></i> TRAILER</span>
-                        <img src="{{ $trailerMovie->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $trailerMovie->title }}" loading="lazy">
+                        <span class="trailer-badge"><i class="fas fa-fire"></i> TRENDING</span>
+                        <img src="{{ $trailer->thumb_url }}" alt="{{ $trailer->title }}" loading="lazy">
                         <div class="trailer-play"><i class="fas fa-play"></i></div>
+                        <button class="fav-heart" type="button" data-type="trailer" data-id="{{ $trailer->id }}" onclick="toggleFavorite(event,'trailer',{{ $trailer->id }},this)" title="Add to favorites"><i class="fas fa-heart"></i></button>
                     </div>
                     <div class="trailer-info">
-                        <h4>{{ $trailerMovie->title }}</h4>
+                        <h4>{{ $trailer->title }}</h4>
                         <div class="meta">
-                            <span><i class="fas fa-calendar-alt"></i> {{ $trailerMovie->release_year ?? 'N/A' }}</span>
-                            <span><i class="fas fa-film"></i> {{ $trailerMovie->genre ?? 'General' }}</span>
-                            <span><i class="fas fa-star" style="color:#ffd700;"></i> {{ $trailerMovie->rating ?? 'N/A' }}</span>
+                            <span><i class="fas fa-calendar-alt"></i> {{ $trailer->created_at?->format('M Y') ?? 'N/A' }}</span>
+                            <span><i class="fas fa-eye"></i> {{ number_format($trailer->views) }} views</span>
                         </div>
-                        @if($trailerMovie->file_path)
-                            <a href="{{ route('movies.show', $trailerMovie->slug) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $trailerMovie->title }} to download the full movie">
-                                <i class="fas fa-download"></i> Download Movie
-                            </a>
-                        @else
-                            <div class="trailer-download trailer-download-off">
-                                <i class="fas fa-play-circle"></i> Watch on Movie Page
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    @elseif($trailerSeries->count() === 0 && $homeTrailers->count() === 0)
-        <div style="text-align:center; padding:3rem; color: var(--text-muted);">No trailers available yet.</div>
-    @endif
-
-    @if($trailerSeries->count() > 0)
-        <h3 style="color: var(--text-primary); font-family: var(--font-display); font-size: 1.2rem; margin: 2rem 0 1rem;">
-            <i class="fas fa-tv" style="color: var(--accent-purple); margin-right: 0.5rem;"></i> Series Trailers
-        </h3>
-        <div class="trailer-grid">
-            @foreach($trailerSeries as $trailerSeriesItem)
-                <div class="trailer-card" onclick="openTrailerModal('{{ addslashes($trailerSeriesItem->trailer_url) }}', 'series', {{ $trailerSeriesItem->id }})">
-                    <div class="trailer-thumb">
-                        <span class="trailer-badge"><i class="fas fa-video"></i> TRAILER</span>
-                        <img src="{{ $trailerSeriesItem->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $trailerSeriesItem->title }}" loading="lazy">
-                        <div class="trailer-play"><i class="fas fa-play"></i></div>
-                    </div>
-                    <div class="trailer-info">
-                        <h4>{{ $trailerSeriesItem->title }}</h4>
-                        <div class="meta">
-                            <span><i class="fas fa-calendar-alt"></i> {{ $trailerSeriesItem->release_year ?? 'N/A' }}</span>
-                            <span><i class="fas fa-layer-group"></i> {{ $trailerSeriesItem->seasons_count }} Seasons</span>
-                            <span><i class="fas fa-star" style="color:#ffd700;"></i> {{ $trailerSeriesItem->rating ?? 'N/A' }}</span>
-                        </div>
-                        <a href="{{ route('series.show', $trailerSeriesItem->id) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $trailerSeriesItem->title }} to watch the series">
-                            <i class="fas fa-eye"></i> Watch Series
-                        </a>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    @endif
-@if($homeTrailers->count() > 0)
-        <h3 style="color: var(--text-primary); font-family: var(--font-display); font-size: 1.2rem; margin: 2rem 0 1rem;">
-            <i class="fas fa-film" style="color: var(--accent-cyan); margin-right: 0.5rem;"></i> Latest Trailers
-        </h3>
-        <div class="trailer-grid">
-            @foreach($homeTrailers as $homeTrailer)
-                @php
-                    $playSrc = $homeTrailer->source_type === 'file' && $homeTrailer->file_path
-                        ? $homeTrailer->file_path
-                        : $homeTrailer->trailer_url;
-                @endphp
-                <div class="trailer-card" onclick="openTrailerModal('{{ addslashes($playSrc ?? '') }}', 'trailer', {{ $homeTrailer->id }})">
-                    <div class="trailer-thumb">
-                        <span class="trailer-badge"><i class="fas fa-video"></i> TRAILER</span>
-                        <img src="{{ $homeTrailer->thumb_url }}" alt="{{ $homeTrailer->title }}" loading="lazy">
-                        <div class="trailer-play"><i class="fas fa-play"></i></div>
-                    </div>
-                    <div class="trailer-info">
-                        <h4>{{ $homeTrailer->title }}</h4>
-                        <div class="meta">
-                            <span><i class="fas fa-calendar-alt"></i> {{ $homeTrailer->created_at?->format('M Y') ?? 'N/A' }}</span>
-                            <span><i class="fas fa-eye"></i> {{ number_format($homeTrailer->views) }} views</span>
-                        </div>
-                        <a href="{{ route('trailers.show', $homeTrailer->slug) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $homeTrailer->title }}">
+                        <a href="{{ route('trailers.show', $trailer->slug) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $trailer->title }}">
                             <i class="fas fa-eye"></i> Watch Trailer
                         </a>
                     </div>
                 </div>
             @endforeach
         </div>
+    @else
+        <div style="text-align:center; padding:3rem; color: var(--text-muted);">No trailers available yet.</div>
     @endif
 </div>
 
-<!-- Trending Series -->
+<!-- Latest Trailers -->
 <div class="section reveal">
     <div class="section-header">
-        <h2><i class="fas fa-tv" style="color: var(--accent-purple); margin-right: 0.5rem; font-size: 1.2rem;"></i> Trending Series</h2>
-        <a href="/series?sort=trending" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
+        <h2><i class="fas fa-clock" style="color: var(--accent-cyan); margin-right: 0.5rem; font-size: 1.2rem;"></i> Latest Trailers</h2>
+        <a href="{{ route('trailers') }}" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
     </div>
-    @if($trendingSeries->count() > 0)
-        <div class="movie-grid">
-            @foreach($trendingSeries as $series)
-                <div class="movie-card" data-genre="{{ $series->genre ?? 'General' }}" onclick="location.href='{{ route('series.show', $series->id) }}'">
-                    <div class="card-img-wrap">
-                        <span class="card-badge" style="background: var(--accent-cyan);">SERIES</span>
-                        <img class="card-img" src="{{ $series->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $series->title }}" loading="lazy">
-                        <div class="card-overlay"><i class="fas fa-play"></i></div>
-                        <button class="fav-heart" type="button" data-type="series" data-id="{{ $series->id }}" onclick="toggleFavorite(event,'series',{{ $series->id }},this)" title="Add to favorites"><i class="fas fa-heart"></i></button>
+    @if($recentTrailers->count() > 0)
+        <div class="trailer-grid">
+            @foreach($recentTrailers as $trailer)
+                <div class="trailer-card" data-slug="{{ $trailer->slug }}" data-title="{{ $trailer->title }}" onclick="location.href='{{ route('trailers.show', $trailer->slug) }}'">
+                    <div class="trailer-thumb">
+                        <span class="trailer-badge"><i class="fas fa-video"></i> NEW RELEASE</span>
+                        <img src="{{ $trailer->thumb_url }}" alt="{{ $trailer->title }}" loading="lazy">
+                        <div class="trailer-play"><i class="fas fa-play"></i></div>
+                        <button class="fav-heart" type="button" data-type="trailer" data-id="{{ $trailer->id }}" onclick="toggleFavorite(event,'trailer',{{ $trailer->id }},this)" title="Add to favorites"><i class="fas fa-heart"></i></button>
                     </div>
-                    <div class="card-info">
-                        <h4>{{ $series->title }}</h4>
+                    <div class="trailer-info">
+                        <h4>{{ $trailer->title }}</h4>
                         <div class="meta">
-                            <span><i class="fas fa-calendar-alt"></i> {{ $series->release_year ?? 'N/A' }}</span>
-                            <span><i class="fas fa-layer-group"></i> {{ $series->seasons_count }} Season{{ $series->seasons_count > 1 ? 's' : '' }}</span>
+                            <span><i class="fas fa-calendar-alt"></i> {{ $trailer->created_at?->format('M Y') ?? 'N/A' }}</span>
+                            <span><i class="fas fa-eye"></i> {{ number_format($trailer->views) }} views</span>
                         </div>
+                        <a href="{{ route('trailers.show', $trailer->slug) }}" class="trailer-download" onclick="event.stopPropagation();" title="Go to {{ $trailer->title }}">
+                            <i class="fas fa-video"></i> Watch Trailer
+                        </a>
                     </div>
                 </div>
             @endforeach
         </div>
     @else
-        <div style="text-align:center; padding:3rem; color: var(--text-muted);">No series available yet.</div>
-    @endif
-</div>
-
-<!-- Recent Movies -->
-<div class="section reveal">
-    <div class="section-header">
-        <h2><i class="fas fa-clock" style="color: var(--accent-cyan); margin-right: 0.5rem; font-size: 1.2rem;"></i> Recent Releases</h2>
-        <a href="/movies?sort=recent" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
-    </div>
-    @if($recentMovies->count() > 0)
-        <div class="movie-grid">
-            @foreach($recentMovies as $movie)
-                <div class="movie-card" data-slug="{{ $movie->slug }}" data-id="{{ $movie->id }}" data-title="{{ $movie->title }}" data-poster="{{ $movie->poster_path }}" data-year="{{ $movie->release_year }}" data-duration="{{ $movie->duration }}" data-genre="{{ $movie->genre }}" data-description="{{ $movie->description }}" data-file="{{ $movie->file_path }}">
-                    <div class="card-img-wrap">
-                        <img class="card-img" src="{{ $movie->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $movie->title }}" loading="lazy">
-                        <div class="card-overlay"><i class="fas fa-play"></i></div>
-                        <button class="fav-heart" type="button" data-type="movie" data-id="{{ $movie->id }}" onclick="toggleFavorite(event,'movie',{{ $movie->id }},this)" title="Add to favorites"><i class="fas fa-heart"></i></button>
-                    </div>
-                    <div class="card-info">
-                        <h4>{{ $movie->title }}</h4>
-                        <div class="meta">
-                            <span><i class="fas fa-calendar-alt"></i> {{ $movie->release_year ?? 'N/A' }}</span>
-                            <span><i class="fas fa-film"></i> {{ $movie->genre ?? 'General' }}</span>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    @else
-        <div style="text-align:center; padding:3rem; color: var(--text-muted);">No recent releases.</div>
-    @endif
-</div>
-
-<!-- New Series -->
-<div class="section reveal">
-    <div class="section-header">
-        <h2><i class="fas fa-sparkles" style="color: var(--accent-red); margin-right: 0.5rem; font-size: 1.2rem;"></i> New Series</h2>
-        <a href="/series?sort=recent" class="section-link">View all <i class="fas fa-arrow-right"></i></a>
-    </div>
-    @if($recentSeries->count() > 0)
-        <div class="movie-grid">
-            @foreach($recentSeries as $series)
-                <div class="movie-card" data-genre="{{ $series->genre ?? 'General' }}" onclick="location.href='{{ route('series.show', $series->id) }}'">
-                    <div class="card-img-wrap">
-                        <img class="card-img" src="{{ $series->poster_path ?? '/images/posters/dummy-poster.png' }}" alt="{{ $series->title }}" loading="lazy">
-                        <div class="card-overlay"><i class="fas fa-play"></i></div>
-                        <button class="fav-heart" type="button" data-type="series" data-id="{{ $series->id }}" onclick="toggleFavorite(event,'series',{{ $series->id }},this)" title="Add to favorites"><i class="fas fa-heart"></i></button>
-                    </div>
-                    <div class="card-info">
-                        <h4>{{ $series->title }}</h4>
-                        <div class="meta">
-                            <span><i class="fas fa-calendar-alt"></i> {{ $series->release_year ?? 'N/A' }}</span>
-                            <span><i class="fas fa-film"></i> {{ $series->genre ?? 'General' }}</span>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    @else
-        <div style="text-align:center; padding:3rem; color: var(--text-muted);">No new series.</div>
+        <div style="text-align:center; padding:3rem; color: var(--text-muted);">No recent trailers yet.</div>
     @endif
 </div>
 
 @include('partials.footer')
-
-<!-- Movie Options Modal -->
-<div id="movieModal" class="movie-modal">
-    <div class="modal-overlay" onclick="closeModal()"></div>
-    <div class="modal-container">
-        <div class="modal-header">
-            <div class="modal-poster">
-                <img id="modalPoster" src="" alt="">
-            </div>
-            <div class="modal-info">
-                <h2 id="modalTitle"></h2>
-                <div class="modal-meta">
-                    <span><i class="fas fa-calendar-alt"></i> <span id="modalYear"></span></span>
-                    <span><i class="fas fa-clock"></i> <span id="modalDuration"></span></span>
-                    <span><i class="fas fa-tag"></i> <span id="modalGenre"></span></span>
-                </div>
-                <p id="modalDescription"></p>
-                <div class="modal-buttons">
-                    <button class="modal-btn-download" id="downloadBtn"><i class="fas fa-download"></i> Download</button>
-                </div>
-            </div>
-            <button class="modal-close" onclick="closeModal()">&times;</button>
-        </div>
-    </div>
-</div>
 
 <!-- Trailer Modal -->
 <div id="trailerModal" class="trailer-modal">
@@ -1498,106 +1283,6 @@
     }
     resetHeroTimer();
 
-    // Modal
-    let currentMovie = null;
-    function fmtDuration(v) {
-        if (!v) return 'N/A';
-        v = String(v).trim();
-        if (/^\d+$/.test(v) && Number(v) > 200) {
-            const total = Math.max(0, parseInt(v, 10));
-            const h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60);
-            if (h > 0 && m > 0) return h + 'h ' + m + 'min';
-            if (h > 0) return h + 'h';
-            return m > 0 ? m + 'min' : total + 'sec';
-        }
-        return v;
-    }
-    function openMovieModal(movieId, title, poster, year, duration, genre, description, filePath) {
-        currentMovie = { id: movieId, title, poster, year, duration, genre, description, filePath };
-        document.getElementById('modalPoster').src = poster || '/images/posters/dummy-poster.png';
-        document.getElementById('modalTitle').innerText = title;
-        document.getElementById('modalYear').innerText = year || 'N/A';
-        document.getElementById('modalDuration').innerText = fmtDuration(duration);
-        document.getElementById('modalGenre').innerText = genre || 'General';
-        document.getElementById('modalDescription').innerText = description || 'No description available.';
-        updateButtons(filePath);
-        document.getElementById('movieModal').style.display = 'block';
-        document.body.style.overflow = 'hidden';
-    }
-    function updateButtons(filePath) {
-        const downloadBtn = document.getElementById('downloadBtn');
-        if (!filePath) return;
-        const file = filePath.toLowerCase();
-        if (file.endsWith('.avi')) {
-            downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download (AVI)';
-        } else {
-            downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download';
-        }
-    }
-    function closeModal() {
-        document.getElementById('movieModal').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-
-    // Download
-    document.getElementById('downloadBtn').addEventListener('click', function() {
-        if (currentMovie && currentMovie.id) {
-            const a = document.createElement('a');
-            a.href = '/download/movie/' + currentMovie.id;
-            a.download = currentMovie.title + '.mp4';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            closeModal();
-        } else {
-            alert('Download not available for this movie yet.');
-        }
-    });
-
-    // Card clicks - navigate to detail page
-    document.querySelectorAll('.movie-card').forEach(card => {
-        if (card.tagName === 'A') return;
-        card.addEventListener('click', function(e) {
-            const slug = this.getAttribute('data-slug');
-            if (slug) {
-                window.location.href = '/movies/' + slug;
-                return;
-            }
-            e.preventDefault();
-            openMovieModal(
-                this.getAttribute('data-id'), this.getAttribute('data-title'),
-                this.getAttribute('data-poster'), this.getAttribute('data-year'),
-                this.getAttribute('data-duration'), this.getAttribute('data-genre'),
-                this.getAttribute('data-description'),
-                this.getAttribute('data-file')
-            );
-        });
-    });
-
-    // Genre filter
-    const filterButtons = document.querySelectorAll('.genre-btn');
-    const movieCards = document.querySelectorAll('.movie-card:not(a)');
-    filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            this.classList.add('active');
-            const genre = this.getAttribute('data-genre');
-            movieCards.forEach(card => {
-                const movieGenre = card.getAttribute('data-genre');
-                if (genre === 'all' || movieGenre === genre) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        });
-    });
-
-    // Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') { closeModal(); closeTrailerModal(); }
-    });
-
     // Trailer modal
     function extractYouTubeId(url) {
         if (!url) return null;
@@ -1648,6 +1333,11 @@
         document.body.style.overflow = 'auto';
     }
 
+    // Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { closeTrailerModal(); }
+    });
+
     // Guest identity + favourites
     function csrfToken() {
         const m = document.querySelector('meta[name="csrf-token"]');
@@ -1696,44 +1386,6 @@
             }
         } catch (err) {}
     }
-
-    // Continue Watching for guests: rendered client-side from localStorage "mm_recent"
-    (function renderGuestContinueWatching() {
-        if (@json(Auth::check())) return;
-        const section = document.getElementById('continue-watching');
-        const grid = document.getElementById('continue-grid');
-        if (!section || !grid) return;
-        let recent = [];
-        try {
-            recent = JSON.parse(localStorage.getItem('mm_recent') || '[]');
-        } catch (e) {}
-        recent = (Array.isArray(recent) ? recent : [])
-            .filter(i => i && i.id && i.p && i.p > 5 && i.d && i.p < (i.d - 15))
-            .sort((a, b) => (b.ts || 0) - (a.ts || 0))
-            .slice(0, 6);
-        if (recent.length === 0) return;
-        grid.innerHTML = recent.map(function(it) {
-            const ratio = Math.max(0.05, Math.min(1, it.p / it.d));
-            const remaining = Math.max(0, it.d - it.p);
-            const mins = String(Math.floor(remaining / 60)).padStart(2, '0');
-            const secs = String(remaining % 60).padStart(2, '0');
-            const poster = it.poster || '/images/posters/dummy-poster.png';
-            const href = '/movies/' + (it.slug || it.id);
-            return '<a class="movie-card" href="' + href + '" title="' + (it.title || '').replace(/"/g, '&quot;') + '">' +
-                '<div class="card-img-wrap">' +
-                    '<img class="card-img" src="' + poster + '" alt="' + (it.title || '').replace(/"/g, '&quot;') + '" loading="lazy" onerror="this.onerror=null;this.src=\'/images/posters/dummy-poster.png\';">' +
-                    '<div class="card-overlay"><i class="fas fa-play"></i></div>' +
-                    '<span class="continue-pill">' + mins + ':' + secs + ' left</span>' +
-                    '<div class="continue-bar"><span style="width:' + (ratio * 100).toFixed(1) + '%"></span></div>' +
-                '</div>' +
-                '<div class="card-info">' +
-                    '<h4>' + (it.title || 'Movie').replace(/"/g, '&quot;') + '</h4>' +
-                    '<div class="meta"><span><i class="fas fa-calendar-alt"></i> ' + (it.year || 'N/A') + '</span><span><i class="fas fa-clock"></i> ' + fmtDuration(it.duration) + '</span></div>' +
-                '</div>' +
-            '</a>';
-        }).join('');
-        section.style.display = '';
-    })();
 </script>
 @include('partials.view-tracker')
 </body>

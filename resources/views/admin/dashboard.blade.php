@@ -5,36 +5,36 @@
 @section('content')
     <div class="stats-grid">
         <div class="stat-card">
-            <h3><i class="fas fa-film"></i> Total Movies</h3>
-            <div class="value">{{ $stats['movies'] }}</div>
+            <h3><i class="fas fa-clapperboard"></i> Total Trailers</h3>
+            <div class="value">{{ $stats['trailers'] }}</div>
         </div>
         <div class="stat-card">
-            <h3><i class="fas fa-tv"></i> TV Series</h3>
-            <div class="value">{{ $stats['series'] }}</div>
-        </div>
-        <div class="stat-card">
-            <h3><i class="fas fa-clapperboard"></i> Trailers</h3>
-            <div class="value">{{ $stats['trailers'] ?? 0 }}</div>
+            <h3><i class="fas fa-eye"></i> Active Trailers</h3>
+            <div class="value">{{ $stats['active_trailers'] }}</div>
         </div>
         <div class="stat-card">
             <h3><i class="fas fa-users"></i> Total Users</h3>
             <div class="value">{{ $stats['users'] }} <span>({{ $stats['system_users'] ?? 0 }} system)</span></div>
         </div>
         <div class="stat-card">
-            <h3><i class="fas fa-download"></i> Total Downloads</h3>
-            <div class="value">{{ number_format_short($stats['total_downloads']) }}</div>
+            <h3><i class="fas fa-play-circle"></i> Total Views</h3>
+            <div class="value">{{ number_format_short($stats['total_views']) }}</div>
+        </div>
+        <div class="stat-card">
+            <h3><i class="fas fa-heart"></i> Favorites</h3>
+            <div class="value">{{ number_format_short($stats['favorites']) }}</div>
         </div>
     </div>
 
     <div class="charts-grid">
         <div class="card">
-            <h3><i class="fas fa-chart-line"></i> Monthly Downloads Trend</h3>
+            <h3><i class="fas fa-chart-line"></i> Monthly Trailer Views Trend</h3>
             <div class="chart-container">
-                <canvas id="downloadsChart"></canvas>
+                <canvas id="viewsChart"></canvas>
             </div>
         </div>
         <div class="card">
-            <h3><i class="fas fa-chart-pie"></i> Content Distribution</h3>
+            <h3><i class="fas fa-chart-pie"></i> Trailer Activity</h3>
             <div class="chart-container">
                 <canvas id="contentChart"></canvas>
             </div>
@@ -44,20 +44,25 @@
     <div class="recent-section">
         <div class="card">
             <div class="flex-between">
-                <h3><i class="fas fa-clock"></i> Recently Added Movies</h3>
-                <a href="{{ route('admin.movies.create') }}" class="btn-primary btn-sm"><i class="fas fa-plus"></i> Add Movie</a>
+                <h3><i class="fas fa-clock"></i> Recently Added Trailers</h3>
+                <a href="{{ route('admin.trailers.create') }}" class="btn-primary btn-sm"><i class="fas fa-plus"></i> Add Trailer</a>
             </div>
             <div class="table-card">
                 <table class="data-table">
                     <thead>
-                        <tr><th>Title</th><th>Downloads</th><th>Added</th></tr>
+                        <tr><th>Title</th><th>Views</th><th>Status</th><th>Added</th></tr>
                     </thead>
                     <tbody>
-                        @foreach($recentMovies as $movie)
+                        @foreach($recentTrailers as $trailer)
                         <tr>
-                            <td>{{ $movie->title }}</td>
-                            <td>{{ number_format($movie->download_count) }}</td>
-                            <td>{{ $movie->created_at ? $movie->created_at->diffForHumans() : '—' }}</td>
+                            <td>{{ $trailer->title }}</td>
+                            <td>{{ number_format($trailer->views) }}</td>
+                            <td>
+                                <span style="background: {{ $trailer->is_active ? 'rgba(0,255,0,0.2)' : 'rgba(255,0,0,0.2)' }}; color: {{ $trailer->is_active ? '#0f0' : '#f00' }}; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem;">
+                                    {{ $trailer->is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </td>
+                            <td>{{ $trailer->created_at ? $trailer->created_at->diffForHumans() : '—' }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -66,18 +71,40 @@
         </div>
 
         <div class="card">
-            <h3><i class="fas fa-fire"></i> Top Downloads</h3>
+            <h3><i class="fas fa-fire"></i> Top Watched Trailers</h3>
             <div class="table-card">
                 <table class="data-table">
                     <thead>
-                        <tr><th>Title</th><th>Genre</th><th>Downloads</th></tr>
+                        <tr><th>Title</th><th>Views</th><th>Added</th></tr>
                     </thead>
                     <tbody>
-                        @foreach($topDownloads as $item)
+                        @foreach($topTrailers as $item)
                         <tr>
                             <td>{{ $item->title }}</td>
-                            <td>{{ $item->genre }}</td>
-                            <td>{{ number_format($item->download_count) }}</td>
+                            <td>{{ number_format($item->views) }}</td>
+                            <td>{{ $item->created_at ? $item->created_at->diffForHumans() : '—' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="recent-section">
+        <div class="card">
+            <h3><i class="fas fa-history"></i> Recently Watched (Last 5 Watches)</h3>
+            <div class="table-card">
+                <table class="data-table">
+                    <thead>
+                        <tr><th>Trailer</th><th>User</th><th>Watched At</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach($recentWatches as $watch)
+                        <tr>
+                            <td>{{ $watch->trailer?->title ?? '—' }}</td>
+                            <td>{{ $watch->user?->name ?? 'Guest' }}</td>
+                            <td>{{ optional($watch->watched_at)->diffForHumans() ?? '—' }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -90,14 +117,14 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx1 = document.getElementById('downloadsChart').getContext('2d');
+    const ctx1 = document.getElementById('viewsChart').getContext('2d');
     new Chart(ctx1, {
         type: 'line',
         data: {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
             datasets: [{
-                label: 'Downloads',
-                data: {!! json_encode($monthlyDownloads ?? array_fill(0, 12, rand(100, 500))) !!},
+                label: 'Trailer Views',
+                data: {!! json_encode($monthlyViews ?? array_fill(0, 12, 0)) !!},
                 borderColor: '#e31c25',
                 backgroundColor: 'rgba(227, 28, 37, 0.12)',
                 tension: 0.4,
@@ -123,10 +150,10 @@
     new Chart(ctx2, {
         type: 'doughnut',
         data: {
-            labels: ['Movies', 'TV Series', 'Episodes'],
+            labels: ['Active Trailers', 'Inactive Trailers'],
             datasets: [{
-                data: [{{ $stats['movies'] }}, {{ $stats['series'] }}, {{ $stats['episodes'] ?? 0 }}],
-                backgroundColor: ['#e31c25', '#b30610', '#7a0e15'],
+                data: [{{ $stats['active_trailers'] }}, {{ $stats['trailers'] - $stats['active_trailers'] }}],
+                backgroundColor: ['#e31c25', '#7a0e15'],
                 borderWidth: 0,
                 hoverOffset: 10
             }]
