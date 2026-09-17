@@ -212,6 +212,19 @@
             transition: transform 0.6s ease;
         }
         .fav-card:hover .fav-thumb img { transform: scale(1.08); }
+        .fav-thumb { position: relative; }
+        .fav-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 0.2rem 0.55rem;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            backdrop-filter: blur(4px);
+        }
         .fav-heart {
             position: absolute;
             top: 10px;
@@ -285,42 +298,75 @@
     @include('partials.navbar')
 
     <header class="page-header">
-        <h1>My Favorites</h1>
-        <p>Trailers you've saved for later.</p>
+        <h1>My List</h1>
+        <p>Your saved trailers and watch history.</p>
     </header>
 
-    @if($trailers->isEmpty())
+    @if($trailers->isEmpty() && ($continueWatching ?? collect())->isEmpty())
         <div class="section">
             <div class="empty-state">
                 <i class="fas fa-heart"></i>
-                <h3>No favorites yet</h3>
+                <h3>Your list is empty</h3>
                 <p>Tap the heart on any trailer to save it here.</p>
                 <a href="{{ route('trailers') }}"><i class="fas fa-video"></i> Browse Trailers</a>
             </div>
         </div>
     @else
-        <section class="section">
-            <div class="section-header">
-                <h2><i class="fas fa-video"></i> Favorite Trailers ({{ $trailers->count() }})</h2>
-            </div>
-            <div class="fav-grid">
-                @foreach($trailers as $trailer)
-                    <div class="fav-card" onclick="location.href='{{ route('trailers.show', $trailer->slug) }}'">
-                        <div class="fav-thumb">
-                            <button class="fav-heart" type="button" data-type="trailer" data-id="{{ $trailer->id }}" onclick="toggleFavorite(event,'trailer',{{ $trailer->id }},this)" title="Remove from favorites"><i class="fas fa-heart"></i></button>
-                            <img src="{{ $trailer->thumb_url }}" alt="{{ $trailer->title }}">
-                        </div>
-                        <div class="fav-info">
-                            <h4>{{ $trailer->title }}</h4>
-                            <div class="fav-meta">
-                                <span><i class="fas fa-calendar-alt"></i> {{ $trailer->created_at?->format('M Y') ?? 'N/A' }}</span>
-                                <span><i class="fas fa-eye"></i> {{ number_format($trailer->views) }} views</span>
+        @if(($continueWatching ?? collect())->count() > 0)
+            <section class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-history"></i> Continue Watching ({{ $continueWatching->count() }})</h2>
+                </div>
+                <div class="fav-grid">
+                    @foreach($continueWatching as $trailer)
+                        <div class="fav-card" onclick="location.href='{{ route('trailers.show', $trailer->slug) }}'">
+                            <div class="fav-thumb">
+                                <button class="fav-heart" type="button" data-type="trailer" data-id="{{ $trailer->id }}" onclick="toggleFavorite(event,'trailer',{{ $trailer->id }},this)" title="Remove from my list"><i class="fas fa-heart"></i></button>
+                                <img src="{{ $trailer->thumb_url }}" alt="{{ $trailer->title }}">
+                                @if($trailer->duration_label)
+                                    <span class="fav-duration">{{ $trailer->duration_label }}</span>
+                                @endif
+                            </div>
+                            <div class="fav-info">
+                                <h4>{{ $trailer->title }}</h4>
+                                <div class="fav-meta">
+                                    <span><i class="fas fa-tag"></i> {{ $trailer->type_display }}</span>
+                                    <span><i class="fas fa-eye"></i> {{ number_format($trailer->views) }} views</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
-            </div>
-        </section>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
+        @if($trailers->count() > 0)
+            <section class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-video"></i> Favorite Trailers ({{ $trailers->count() }})</h2>
+                </div>
+                <div class="fav-grid">
+                    @foreach($trailers as $trailer)
+                        <div class="fav-card" onclick="location.href='{{ route('trailers.show', $trailer->slug) }}'">
+                            <div class="fav-thumb">
+                                <button class="fav-heart" type="button" data-type="trailer" data-id="{{ $trailer->id }}" onclick="toggleFavorite(event,'trailer',{{ $trailer->id }},this)" title="Remove from my list"><i class="fas fa-heart"></i></button>
+                                <img src="{{ $trailer->thumb_url }}" alt="{{ $trailer->title }}">
+                                @if($trailer->duration_label)
+                                    <span class="fav-duration">{{ $trailer->duration_label }}</span>
+                                @endif
+                            </div>
+                            <div class="fav-info">
+                                <h4>{{ $trailer->title }}</h4>
+                                <div class="fav-meta">
+                                    <span><i class="fas fa-tag"></i> {{ $trailer->type_display }}</span>
+                                    <span><i class="fas fa-eye"></i> {{ number_format($trailer->views) }} views</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+        @endif
     @endif
 
     @include('partials.footer')

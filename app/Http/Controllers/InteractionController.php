@@ -6,6 +6,7 @@ use App\Models\Comment;
 use App\Models\Favorite;
 use App\Models\Reaction;
 use App\Models\Trailer;
+use App\Models\TrailerWatch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -220,6 +221,16 @@ class InteractionController extends Controller
             ->where('favoritable_type', Trailer::class)
             ->with('favoritable')->latest()->get()->pluck('favoritable')->filter();
 
-        return view('favorites', compact('trailers'));
+        $continueWatching = TrailerWatch::where('user_id', Auth::id())
+            ->with('trailer')
+            ->orderByDesc('watched_at')
+            ->get()
+            ->map(fn ($w) => $w->trailer)
+            ->filter(fn ($t) => $t && $t->is_active)
+            ->unique('id')
+            ->take(12)
+            ->values();
+
+        return view('favorites', compact('trailers', 'continueWatching'));
     }
 }
