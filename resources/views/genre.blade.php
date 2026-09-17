@@ -68,6 +68,28 @@
             border-radius: 30px;
             margin-top: 1rem;
         }
+        .genre-follow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 1rem;
+            padding: 0.45rem 1.2rem;
+            border-radius: 30px;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--glass-border);
+            transition: all 0.25s ease;
+        }
+        .genre-follow:hover { border-color: rgba(229, 9, 20, 0.55); }
+        .genre-follow.following {
+            color: var(--gold);
+            border-color: rgba(255, 210, 74, 0.45);
+            background: rgba(255, 210, 74, 0.1);
+        }
 
         .genre-container {
             max-width: 1500px;
@@ -179,7 +201,14 @@
     </div>
     <h1><span class="accent">{{ $label }}</span> Trailers</h1>
     <p>Fresh {{ $label }} trailers, teasers and TV spots — curated from around the world.</p>
-    <span class="count-tag"><i class="fas fa-film"></i> {{ $trailers->total() }} trailer{{ $trailers->total() == 1 ? '' : 's' }}</span>
+    <div style="display:flex; align-items:center; justify-content:center; gap:0.7rem; flex-wrap:wrap;">
+        <span class="count-tag"><i class="fas fa-film"></i> {{ $trailers->total() }} trailer{{ $trailers->total() == 1 ? '' : 's' }}</span>
+        <button type="button" class="genre-follow {{ ($following ?? false) ? 'following' : '' }}" id="genreFollowBtn"
+                data-genre="{{ $label }}" onclick="toggleGenreFollow(this)">
+            <i class="fas {{ ($following ?? false) ? 'fa-bell' : 'fa-bell-plus' }}"></i>
+            <span class="fl-label">{{ ($following ?? false) ? 'Following' : 'Follow Genre' }}</span>
+        </button>
+    </div>
 </div>
 
 <div class="genre-container">
@@ -240,5 +269,29 @@
 </div>
 
 @include('partials.footer')
+<script>
+    async function toggleGenreFollow(btn) {
+        const genre = encodeURIComponent(btn.dataset.genre);
+        const csrf = document.querySelector('meta[name="csrf-token"]').content;
+        const btnDisabled = btn.disabled;
+        btn.disabled = true;
+        try {
+            const res = await fetch('/genres/' + genre + '/follow', {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+            });
+            if (res.status === 403) {
+                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.href);
+                return;
+            }
+            const data = await res.json();
+            btn.classList.toggle('following', data.following);
+            btn.querySelector('.fl-label').textContent = data.following ? 'Following' : 'Follow Genre';
+            btn.querySelector('i').className = 'fas ' + (data.following ? 'fa-bell' : 'fa-bell-plus');
+        } finally {
+            btn.disabled = btnDisabled;
+        }
+    }
+</script>
 </body>
 </html>

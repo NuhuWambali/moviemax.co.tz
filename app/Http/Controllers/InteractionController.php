@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use App\Models\Favorite;
+use App\Models\GenreFollow;
+use App\Models\Notification;
 use App\Models\Reaction;
 use App\Models\Trailer;
 use App\Models\TrailerWatch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class InteractionController extends Controller
 {
@@ -160,6 +163,17 @@ class InteractionController extends Controller
             'body'              => trim((string) $request->body),
         ]));
 
+        // Notify the parent comment author when someone replies
+        if ($parent && $parent->user_id && $parent->user_id !== Auth::id()) {
+            Notification::push(
+                $parent->user_id,
+                'reply',
+                'New reply on "' . Str::limit($item->title, 60) . '"',
+                Str::limit(strip_tags($comment->body), 140),
+                route('trailers.show', $item->slug)
+            );
+        }
+
         $rootKey = $parent ? $parent->id : $comment->id;
 
         return response()->json([
@@ -232,5 +246,56 @@ class InteractionController extends Controller
             ->values();
 
         return view('favorites', compact('trailers', 'continueWatching'));
+    }
+
+    public function toggleGenreFollow(Request $request, string $genre)
+    {
+        if (!Auth::check()) {
+            abort(403, 'Please login to follow genres.');
+        }
+
+        $genre = \Illuminate\Support\Str::limit(trim($genre), 120);
+        if ($genre === '') {
+            return response()->json(['ok' => false], 422);
+        }
+
+        $existing = GenreFollow::where('user_id', Auth::id())->where('genre', $genre)->first();
+
+        if ($existing) {
+            $existing->delete();
+            return response()->json(['ok' => true, 'following' => false, 'message' => 'Unfollowed ' . $genre]);
+        }
+
+        GenreFollow::create(['user_id' => Auth::id(), 'genre' => $genre]);
+        return response()->json(['ok' => true, 'following' => true, 'message' => 'Following ' . $genre]);
+    }
+
+    public function notifications(Request $request)
+    {
+        if (!Auth::check()) return redirect('/login');
+
+        $notifications = Notification::where('user_id', Auth::id())
+            ->latest()
+            ->paginate(30);
+
+        $unread = $notifications->filter(fn ($n) => $n->read_at === null)->pluck('id');
+        if ($unread->count() > 0) {
+            Notification::whereIn('id', $unread->all())->update(['read_at' => now()]);
+        }
+
+        return view('notifications', compact('notifications'));
+    }
+
+    public function readAllNotifications()
+    {
+        if (!Auth::check()) return response()->json(['ok' => false], 403);
+        Notification::where('user_id', Auth::id())->unread()->update(['read_at' => now()]);
+        return response()->json(['ok' => true]);
+    }
+
+    public function unreadNotificationsCount()
+    {
+        if (!Auth::check()) return response()->json(['count' => 0]);
+        return response()->json(['count' => Notification::where('user_id', Auth::id())->unread()->count()]);
     }
 }

@@ -202,12 +202,17 @@ class TrailerController extends Controller
         $trailers = $query->latest()->paginate(15)->withQueryString();
         $trending = Trailer::where('is_active', true)->orderBy('views', 'desc')->take(6)->get();
 
+        $following = false;
+        if (auth()->check() && $label) {
+            $following = \App\Models\GenreFollow::isFollowing(auth()->id(), $label);
+        }
+
         if ($featured) {
             $trailersCollection = $trailers->getCollection()->reject(fn ($t) => $t->id === $featured->id);
             $trailers->setCollection($trailersCollection);
         }
 
-        return view('genre', compact('genre', 'trailers', 'featured', 'trending', 'label'));
+        return view('genre', compact('genre', 'trailers', 'featured', 'trending', 'label', 'following'));
     }
 
     public function show(Request $request, $slug)

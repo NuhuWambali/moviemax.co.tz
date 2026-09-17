@@ -113,6 +113,24 @@
         text-decoration: none;
         transition: all 0.3s ease;
     }
+    .nav-profile.nav-bell { position: relative; }
+    .bell-badge {
+        position: absolute;
+        top: -6px;
+        right: -4px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 20px;
+        background: var(--accent-red);
+        color: #fff;
+        font-size: 0.62rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 0 2px var(--bg-deep);
+    }
     .nav-profile::after { display: none; }
     .nav-profile:hover {
         border-color: rgba(229, 9, 20, 0.6);
@@ -532,6 +550,11 @@
                 <i class="fas fa-heart"></i>
                 Watchlist
             </a>
+            <a href="{{ route('notifications') }}" class="nav-profile nav-bell">
+                <i class="fas fa-bell"></i>
+                <span class="bell-badge" id="bellBadge" style="display:none;">0</span>
+                Notifications
+            </a>
             <a href="{{ route('profile') }}" class="nav-profile @if(auth()->user()->isSystemUser()){{ request()->is('admin/*') ? 'active' : '' }}@endif">
                 <i class="fas fa-user-circle"></i>
                 {{ explode(' ', auth()->user()->name)[0] }}
@@ -755,3 +778,26 @@
         window.closeSheet = closeSheet;
     }
 </script>
+@auth
+<script>
+    (function () {
+        const badge = document.getElementById('bellBadge');
+        if (!badge) return;
+        async function refreshUnread() {
+            try {
+                const res = await fetch('/notifications/unread-count', { headers: { 'Accept': 'application/json' } });
+                const data = await res.json();
+                const n = parseInt(data.count, 10) || 0;
+                if (n > 0) {
+                    badge.style.display = 'flex';
+                    badge.textContent = n > 99 ? '99+' : n;
+                } else {
+                    badge.style.display = 'none';
+                }
+            } catch (e) { /* ignore */ }
+        }
+        refreshUnread();
+        setInterval(refreshUnread, 60000);
+    })();
+</script>
+@endauth

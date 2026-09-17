@@ -51,6 +51,11 @@ Route::get('/about', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::post('/genres/{genre}/follow', [InteractionController::class, 'toggleGenreFollow'])->name('genres.follow');
+    Route::get('/notifications', [InteractionController::class, 'notifications'])->name('notifications');
+    Route::post('/notifications/read-all', [InteractionController::class, 'readAllNotifications'])->name('notifications.read-all');
+    Route::get('/notifications/unread-count', [InteractionController::class, 'unreadNotificationsCount'])->name('notifications.unread-count');
 });
 
 

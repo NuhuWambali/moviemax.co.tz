@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Trailer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TrailerController extends Controller
 {
@@ -51,7 +52,24 @@ class TrailerController extends Controller
 
         $data['created_by'] = auth()->id();
 
-        Trailer::create($data);
+        $trailer = Trailer::create($data);
+
+        if ($trailer->genre && $trailer->is_active) {
+            $followers = \App\Models\GenreFollow::where('genre', $trailer->genre)->pluck('user_id');
+            if ($followers->count() > 0) {
+                $now = now();
+                $rows = $followers->map(fn (int $userId) => [
+                    'user_id'    => $userId,
+                    'type'       => 'trailer',
+                    'title'      => 'New ' . $trailer->genre . ' trailer',
+                    'message'    => Str::limit($trailer->title, 90),
+                    'url'        => route('trailers.show', $trailer->slug),
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ])->all();
+                \App\Models\Notification::insert($rows);
+            }
+        }
 
         return redirect()->route('admin.trailers.index')
             ->with('success', 'Trailer "' . $data['title'] . '" added successfully!');
